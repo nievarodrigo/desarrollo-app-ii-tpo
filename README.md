@@ -3,6 +3,14 @@
 Trabajo Práctico Integrador: **e-commerce orientado a componentes y organizado en capas**,
 empaquetado como un único WAR desplegable en WildFly.
 
+## Entrega del Checkpoint 1
+
+- [Documento técnico de 4 páginas](Checkpoint_1_Ecommerce.pdf)
+- [Enlaces, evidencia y checklist reproducible](ENTREGA_CHECKPOINT_1.md)
+- [Prototipo editable del Catálogo](figma-checkpoint-1/README.md)
+- [Tablero Trello](https://trello.com/b/gbrISl9W/desarrollo-de-aplicaciones-2-tpo)
+- [Landing pública](https://landing-ecommerce-tau.vercel.app)
+
 ## Estado actual
 
 | Capa | Estado |
