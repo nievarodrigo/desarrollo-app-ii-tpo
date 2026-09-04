@@ -5,7 +5,8 @@ empaquetado como un único WAR desplegable en WildFly.
 
 ## Entrega del Checkpoint 1
 
-- [Documento técnico de 4 páginas](Checkpoint_1_Ecommerce.pdf)
+- [Documento simple de 4 páginas](Checkpoint_1_Ecommerce.pdf)
+- [Versión técnica de respaldo](Checkpoint_1_Ecommerce_Tecnico.pdf)
 - [Enlaces, evidencia y checklist reproducible](ENTREGA_CHECKPOINT_1.md)
 - [Prototipo editable del Catálogo](figma-checkpoint-1/README.md)
 - [Tablero Trello](https://trello.com/b/gbrISl9W/desarrollo-de-aplicaciones-2-tpo)
