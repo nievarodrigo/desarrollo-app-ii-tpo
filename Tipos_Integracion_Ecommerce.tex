@@ -1,0 +1,135 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{fancyhdr}
+
+\geometry{top=1.45cm,bottom=1.45cm,left=1.8cm,right=1.8cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setlist[itemize]{leftmargin=1.3em,itemsep=1pt,topsep=2pt}
+
+\definecolor{primary}{HTML}{173B57}
+\definecolor{accent}{HTML}{1976A3}
+\definecolor{soft}{HTML}{EAF4F8}
+\definecolor{risk}{HTML}{9A3E32}
+\definecolor{textgray}{HTML}{4A5560}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\color{textgray}Desarrollo de Aplicaciones II}
+\rhead{\small\color{textgray}TP Integrador — E-commerce}
+\cfoot{\small\color{textgray}\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\newcommand{\typebox}[4]{%
+  \vspace{1pt}
+  \noindent\colorbox{soft}{%
+    \parbox{0.965\linewidth}{%
+      \textbf{\color{primary}\large #1}\hfill\textbf{\color{accent}#2}\\[2pt]
+      #3\\[2pt]
+      \textbf{\color{risk}Riesgo principal:} #4
+    }%
+  }
+  \vspace{1pt}
+}
+
+\begin{document}
+
+\begin{center}
+  {\color{primary}\LARGE\bfseries Tipos de integración necesarios}\par
+  \vspace{2pt}
+  {\color{accent}\Large Trabajo Práctico Integrador — E-commerce}\par
+  \vspace{6pt}
+  {\color{textgray}\small Unidad IV · Integración de aplicaciones}
+\end{center}
+
+\vspace{1pt}
+\noindent\colorbox{primary}{%
+  \parbox{0.965\linewidth}{%
+    \color{white}\itshape
+    ``Elegir un tipo de integración es una decisión de diseño: se justifica con criterios como el acoplamiento, la latencia y la transaccionalidad, no por preferencia.''
+  }%
+}
+
+\section*{Punto de partida}
+
+El análisis realizado sobre \textbf{MediConecta} mostró que una solución real no siempre utiliza un único tipo de integración. Cada interacción debe clasificarse según la necesidad que resuelve y justificarse mediante criterios de diseño.
+
+Aplicando el mismo razonamiento a nuestro dominio, el e-commerce necesita una combinación de \textbf{integración de datos, procedural y por procesos}. Esta selección permite mantener consistente la información comercial, conectarse con sistemas externos y coordinar el ciclo completo de una compra.
+
+\section*{Decisión de diseño}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\bfseries\color{primary}}p{2.8cm} X X}
+  Tipo & Aplicación en el e-commerce & Criterio determinante \\
+  \hline
+  Datos & Productos, stock, pedidos y facturación comparten o sincronizan información del negocio. & Consistencia, disponibilidad inmediata y reducción de duplicaciones. \\
+  Procedural & Llamadas síncronas a un sistema legado mediante SOAP y a un partner moderno mediante REST. & Baja latencia: la respuesta es necesaria para continuar la compra. \\
+  Procesos & Coordinación asincrónica del pedido mediante una cola y un tópico de eventos. & Menor acoplamiento y coordinación de un flujo de varios pasos. \\
+\end{tabularx}
+
+\section*{Criterios considerados}
+
+\begin{itemize}
+  \item \textbf{Acoplamiento:} se acepta mayor dependencia en los datos internos, pero se busca desacoplar los procesos mediante mensajería.
+  \item \textbf{Latencia:} pagos y validaciones necesitan respuesta inmediata; notificaciones y tareas posteriores pueden procesarse de forma asincrónica.
+  \item \textbf{Naturaleza de los sistemas:} SOAP representa la conexión con un sistema legado y REST con un proveedor moderno.
+  \item \textbf{Transaccionalidad:} el flujo debe evitar inconsistencias como cobrar un pedido sin reservar stock o confirmar una compra incompleta.
+  \item \textbf{Quién inicia la interacción:} algunas acciones parten del usuario y otras de eventos internos como \texttt{PedidoPagado}.
+\end{itemize}
+
+\newpage
+
+\section*{1. Integración a nivel de datos}
+
+Los componentes de catálogo, stock, pedidos y facturación necesitan consultar información común o sincronizada. Por ejemplo, al crear un pedido se debe utilizar el precio vigente y verificar la disponibilidad del producto.
+
+\typebox{Datos}{Disponibilidad inmediata}{Se elige para evitar duplicaciones y mantener una visión consistente de productos, existencias y operaciones.}{Alto acoplamiento con el esquema: un cambio en tablas o relaciones puede afectar a varios componentes.}
+
+La base de datos también cumple una función de persistencia. Se hablará específicamente de \emph{integración de datos} cuando componentes o aplicaciones independientes compartan o sincronicen directamente esa información.
+
+\section*{2. Integración procedural}
+
+El e-commerce debe realizar llamadas directas y esperar una respuesta antes de continuar:
+
+\begin{itemize}
+  \item \textbf{SOAP:} consulta o reserva de stock en un proveedor o sistema legado, incluyendo su WSDL.
+  \item \textbf{REST:} autorización del pago mediante una pasarela moderna o consulta a un servicio de envíos.
+\end{itemize}
+
+\typebox{Procedural}{Respuesta en tiempo real}{Se elige porque la compra no debe confirmarse sin conocer el resultado de la validación, el stock o el pago.}{Acoplamiento temporal: si el servicio externo está caído o responde lentamente, la operación puede bloquearse o fallar.}
+
+\section*{3. Integración por procesos}
+
+Una compra atraviesa varios componentes y no todos los pasos necesitan ejecutarse dentro de una misma llamada síncrona:
+
+\begin{center}
+\fbox{\parbox{0.92\linewidth}{\centering
+\textbf{Confirmar pedido} $\rightarrow$ Procesar pago $\rightarrow$ Reservar stock $\rightarrow$ Generar factura $\rightarrow$ Preparar envío $\rightarrow$ Notificar
+}}
+\end{center}
+
+\begin{itemize}
+  \item \textbf{Cola punto a punto:} un mensaje \texttt{ProcesarPedido} será consumido por un único procesador.
+  \item \textbf{Tópico publicación/suscripción:} el evento \texttt{PedidoPagado} podrá ser recibido por notificaciones, facturación, stock y analítica.
+\end{itemize}
+
+\typebox{Procesos}{Orquestación asincrónica}{Se elige para coordinar el ciclo de compra con menor acoplamiento y permitir que varios componentes reaccionen a eventos.}{Mayor complejidad ante fallos parciales; se requieren reintentos, idempotencia y acciones compensatorias.}
+
+\section*{Conclusión}
+
+Nuestro TP no debe presentar una única integración aislada. La solución combina \textbf{Datos} para la consistencia de la información, \textbf{Procedural} para las interacciones síncronas SOAP/REST y \textbf{Procesos} para la mensajería mediante cola y tópico. La elección queda justificada por el nivel de acoplamiento aceptable, la latencia requerida y la necesidad de conservar la consistencia transaccional del flujo de compra.
+
+\vfill
+{\footnotesize\color{textgray}
+Documento elaborado a partir de los criterios de la Clase 4 y aplicado al dominio e-commerce del TP Integrador.}
+
+\end{document}

@@ -1,0 +1,384 @@
+{
+  "categorias": [
+    {
+      "id": 1,
+      "slug": "tecnologia",
+      "nombre": "Tecnología",
+      "bajada": "Equipos y periféricos para trabajar y jugar",
+      "icono": "chip"
+    },
+    {
+      "id": 2,
+      "slug": "audio",
+      "nombre": "Audio",
+      "bajada": "Sonido para escuchar de verdad",
+      "icono": "wave"
+    },
+    {
+      "id": 3,
+      "slug": "hogar",
+      "nombre": "Hogar",
+      "bajada": "Objetos que mejoran el día a día",
+      "icono": "home"
+    },
+    {
+      "id": 4,
+      "slug": "oficina",
+      "nombre": "Oficina",
+      "bajada": "Tu escritorio, como corresponde",
+      "icono": "desk"
+    },
+    {
+      "id": 5,
+      "slug": "deportes",
+      "nombre": "Deportes",
+      "bajada": "Entrenamiento dentro y fuera de casa",
+      "icono": "sport"
+    }
+  ],
+  "productos": [
+    {
+      "id": 1,
+      "sku": "AUD-001",
+      "nombre": "Auriculares Cancelación Activa",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 289900,
+      "precioAnterior": 349900,
+      "stock": 8,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Cancelación activa de ruido híbrida, 38 horas de batería y carga rápida USB-C. Diseñados para el subte y para la oficina abierta.",
+      "destacados": [
+        "38 h de batería",
+        "ANC híbrida",
+        "Bluetooth 5.3"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 214
+    },
+    {
+      "id": 2,
+      "sku": "TEC-002",
+      "nombre": "Notebook Pro 14\"",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 1849000,
+      "stock": 3,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "laptop",
+      "descripcion": "Pantalla de 14 pulgadas a 120 Hz, 16 GB de memoria unificada y 512 GB de almacenamiento. Silenciosa, liviana y lista para compilar.",
+      "destacados": [
+        "16 GB RAM",
+        "SSD 512 GB",
+        "Pantalla 120 Hz"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 96
+    },
+    {
+      "id": 3,
+      "sku": "TEC-005",
+      "nombre": "Teclado Mecánico Compacto",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 164500,
+      "stock": 21,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "keyboard",
+      "descripcion": "Formato 75 %, switches lineales lubricados de fábrica y estructura en aluminio. Conexión por cable, Bluetooth o receptor 2.4 GHz.",
+      "destacados": [
+        "Switches lineales",
+        "Aluminio",
+        "Triple conexión"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 341
+    },
+    {
+      "id": 4,
+      "sku": "HOG-004",
+      "nombre": "Lámpara de Escritorio Arco",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 118000,
+      "precioAnterior": 139000,
+      "stock": 12,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Luz cálida regulable en cinco temperaturas, brazo articulado de acero y base con carga inalámbrica integrada.",
+      "destacados": [
+        "5 temperaturas",
+        "Carga inalámbrica",
+        "Acero macizo"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 87
+    },
+    {
+      "id": 5,
+      "sku": "AUD-007",
+      "nombre": "Parlante Portátil Cobre",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 96500,
+      "stock": 0,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Resistencia IP67, 20 horas de autonomía y emparejamiento estéreo entre dos unidades. Suena mucho más grande de lo que mide.",
+      "destacados": [
+        "IP67",
+        "20 h",
+        "Estéreo dual"
+      ],
+      "etiquetas": [],
+      "resenias": 158
+    },
+    {
+      "id": 6,
+      "sku": "OFI-003",
+      "nombre": "Silla Ergonómica Malla",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 542000,
+      "stock": 5,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Respaldo en malla tensada, soporte lumbar ajustable en cuatro ejes y apoyabrazos 4D. Pensada para jornadas largas.",
+      "destacados": [
+        "Lumbar 4 ejes",
+        "Apoyabrazos 4D",
+        "10 años de garantía"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 63
+    },
+    {
+      "id": 7,
+      "sku": "HOG-011",
+      "nombre": "Cafetera de Filtro Signature",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 227400,
+      "stock": 9,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Control de temperatura al grado, ducha de agua de 360° y jarra térmica de doble pared. Café parejo, todos los días.",
+      "destacados": [
+        "Control al grado",
+        "Jarra térmica",
+        "1,2 L"
+      ],
+      "etiquetas": [],
+      "resenias": 129
+    },
+    {
+      "id": 8,
+      "sku": "DEP-002",
+      "nombre": "Mancuernas Ajustables 24 kg",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 398000,
+      "precioAnterior": 465000,
+      "stock": 4,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Un par que reemplaza quince. Cambio de carga en un giro, de 2 a 24 kg por mano, con base de apoyo incluida.",
+      "destacados": [
+        "2 a 24 kg",
+        "Cambio en 1 giro",
+        "Base incluida"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 74
+    },
+    {
+      "id": 9,
+      "sku": "TEC-014",
+      "nombre": "Monitor 27\" QHD",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 612000,
+      "stock": 7,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Panel IPS de 27 pulgadas, 2560 × 1440 a 165 Hz, cobertura sRGB del 99 % y un puerto USB-C que carga la notebook.",
+      "destacados": [
+        "QHD 165 Hz",
+        "USB-C 65 W",
+        "99 % sRGB"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 188
+    },
+    {
+      "id": 10,
+      "sku": "DEP-009",
+      "nombre": "Botella Térmica 750 ml",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 38900,
+      "stock": 34,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "bottle",
+      "descripcion": "Acero inoxidable de doble pared: 12 horas de frío o 6 de calor. Tapa a rosca con pico deportivo intercambiable.",
+      "destacados": [
+        "12 h de frío",
+        "Acero 18/8",
+        "Dos tapas"
+      ],
+      "etiquetas": [],
+      "resenias": 412
+    },
+    {
+      "id": 11,
+      "sku": "OFI-008",
+      "nombre": "Escritorio Regulable en Altura",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 874500,
+      "stock": 2,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Motor doble silencioso, cuatro alturas memorizadas y tapa de madera maciza de 140 × 70 cm. De sentado a parado en ocho segundos.",
+      "destacados": [
+        "Motor doble",
+        "4 memorias",
+        "Madera maciza"
+      ],
+      "etiquetas": [],
+      "resenias": 41
+    },
+    {
+      "id": 12,
+      "sku": "TEC-021",
+      "nombre": "Smartwatch Deportivo GPS",
+      "marca": "Pampa",
+      "categoria": "tecnologia",
+      "precio": 274000,
+      "stock": 0,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "GPS de doble banda, medición continua de oxígeno en sangre y catorce días de autonomía real con uso mixto.",
+      "destacados": [
+        "GPS doble banda",
+        "14 días",
+        "5 ATM"
+      ],
+      "etiquetas": [],
+      "resenias": 267
+    },
+    {
+      "id": 13,
+      "sku": "HOG-019",
+      "nombre": "Manta Tejida de Lana",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 87200,
+      "stock": 16,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "blanket",
+      "descripcion": "Lana merino tejida en telar en la Patagonia, 130 × 180 cm. Cada pieza lleva la firma del taller que la hizo.",
+      "destacados": [
+        "Lana merino",
+        "Telar patagónico",
+        "130 × 180 cm"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 92
+    },
+    {
+      "id": 14,
+      "sku": "AUD-012",
+      "nombre": "Micrófono de Condensador USB",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 152300,
+      "stock": 11,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Cápsula de 25 mm, cuatro patrones polares y monitoreo sin latencia. Plug and play para streaming, clases o podcast.",
+      "destacados": [
+        "4 patrones",
+        "Monitoreo directo",
+        "Trípode incluido"
+      ],
+      "etiquetas": [],
+      "resenias": 136
+    },
+    {
+      "id": 15,
+      "sku": "DEP-015",
+      "nombre": "Mochila Técnica 28 L",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 129900,
+      "stock": 6,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Cordura reciclada resistente al agua, compartimento acolchado para notebook de 16\" y espalda ventilada.",
+      "destacados": [
+        "Cordura reciclada",
+        "Notebook 16\"",
+        "Espalda ventilada"
+      ],
+      "etiquetas": [],
+      "resenias": 118
+    },
+    {
+      "id": 16,
+      "sku": "OFI-016",
+      "nombre": "Organizador de Escritorio Roble",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 64800,
+      "precioAnterior": 79900,
+      "stock": 19,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Roble macizo con terminación al aceite. Módulos para cables, anotadores y todo eso que siempre termina suelto.",
+      "destacados": [
+        "Roble macizo",
+        "Pasacables",
+        "Terminación al aceite"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 57
+    }
+  ]
+}

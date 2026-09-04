@@ -1,0 +1,81 @@
+CARGA RÁPIDA PARA TRELLO
+
+LISTAS:
+Información y decisiones
+Backlog priorizado
+Próxima entrega
+En curso
+Revisión cruzada
+Bloqueado
+Hecho
+
+INICIO — resolver esta semana → PRÓXIMA ENTREGA
+[INI-01] Aprobar dominio e-commerce
+[INI-02] Aprobar excepción de grupo de 5
+[INI-03] Confirmar fecha real de entrega final
+[INI-04] Validar Trello y acceso docente
+[INI-05] Crear repositorio, ramas y permisos
+[INI-06] Preparar JDK, Maven, WildFly y base
+[INI-07] Crear matriz de requisitos y registro IA
+[WEB-01] Crear landing real del e-commerce y desplegar
+
+ENTREGA PARCIAL 1 — 31/08 → PRÓXIMA ENTREGA
+[E1-01] Documentar 8 componentes e interfaces
+[E1-02] Dibujar arquitectura y dependencias
+[E1-03] Justificar stack Jakarta EE
+[E1-04] Crear proyecto Maven WAR desplegable
+[E1-05] Implementar ProductoRepository con JPA
+[E1-06] Implementar CatalogoService y Resource
+[E1-07] Conectar catálogo responsive al backend
+[E1-08] Justificar stateless y redactar 2–4 páginas
+
+ENTREGA OBLIGATORIA 1 — 14/09 → BACKLOG PRIORIZADO
+[E2-01] Completar Catálogo stateless y callbacks
+[E2-02] Implementar Carrito stateful
+[E2-03] Implementar Usuarios y autenticación
+[E2-04] Proteger dos operaciones por rol
+[E2-05] Implementar Pedidos y CheckoutFacade
+[E2-06] Integrar login, carrito y checkout
+[E2-07] Aplicar DAO, Facade y Strategy
+[E2-08] Pruebas, documento 5–8 páginas y defensa
+
+ENTREGA PARCIAL 2 — 19/10 → BACKLOG PRIORIZADO
+[E3-01] Dibujar arquitectura SOA
+[E3-02] Clasificar SOAP, REST, cola y tópico
+[E3-03] Configurar ActiveMQ Artemis y cola
+[E3-04] Implementar primer proceso asincrónico
+[E3-05] Crear prototipo navegable en Figma
+[E3-06] Escribir historias y casos de uso
+[E3-07] Crear manual de usuario
+[E3-08] Probar mensajería y preparar evidencia
+
+ENTREGA OBLIGATORIA 2 — 09/11 → BACKLOG PRIORIZADO
+[E4-01] Integrar pasarela moderna vía REST
+[E4-02] Integrar facturador legado vía SOAP
+[E4-03] Completar cola punto a punto
+[E4-04] Implementar tópico PedidoConfirmado
+[E4-05] Implementar checkout transaccional
+[E4-06] Completar Adapter SOAP/REST
+[E4-07] Integrar UI, estados y errores
+[E4-08] Pruebas, secuencias, documento y defensa
+
+ENTREGA FINAL — FECHA A CONFIRMAR → BACKLOG PRIORIZADO
+[FIN-01] Auditar checklist transversal
+[FIN-02] Ejecutar regresión y deploy desde cero
+[FIN-03] Consolidar documento final 10–15 páginas
+[FIN-04] Auditar Git, Trello y declaración IA
+[FIN-05] Preparar demo y contingencia
+[FIN-06] Ensayar defensa cruzada
+[EXTRA-01] Implementar temas normal, claro y oscuro
+[EXTRA-02] Crear ADR y resiliencia básica
+
+CHECKLIST ESTÁNDAR:
+Criterios de aceptación cumplidos
+Capas y dependencias correctas
+Pruebas/evidencia adjuntas
+Revisión cruzada aprobada
+Documentación actualizada
+Commit o PR enlazado
+Sin secretos hardcodeados
+Funciona en otra máquina
+Responsable y revisor pueden defenderlo

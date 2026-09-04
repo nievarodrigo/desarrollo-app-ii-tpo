@@ -1,0 +1,6 @@
+{
+  "disponible": false,
+  "origen": "estatico",
+  "version": "1.0.0",
+  "nota": "Publicación estática sin Jakarta EE: el front lee assets/data/catalogo.json. En WildFly esta misma ruta la responde SaludResource con disponible=true."
+}

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>ar.edu.desarrolloappii</groupId>
+  <artifactId>ecommerce</artifactId>
+  <version>1.0.0</version>
+  <packaging>war</packaging>
+
+  <name>TPO Store — e-commerce</name>
+  <description>
+    Trabajo Práctico Integrador de Desarrollo de Aplicaciones II.
+    E-commerce orientado a componentes, organizado en tres capas y empaquetado
+    como un único WAR desplegable en WildFly.
+  </description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- La consigna pide JDK 17+. Compilamos contra 17 para que el WAR corra
+         en cualquier JDK de 17 en adelante, aunque el entorno tenga 21. -->
+    <maven.compiler.release>17</maven.compiler.release>
+
+    <!-- Jakarta EE 10: es la versión que soporta la distribución
+         wildfly-41-ee10 que usamos para desplegar. -->
+    <version.jakartaee>10.0.0</version.jakartaee>
+    <version.junit>5.10.2</version.junit>
+    <version.war.plugin>3.4.0</version.war.plugin>
+    <version.surefire>3.2.5</version.surefire>
+  </properties>
+
+  <dependencies>
+    <!--
+      Una sola dependencia: la API completa de Jakarta EE.
+      Va en scope `provided` porque las implementaciones (CDI, JAX-RS, JSON-B,
+      EJB) las aporta WildFly. Empaquetarlas dentro del WAR provocaría
+      conflictos de clases con el servidor.
+    -->
+    <dependency>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-api</artifactId>
+      <version>${version.jakartaee}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- El WAR se llama ecommerce.war → context root /ecommerce -->
+    <finalName>ecommerce</finalName>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <!--
+        El catálogo semilla vive UNA sola vez, dentro de webapp, porque el front
+        lo sirve como archivo estático. Acá lo sumamos también al classpath para
+        que `CatalogoEnMemoria` lo lea desde el backend. Duplicar el archivo
+        garantizaría que las dos copias se desincronicen.
+      -->
+      <resource>
+        <directory>src/main/webapp/assets/data</directory>
+        <targetPath>datos</targetPath>
+        <includes>
+          <include>catalogo.json</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>${version.war.plugin}</version>
+        <configuration>
+          <!-- Jakarta EE 10 no necesita web.xml: JAX-RS se activa por
+               anotación (@ApplicationPath) y CDI por beans.xml. -->
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <!-- Artefactos del despliegue estático que no tienen por qué viajar
+               dentro del WAR. -->
+          <packagingExcludes>vercel.json,.vercel/**</packagingExcludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.surefire}</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="es-AR" data-tema="normal">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F2EDE4">
+  <meta name="description" content="TPO Store — tienda online de tecnología, audio, hogar, oficina y deportes. Envío gratis desde $150.000, 12 cuotas sin interés y cambios sin vueltas en toda la Argentina.">
+  <meta name="color-scheme" content="light dark">
+  <title>TPO Store — Tecnología, hogar y equipamiento con envío a todo el país</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..700&family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..800,0..100,0..1&display=swap">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <script>
+    /* Aplica el tema guardado antes de pintar para evitar el flash de tema. */
+    try {
+      var t = JSON.parse(localStorage.getItem('tpostore:tema'));
+      document.documentElement.dataset.tema = ['normal', 'claro', 'oscuro'].includes(t) ? t : 'normal';
+    } catch (e) {
+      document.documentElement.dataset.tema = 'normal';
+    }
+  </script>
+</head>
+<body>
+  <a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+
+  <div class="anuncio" role="region" aria-label="Anuncios de la tienda">
+    <div class="anuncio__pista">
+      <span class="anuncio__grupo" aria-hidden="false">
+        <span>Envío gratis desde $150.000</span><i></i>
+        <span>12 cuotas sin interés</span><i></i>
+        <span>Cambios sin cargo dentro de los 30 días</span><i></i>
+        <span>Retiro en sucursal en 24 h</span><i></i>
+      </span>
+      <span class="anuncio__grupo" aria-hidden="true">
+        <span>Envío gratis desde $150.000</span><i></i>
+        <span>12 cuotas sin interés</span><i></i>
+        <span>Cambios sin cargo dentro de los 30 días</span><i></i>
+        <span>Retiro en sucursal en 24 h</span><i></i>
+      </span>
+    </div>
+  </div>
+
+  <header class="cabecera" id="cabecera">
+    <div class="cabecera__barra contenedor">
+      <a class="marca" href="#inicio" aria-label="TPO Store, inicio">
+        <span class="marca__sello" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false"><path d="M6 24V8h8a5 5 0 0 1 0 10H6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
+        </span>
+        <span class="marca__texto">
+          <strong>TPO</strong><em>Store</em>
+        </span>
+      </a>
+
+      <nav class="navegacion" aria-label="Principal">
+        <ul>
+          <li><a href="#catalogo">Catálogo</a></li>
+          <li><a href="#categorias">Categorías</a></li>
+          <li><a href="#ofertas">Ofertas</a></li>
+          <li><a href="#beneficios">Beneficios</a></li>
+          <li><a href="#ayuda">Ayuda</a></li>
+        </ul>
+      </nav>
+
+      <form class="buscador buscador--cabecera" role="search" data-buscador>
+        <label class="visualmente-oculto" for="q-cabecera">Buscar productos</label>
+        <span class="buscador__lupa" aria-hidden="true">
+          <svg viewBox="0 0 20 20" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <input id="q-cabecera" type="search" name="q" placeholder="Buscar auriculares, monitores, sillas…" autocomplete="off" data-buscador-input>
+        <button class="buscador__limpiar" type="button" hidden data-buscador-limpiar aria-label="Limpiar búsqueda">
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m6 6 8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </form>
+
+      <div class="cabecera__acciones">
+        <div class="temas" role="radiogroup" aria-label="Tema visual" data-temas></div>
+
+        <div class="menu-cuenta" data-cuenta>
+          <button class="accion" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="panel-cuenta" data-cuenta-boton>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+            <span class="accion__texto">Cuenta</span>
+          </button>
+          <div class="menu-cuenta__panel" id="panel-cuenta" role="menu" hidden data-cuenta-panel>
+            <p class="menu-cuenta__saludo">Hola, invitado 👋</p>
+            <button role="menuitem" type="button" data-demo="ingresar">Ingresar</button>
+            <button role="menuitem" type="button" data-demo="registro">Crear cuenta</button>
+            <button role="menuitem" type="button" data-demo="pedidos">Mis pedidos</button>
+            <button role="menuitem" type="button" data-demo="favoritos">Favoritos</button>
+          </div>
+        </div>
+
+        <button class="accion accion--carrito" type="button" data-abrir-carrito aria-haspopup="dialog" aria-controls="carrito">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 4h2.2l2.3 11.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L21 8H6.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17.5" cy="20" r="1.5" fill="currentColor"/></svg>
+          <span class="accion__texto">Carrito</span>
+          <span class="insignia" data-carrito-contador hidden>0</span>
+        </button>
+
+        <button class="accion accion--menu" type="button" data-abrir-menu aria-expanded="false" aria-controls="menu-movil">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+          <span class="visualmente-oculto">Abrir menú</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-movil" id="menu-movil" hidden data-menu-movil>
+      <div class="contenedor">
+        <nav aria-label="Menú móvil">
+          <ul>
+            <li><a href="#catalogo">Catálogo</a></li>
+            <li><a href="#categorias">Categorías</a></li>
+            <li><a href="#ofertas">Ofertas</a></li>
+            <li><a href="#beneficios">Beneficios</a></li>
+            <li><a href="#ayuda">Ayuda</a></li>
+          </ul>
+        </nav>
+        <div class="menu-movil__extras">
+          <p class="menu-movil__titulo" id="etiqueta-tema-movil">Tema visual</p>
+          <div class="temas" role="radiogroup" aria-labelledby="etiqueta-tema-movil" data-temas></div>
+          <button class="boton boton--fantasma boton--ancho" type="button" data-demo="ingresar">Ingresar o crear cuenta</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <!-- ================================ HERO ================================ -->
+    <section class="hero" id="inicio">
+      <div class="contenedor hero__grilla">
+        <div class="hero__texto">
+          <p class="etiqueta-seccion">Temporada 2026 · Envíos a todo el país</p>
+          <h1 class="hero__titulo">
+            Cosas buenas,<br>
+            <em>elegidas</em> de a una.
+          </h1>
+          <p class="hero__bajada">
+            Curamos un catálogo corto y honesto: tecnología, audio, hogar, oficina y deportes.
+            Nada de listas infinitas — sólo lo que probaríamos en casa.
+          </p>
+          <div class="hero__acciones">
+            <a class="boton boton--primario boton--grande" href="#catalogo">Comprar ahora</a>
+            <a class="boton boton--fantasma boton--grande" href="#categorias">Ver categorías</a>
+          </div>
+          <dl class="hero__datos">
+            <div><dt>Envío gratis</dt><dd>desde $150.000</dd></div>
+            <div><dt>12 cuotas</dt><dd>sin interés</dd></div>
+            <div><dt>30 días</dt><dd>para cambios</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero__vitrina">
+          <figure class="vitrina__tarjeta vitrina__tarjeta--principal" data-hero-arte="1">
+            <figcaption>
+              <span class="vitrina__categoria">Audio</span>
+              <span class="vitrina__nombre">Auriculares ANC</span>
+              <span class="vitrina__precio" data-hero-precio="1"></span>
+            </figcaption>
+          </figure>
+          <figure class="vitrina__tarjeta vitrina__tarjeta--secundaria" data-hero-arte="9">
+            <figcaption>
+              <span class="vitrina__categoria">Tecnología</span>
+              <span class="vitrina__nombre">Monitor 27" QHD</span>
+              <span class="vitrina__precio" data-hero-precio="9"></span>
+            </figcaption>
+          </figure>
+          <p class="vitrina__sello" aria-hidden="true"><span>Envío<br>gratis</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CATEGORÍAS ============================= -->
+    <section class="seccion categorias" id="categorias" aria-labelledby="titulo-categorias">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <div>
+            <p class="etiqueta-seccion">Explorá</p>
+            <h2 id="titulo-categorias">Categorías destacadas</h2>
+          </div>
+          <p class="seccion__nota">Cinco rubros, un mismo criterio de selección.</p>
+        </header>
+        <ul class="categorias__grilla" data-categorias>
+          <li class="categoria-esqueleto" aria-hidden="true"></li>
+          <li class="categoria-esqueleto" aria-hidden="true"></li>
+          <li class="categoria-esqueleto" aria-hidden="true"></li>
+          <li class="categoria-esqueleto" aria-hidden="true"></li>
+          <li class="categoria-esqueleto" aria-hidden="true"></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================== CATÁLOGO ============================== -->
+    <section class="seccion catalogo" id="catalogo" aria-labelledby="titulo-catalogo">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <div>
+            <p class="etiqueta-seccion">El catálogo</p>
+            <h2 id="titulo-catalogo">Lo que tenemos hoy</h2>
+          </div>
+          <p class="seccion__nota" data-resultado-nota aria-live="polite"></p>
+        </header>
+
+        <div class="catalogo__cuerpo">
+          <button class="boton boton--fantasma catalogo__abrir-filtros" type="button" data-abrir-filtros aria-expanded="false" aria-controls="filtros">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 5h14M6 10h8M8.5 15h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Filtros
+          </button>
+
+          <form class="filtros" id="filtros" data-filtros>
+            <div class="filtros__bloque">
+              <h3 class="filtros__titulo">Buscar</h3>
+              <div class="buscador buscador--panel" role="search">
+                <label class="visualmente-oculto" for="q-panel">Buscar en el catálogo</label>
+                <span class="buscador__lupa" aria-hidden="true">
+                  <svg viewBox="0 0 20 20" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <input id="q-panel" type="search" name="q" placeholder="Nombre, marca o SKU" autocomplete="off" data-buscador-input>
+                <button class="buscador__limpiar" type="button" hidden data-buscador-limpiar aria-label="Limpiar búsqueda">
+                  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m6 6 8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <fieldset class="filtros__bloque">
+              <legend class="filtros__titulo">Categoría</legend>
+              <div class="filtros__opciones" data-filtro-categorias></div>
+            </fieldset>
+
+            <div class="filtros__bloque">
+              <h3 class="filtros__titulo">Precio máximo</h3>
+              <input type="range" id="precio-max" name="precioMax" data-filtro-precio>
+              <p class="filtros__valor">Hasta <output for="precio-max" data-filtro-precio-valor></output></p>
+            </div>
+
+            <div class="filtros__bloque">
+              <h3 class="filtros__titulo">Disponibilidad</h3>
+              <label class="interruptor">
+                <input type="checkbox" data-filtro-stock>
+                <span class="interruptor__pista" aria-hidden="true"><span class="interruptor__perilla"></span></span>
+                <span>Sólo con stock</span>
+              </label>
+            </div>
+
+            <div class="filtros__bloque">
+              <label class="filtros__titulo" for="orden">Ordenar por</label>
+              <select id="orden" data-filtro-orden>
+                <option value="relevancia">Relevancia</option>
+                <option value="precio-asc">Menor precio</option>
+                <option value="precio-desc">Mayor precio</option>
+                <option value="rating">Mejor puntuados</option>
+                <option value="nombre">Nombre (A–Z)</option>
+              </select>
+            </div>
+
+            <div class="filtros__pie">
+              <button class="boton boton--fantasma boton--ancho" type="button" data-limpiar-filtros>Limpiar filtros</button>
+              <button class="filtros__simular" type="button" data-simular-error>Simular error de red</button>
+            </div>
+          </form>
+
+          <div class="catalogo__resultados">
+            <div class="fichas-activas" data-fichas hidden></div>
+            <div class="grilla-productos" data-grilla aria-busy="true"></div>
+            <div class="estado" data-estado hidden></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================== OFERTAS ============================== -->
+    <section class="promo" id="ofertas" aria-labelledby="titulo-promo">
+      <div class="contenedor promo__grilla">
+        <div class="promo__texto">
+          <p class="etiqueta-seccion etiqueta-seccion--claro">Semana del escritorio</p>
+          <h2 id="titulo-promo">Hasta <em>25 %</em> en equipar tu lugar de trabajo</h2>
+          <p>
+            Sillas, escritorios regulables, monitores y organizadores seleccionados.
+            Del 21 al 28 de agosto, o hasta agotar el stock disponible.
+          </p>
+          <div class="promo__acciones">
+            <button class="boton boton--claro boton--grande" type="button" data-ir-a-ofertas>Ver productos en oferta</button>
+            <span class="promo__codigo">Código <strong>ESCRITORIO25</strong></span>
+          </div>
+        </div>
+        <ul class="promo__contador" data-contador aria-label="Tiempo restante de la promoción">
+          <li><strong data-contador-dias>00</strong><span>días</span></li>
+          <li><strong data-contador-horas>00</strong><span>horas</span></li>
+          <li><strong data-contador-minutos>00</strong><span>min</span></li>
+          <li><strong data-contador-segundos>00</strong><span>seg</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================= BENEFICIOS ============================= -->
+    <section class="seccion beneficios" id="beneficios" aria-labelledby="titulo-beneficios">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <div>
+            <p class="etiqueta-seccion">Por qué acá</p>
+            <h2 id="titulo-beneficios">Comprar sin letra chica</h2>
+          </div>
+        </header>
+        <ul class="beneficios__grilla">
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false"><path d="M3 21V9h15v12H3Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18 13h6l5 5v3h-11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="9" cy="23" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="23" cy="23" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </span>
+            <h3>Envío a todo el país</h3>
+            <p>Gratis desde $150.000. En CABA y GBA llega en 24–48 h; al interior, entre 3 y 5 días hábiles.</p>
+          </li>
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false"><path d="M16 3l11 4v9c0 7-4.6 11.4-11 13-6.4-1.6-11-6-11-13V7l11-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m11 16 3.5 3.5L21 13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h3>Pagos protegidos</h3>
+            <p>Tarjetas, transferencia y billeteras. Los datos viajan cifrados y no guardamos tu tarjeta.</p>
+          </li>
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false"><path d="M27 16a11 11 0 1 1-3.6-8.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M27 4v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h3>Cambios en 30 días</h3>
+            <p>Si no era lo que esperabas, lo cambiamos o devolvemos el dinero. Primer envío de cambio sin cargo.</p>
+          </li>
+          <li class="beneficio">
+            <span class="beneficio__icono" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false"><path d="M6 25V11a10 10 0 0 1 20 0v14" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="16" width="6" height="9" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="23" y="16" width="6" height="9" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M26 25v1a3 3 0 0 1-3 3h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <h3>Soporte que responde</h3>
+            <p>Personas reales de lunes a sábado, de 9 a 20 h. Escribinos por chat, mail o WhatsApp.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================ TESTIMONIOS ============================= -->
+    <section class="seccion testimonios" aria-labelledby="titulo-testimonios">
+      <div class="contenedor">
+        <header class="seccion__encabezado">
+          <div>
+            <p class="etiqueta-seccion">Clientes</p>
+            <h2 id="titulo-testimonios">Lo que nos dicen</h2>
+          </div>
+          <p class="seccion__nota">4,7 de 5 sobre 1.284 opiniones verificadas de compra.</p>
+        </header>
+        <ul class="testimonios__grilla">
+          <li class="testimonio">
+            <p class="testimonio__puntaje" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★</span></p>
+            <blockquote><p>“Pedí el monitor un martes y el jueves lo tenía en Rosario. Llegó impecable y con la factura adentro de la caja.”</p></blockquote>
+            <footer><strong>Julián M.</strong><span>Rosario · compró Monitor 27" QHD</span></footer>
+          </li>
+          <li class="testimonio">
+            <p class="testimonio__puntaje" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★</span></p>
+            <blockquote><p>“Me equivoqué con el talle de la mochila y el cambio fue por chat, sin discutir. Eso vale más que el descuento.”</p></blockquote>
+            <footer><strong>Carolina P.</strong><span>CABA · compró Mochila Técnica 28 L</span></footer>
+          </li>
+          <li class="testimonio">
+            <p class="testimonio__puntaje" aria-label="4 de 5 estrellas"><span aria-hidden="true">★★★★☆</span></p>
+            <blockquote><p>“La silla es tal cual la descripción. Tardó un día más de lo previsto, pero me avisaron antes de que preguntara.”</p></blockquote>
+            <footer><strong>Damián R.</strong><span>Córdoba · compró Silla Ergonómica Malla</span></footer>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================= NEWSLETTER ============================= -->
+    <section class="seccion newsletter" aria-labelledby="titulo-newsletter">
+      <div class="contenedor newsletter__caja">
+        <div class="newsletter__texto">
+          <h2 id="titulo-newsletter">Enterate antes que el resto</h2>
+          <p>Una sola vez por semana: reposiciones, bajas de precio reales y lo que entra al catálogo. Sin spam, y te podés dar de baja de un clic.</p>
+        </div>
+        <form class="newsletter__form" data-newsletter novalidate>
+          <div class="campo">
+            <label for="email-newsletter">Tu correo electrónico</label>
+            <input id="email-newsletter" name="email" type="email" inputmode="email" autocomplete="email" placeholder="nombre@correo.com" required aria-describedby="ayuda-newsletter">
+            <p class="campo__ayuda" id="ayuda-newsletter" data-newsletter-mensaje role="status"></p>
+          </div>
+          <button class="boton boton--primario" type="submit">Suscribirme</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- =============================== FOOTER ================================ -->
+  <footer class="pie" id="ayuda">
+    <div class="contenedor">
+      <div class="pie__grilla">
+        <div class="pie__marca">
+          <span class="marca marca--pie">
+            <span class="marca__sello" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false"><path d="M6 24V8h8a5 5 0 0 1 0 10H6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
+            </span>
+            <span class="marca__texto"><strong>TPO</strong><em>Store</em></span>
+          </span>
+          <p>Tienda online de tecnología, audio, hogar, oficina y deportes. Catálogo corto, criterio largo.</p>
+          <ul class="pie__redes">
+            <li><a href="#inicio" aria-label="Instagram de TPO Store"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg></a></li>
+            <li><a href="#inicio" aria-label="WhatsApp de TPO Store"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 20.5 5 16.4A8.2 8.2 0 1 1 8 19.3l-4.5 1.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.2c0 3 2.4 5.4 5.4 5.4l.9-1.6-2-1-.8.9a4.6 4.6 0 0 1-1.8-1.8l.9-.8-1-2-1.6.9Z" fill="currentColor"/></svg></a></li>
+            <li><a href="#inicio" aria-label="Canal de YouTube de TPO Store"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="5" width="19" height="14" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10.4 9 4.6 3-4.6 3V9Z" fill="currentColor"/></svg></a></li>
+          </ul>
+        </div>
+
+        <nav class="pie__columna" aria-labelledby="pie-tienda">
+          <h2 id="pie-tienda">Tienda</h2>
+          <ul>
+            <li><a href="#catalogo">Catálogo completo</a></li>
+            <li><a href="#categorias">Categorías</a></li>
+            <li><a href="#ofertas">Ofertas de la semana</a></li>
+            <li><a href="#catalogo">Novedades</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pie__columna" aria-labelledby="pie-ayuda">
+          <h2 id="pie-ayuda">Ayuda</h2>
+          <ul>
+            <li><a href="#beneficios">Envíos y plazos</a></li>
+            <li><a href="#beneficios">Cambios y devoluciones</a></li>
+            <li><a href="#beneficios">Medios de pago</a></li>
+            <li><a href="#beneficios">Preguntas frecuentes</a></li>
+          </ul>
+        </nav>
+
+        <div class="pie__columna">
+          <h2>Atención</h2>
+          <ul class="pie__contacto">
+            <li><a href="mailto:hola@tpostore.example">hola@tpostore.example</a></li>
+            <li>Lunes a sábado, 9 a 20 h</li>
+            <li>Av. Corrientes 1234, CABA</li>
+          </ul>
+          <p class="pie__pagos" aria-label="Medios de pago aceptados">
+            <span>Visa</span><span>Mastercard</span><span>Amex</span><span>Transferencia</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="pie__legal">
+        <p>© <span data-anio></span> TPO Store. Proyecto académico sin fines comerciales — Desarrollo de Aplicaciones II.</p>
+        <ul>
+          <li><a href="#inicio">Términos</a></li>
+          <li><a href="#inicio">Privacidad</a></li>
+          <li><a href="#inicio">Defensa del consumidor</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================ CARRITO LATERAL =========================== -->
+  <div class="velo" data-velo hidden></div>
+
+  <aside class="carrito" id="carrito" role="dialog" aria-modal="true" aria-labelledby="titulo-carrito" hidden data-carrito>
+    <header class="carrito__cabecera">
+      <h2 id="titulo-carrito">Tu carrito <span data-carrito-titulo-contador></span></h2>
+      <button class="icono-boton" type="button" data-cerrar-carrito aria-label="Cerrar el carrito">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div class="carrito__progreso" data-envio-progreso hidden>
+      <p data-envio-texto></p>
+      <div class="barra"><span data-envio-barra></span></div>
+    </div>
+
+    <div class="carrito__cuerpo" data-carrito-cuerpo tabindex="-1"></div>
+
+    <footer class="carrito__pie" data-carrito-pie hidden>
+      <dl class="carrito__totales">
+        <div><dt>Subtotal</dt><dd data-total-subtotal></dd></div>
+        <div><dt>Envío</dt><dd data-total-envio></dd></div>
+        <div class="carrito__total"><dt>Total</dt><dd data-total-final></dd></div>
+      </dl>
+      <p class="carrito__cuotas" data-total-cuotas></p>
+      <button class="boton boton--primario boton--ancho boton--grande" type="button" data-checkout>Confirmar compra</button>
+      <button class="carrito__vaciar" type="button" data-vaciar>Vaciar carrito</button>
+      <p class="carrito__aviso">El total definitivo se recalcula en el servidor al confirmar el pedido.</p>
+    </footer>
+  </aside>
+
+  <!-- ========================= DETALLE DE PRODUCTO ========================== -->
+  <div class="modal" id="modal-producto" role="dialog" aria-modal="true" aria-labelledby="modal-titulo" hidden data-modal>
+    <div class="modal__caja" data-modal-caja tabindex="-1"></div>
+  </div>
+
+  <!-- ================================ AVISOS =============================== -->
+  <div class="avisos" data-avisos role="status" aria-live="polite"></div>
+
+  <!-- Definiciones SVG compartidas: una sola vez por documento. -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <filter id="granoFiltro">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+      <pattern id="grano" width="320" height="240" patternUnits="userSpaceOnUse">
+        <rect width="320" height="240" filter="url(#granoFiltro)" opacity="0.16"/>
+      </pattern>
+    </defs>
+  </svg>
+
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Al sitio estático sólo le sirve src/main/webapp; el resto no tiene por qué subir.
+target/
+src/main/java/
+src/test/
+mockup-web/
+scripts/
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml
+*.docx
+*.pdf
+*.tex

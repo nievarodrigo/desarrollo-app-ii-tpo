@@ -1,0 +1,609 @@
+% =============================================================================
+%  TRABAJO PRÁCTICO INTEGRADOR · DOCUMENTO DE ALCANCE
+%  TPO Store — e-commerce por capas orientado a componentes
+%
+%  Compilar con:  xelatex Alcance_TPO_Ecommerce.tex   (dos pasadas)
+%  Requiere las tipografías Inter, Inter Display y JetBrains Mono.
+%  Comparte el sistema visual de TP_Primera_Parte_Ecommerce.tex
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,left=1.8cm,right=1.8cm,top=2.35cm,bottom=1.9cm,
+            headheight=15pt,headsep=8mm,footskip=11mm]{geometry}
+\usepackage{fontspec}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,shapes.geometric}
+\usepackage[most]{tcolorbox}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+% ------------------------------------------------------------------ TIPOGRAFÍA
+\setmainfont{Inter}[
+  Path       = /usr/share/fonts/opentype/inter/,
+  Extension  = .otf,
+  UprightFont     = Inter-Regular,
+  ItalicFont      = Inter-Italic,
+  BoldFont        = Inter-SemiBold,
+  BoldItalicFont  = Inter-SemiBoldItalic,
+  Numbers    = Lining
+]
+\newfontfamily\displayfont{InterDisplay}[
+  Path       = /usr/share/fonts/opentype/inter/,
+  Extension  = .otf,
+  UprightFont     = InterDisplay-Regular,
+  ItalicFont      = InterDisplay-Italic,
+  BoldFont        = InterDisplay-Bold,
+  BoldItalicFont  = InterDisplay-BoldItalic
+]
+\newfontfamily\lightfont{Inter}[
+  Path = /usr/share/fonts/opentype/inter/, Extension = .otf,
+  UprightFont = Inter-Light, BoldFont = Inter-Medium
+]
+\setmonofont{JetBrainsMono}[
+  Path       = /usr/share/fonts/truetype/jetbrains-mono/,
+  Extension  = .ttf,
+  UprightFont     = JetBrainsMono-Regular,
+  ItalicFont      = JetBrainsMono-Italic,
+  BoldFont        = JetBrainsMono-Bold,
+  Scale      = 0.86
+]
+\newcommand{\track}[2]{{\addfontfeature{LetterSpace=#1}#2}}
+
+% ---------------------------------------------------------------------- COLORES
+\definecolor{navy}{HTML}{16243F}
+\definecolor{steel}{HTML}{2C4A73}
+\definecolor{brand}{HTML}{2A7BA8}
+\definecolor{sky}{HTML}{6FB9D6}
+\definecolor{pale}{HTML}{EAF4FA}
+\definecolor{amber}{HTML}{E9A02B}
+\definecolor{amberdk}{HTML}{A96F16}
+\definecolor{ink}{HTML}{1E2A3C}
+\definecolor{muted}{HTML}{6B7C93}
+\definecolor{rule}{HTML}{D9E2EC}
+\definecolor{surface}{HTML}{F4F7FA}
+\definecolor{ok}{HTML}{2E7D5B}
+\definecolor{no}{HTML}{AF4A40}
+
+\hypersetup{colorlinks=true,linkcolor=brand,urlcolor=brand}
+
+% Glifos dibujados: independientes de las fuentes matemáticas
+\newcommand{\arr}{\,\tikz[baseline=-0.52ex,x=1ex,y=1ex]{%
+  \draw[-{Latex[length=1.05ex,width=0.85ex]},line width=0.17ex,draw=amber]
+        (0,0) -- (2.0,0);}\,}
+\newcommand{\arrs}{\,\tikz[baseline=-0.52ex,x=1ex,y=1ex]{%
+  \draw[-{Latex[length=0.95ex,width=0.75ex]},line width=0.15ex,draw=steel]
+        (0,0) -- (1.7,0);}\,}
+\newcommand{\tick}{\tikz[baseline=-0.35ex,x=1ex,y=1ex]{%
+  \draw[ok,line width=0.24ex,line cap=round,line join=round]
+        (0,0.55) -- (0.62,-0.12) -- (1.8,1.3);}}
+\newcommand{\cross}{\tikz[baseline=-0.35ex,x=1ex,y=1ex]{%
+  \draw[no,line width=0.24ex,line cap=round]
+        (0,0) -- (1.4,1.4) (0,1.4) -- (1.4,0);}}
+
+% Píldora de estado, para el semáforo de avance
+\newcommand{\pill}[2]{\tikz[baseline=(p.base)]{%
+  \node[fill=#1!13,text=#1,rounded corners=1.7pt,inner xsep=3.6pt,inner ysep=1.7pt,
+        font=\scriptsize\bfseries] (p) {#2};}}
+
+% ---------------------------------------------------------------------- AJUSTES
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[itemize]{leftmargin=4.5mm,itemsep=2.5pt,topsep=3pt,
+                  label=\textcolor{sky}{\rule[1pt]{3pt}{3pt}}}
+\setlist[enumerate]{leftmargin=6.5mm,itemsep=2.5pt,topsep=3pt,font=\bfseries\color{brand}}
+\color{ink}
+\arrayrulecolor{rule}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\renewcommand\tabularxcolumn[1]{m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{M}[1]{>{\raggedright\arraybackslash\ttfamily\color{steel}}m{#1}}
+\newcolumntype{N}[1]{>{\raggedright\arraybackslash\bfseries\color{navy}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcommand{\thd}[1]{\normalfont\footnotesize\bfseries\color{muted}\track{6}{#1}}
+\newcommand{\idc}[1]{{\ttfamily\bfseries\color{brand}#1}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize\color{muted}\track{6}{DESARROLLO DE APLICACIONES II}%
+       \ \ \textcolor{sky}{|}\ \ Documento de alcance}
+\rhead{\footnotesize\color{muted}TPO Store · v1.0}
+\cfoot{\footnotesize\color{muted}\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{rule}\leaders\hrule height \headrulewidth\hfill}}
+
+% -------------------------------------------------------------- TÍTULOS Y CAJAS
+\newcommand{\sectiontitle}[2]{%
+  \vspace{0.5mm}
+  {\footnotesize\bfseries\color{amberdk}\track{9}{#1}}\par\vspace{1.4mm}
+  {\displayfont\fontsize{20}{23}\selectfont\bfseries\color{navy}#2}\par
+  \vspace{2.2mm}\textcolor{rule}{\rule{\linewidth}{0.8pt}}\vspace{0.5mm}
+}
+\newcommand{\blocktitle}[1]{%
+  \vspace{1.2mm}{\displayfont\normalsize\bfseries\color{navy}#1}\par\vspace{-1.5mm}
+}
+
+\newtcolorbox{callout}[1][]{
+  enhanced, colback=navy, colframe=navy, coltext=white, boxrule=0pt,
+  arc=2.2mm, left=5mm, right=5mm, top=3.4mm, bottom=3.4mm,
+  borderline west={2.4pt}{0pt}{amber}, #1}
+\newtcolorbox{softbox}[1][]{
+  enhanced, colback=pale, colframe=sky!55, boxrule=0.6pt, arc=2.2mm,
+  left=4mm, right=4mm, top=3mm, bottom=3mm, #1}
+\newtcolorbox{whitebox}[1][]{
+  enhanced, colback=white, colframe=rule, boxrule=0.6pt, arc=2.2mm,
+  left=4mm, right=4mm, top=3mm, bottom=3mm, #1}
+\newtcolorbox{listbox}[2][]{
+  enhanced, colback=white, colframe=#2, boxrule=0.7pt, arc=2.2mm,
+  left=4mm, right=4mm, top=2.4mm, bottom=2.8mm,
+  title=#1, fonttitle=\footnotesize\bfseries, coltitle=white, colbacktitle=#2,
+  attach boxed title to top left={xshift=3mm,yshift=-2.2mm},
+  boxed title style={boxrule=0pt,arc=1.2mm,left=2.5mm,right=2.5mm,top=0.8mm,bottom=0.8mm}}
+
+\begin{document}
+
+% =============================================================================
+% PORTADA
+% =============================================================================
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[navy] (current page.north west) rectangle ([yshift=-12.6cm]current page.north east);
+  % motivo: perímetro cerrado — la metáfora del alcance
+  \begin{scope}[shift={([xshift=-2.9cm,yshift=-6.5cm]current page.north east)}]
+    \draw[white,opacity=0.28,line width=1pt,rounded corners=3pt] (-2.0,-1.15) rectangle (2.0,1.15);
+    \foreach \i in {0,1,2}{
+      \fill[white,opacity=0.16,rounded corners=2pt] (-1.6,0.55-0.62*\i) rectangle ++(2.1,0.34);
+    }
+    \draw[amber,line width=1pt] (2.0,1.15) -- ++(0.55,0.55);
+    \fill[amber] (2.62,1.77) circle (0.09);
+  \end{scope}
+  % filetes de marca
+  \fill[amber]  ([xshift=1.8cm,yshift=-1.7cm]current page.north west) rectangle ++(1.35cm,0.12cm);
+  \fill[sky]    ([xshift=3.35cm,yshift=-1.7cm]current page.north west) rectangle ++(0.4cm,0.12cm);
+\end{tikzpicture}
+
+\vspace*{1.75cm}
+{\footnotesize\bfseries\color{amber}\track{14}{TRABAJO PRÁCTICO INTEGRADOR · DOCUMENTO DE ALCANCE}}\par
+\vspace{9mm}
+{\displayfont\fontsize{35}{40}\selectfont\bfseries\color{white}
+Alcance del\\proyecto TPO Store}\par
+\vspace{7mm}
+{\lightfont\Large\color{sky}Qué construimos, qué dejamos afuera\\y cómo se verifica cada compromiso}\par
+
+\vspace{4.7cm}
+
+{\displayfont\bfseries\color{navy}\large TPO Store}\par
+\vspace{-2.5mm}
+{\color{muted}\small Plataforma de comercio electrónico · delimitación funcional y contractual}\par
+\vspace{3mm}
+\textcolor{rule}{\rule{\linewidth}{0.8pt}}
+\vspace{1mm}
+
+{\small
+\begin{tabularx}{\linewidth}{@{}>{\footnotesize\bfseries\color{muted}}m{2.55cm}X
+                              @{\hspace{7mm}}>{\footnotesize\bfseries\color{muted}}m{2.75cm}X@{}}
+MATERIA   & Desarrollo de Aplicaciones II                     & VERSIÓN   & 1.0 · 04/09/2026 \\
+DOCUMENTO & Alcance del proyecto                              & PLATAFORMA & Jakarta EE sobre WildFly \\
+GRUPO     & Rodrigo, Nicolás, Tomás, Iván y Fol               & ENTREGA FINAL & 30/11/2026 \\
+\end{tabularx}}
+
+\vspace{7mm}
+{\footnotesize\bfseries\color{muted}\track{9}{CONTENIDO DEL DOCUMENTO}}\par
+\vspace{2mm}
+{\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{amber}}m{7mm}X @{\hspace{7mm}}>{\bfseries\color{amber}}m{7mm}X@{}}
+01 & Problema, objetivo y actores      & 04 & Supuestos y restricciones \\
+02 & Alcance funcional comprometido    & 05 & Estado real de avance \\
+03 & Fuera de alcance                  & 06 & Entregables y criterios de aceptación \\
+\end{tabularx}}
+
+\newpage
+
+% =============================================================================
+% 01 · PROBLEMA, OBJETIVO Y ACTORES
+% =============================================================================
+\sectiontitle{01 · PROBLEMA, OBJETIVO Y ACTORES}{Por qué existe el proyecto y para quién}
+
+\blocktitle{Contexto}
+
+Una tienda que vende en línea necesita que un cliente pueda encontrar un producto, reunir varios
+en un carrito y cerrar la compra con validación de existencias, todo sin que las reglas de negocio
+queden mezcladas con la pantalla ni con el acceso a datos. Ese problema —simple de enunciar,
+exigente de estructurar— es el que TPO Store resuelve.
+
+El propósito académico no es competir con una plataforma comercial: es demostrar programación
+orientada a componentes, arquitectura en capas, contratos explícitos, patrones justificados,
+persistencia, integración sincrónica y asincrónica, y una defensa oral sostenible.
+
+\vspace{1mm}
+\begin{callout}
+\textbf{Objetivo del proyecto.} Construir una aplicación de comercio electrónico desplegable como
+un único WAR en WildFly, organizada por componentes de negocio y separada en tres capas, en la que
+cada caso de uso pueda recorrerse y explicarse de punta a punta sin mezclar responsabilidades.
+\end{callout}
+
+\vspace{2mm}
+\begin{minipage}[t]{0.485\linewidth}
+\begin{listbox}[Cliente]{brand}
+\begin{itemize}
+  \item Registrarse e iniciar sesión.
+  \item Explorar, buscar y filtrar productos.
+  \item Consultar detalle, precio y stock.
+  \item Agregar, modificar o quitar ítems del carrito.
+  \item Confirmar una compra.
+  \item Consultar sus pedidos y estados.
+\end{itemize}
+\end{listbox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\linewidth}
+\begin{listbox}[Administrador]{steel}
+\begin{itemize}
+  \item Crear y editar productos.
+  \item Activar o desactivar publicaciones.
+  \item Actualizar existencias.
+  \item Consultar pedidos y sus estados.
+  \item Revisar operaciones de pago rechazadas.
+\end{itemize}
+\end{listbox}
+\end{minipage}
+
+\vspace{4mm}
+\blocktitle{Cómo leer este documento}
+
+El alcance es un compromiso, no una lista de deseos. Cada punto de la sección 02 está redactado
+para poder demostrarse en vivo sobre el WAR desplegado; cada exclusión de la sección 03 lleva su
+motivo. Lo que no figura en la sección 02 no forma parte del proyecto y su incorporación exige
+revisar este documento y emitir una versión nueva.
+
+\vfill
+{\footnotesize\color{muted}\textbf{Regla de redacción:} si un ítem del alcance no puede mostrarse
+en la demo, no pertenece al alcance — pertenece a la intención.}
+
+\newpage
+
+% =============================================================================
+% 02 · ALCANCE FUNCIONAL
+% =============================================================================
+\sectiontitle{02 · ALCANCE FUNCIONAL COMPROMETIDO}{Lo que el sistema SÍ hace}
+
+Siete bloques funcionales, cada uno asociado a los componentes que lo realizan y a la evidencia
+que lo da por cumplido.
+
+\vspace{1mm}
+{\footnotesize
+\rowcolors{2}{surface}{white}
+\begin{tabularx}{\linewidth}{C{1.2cm} N{2.6cm} X M{3.5cm}}
+\toprule
+\thd{ID} & \thd{BLOQUE} & \thd{COMPROMISO VERIFICABLE} & \thd{COMPONENTES} \\
+\midrule
+\idc{A-01} & Catálogo &
+  Listar productos, buscarlos por nombre, filtrarlos por categoría y rango de precio, y consultar
+  el detalle con precio y existencias. &
+  Catálogo \\
+\idc{A-02} & Usuarios y acceso &
+  Registrar un cliente, iniciar sesión y aplicar autorización declarativa por rol sobre al menos
+  dos operaciones sensibles. &
+  Usuario \\
+\idc{A-03} & Carrito &
+  Agregar, modificar y eliminar ítems; subtotal y total calculados en el servidor; estado
+  conversacional por sesión. &
+  Carrito \\
+\idc{A-04} & Checkout y pago &
+  Validar existencias, descontar inventario, simular aprobación o rechazo del pago y coordinar el
+  flujo bajo transacción declarativa. &
+  Checkout, Pago, Inventario \\
+\idc{A-05} & Pedido &
+  Persistir el pedido con sus estados y exponer el historial por usuario. &
+  Pedido \\
+\idc{A-06} & Notificación &
+  Emitir un aviso asincrónico posterior a la confirmación del pedido, desacoplado del checkout. &
+  Notificación \\
+\idc{A-07} & Administración &
+  Alta, edición y activación o baja de productos, y actualización de existencias, restringidas al
+  rol administrador. &
+  Catálogo, Inventario, Usuario \\
+\bottomrule
+\end{tabularx}}
+\rowcolors{1}{}{}
+
+\vspace{4mm}
+\blocktitle{Alcance técnico transversal}
+
+Estos compromisos no son funcionalidades visibles, pero son parte del alcance porque el proyecto
+se evalúa por cómo está construido, no sólo por lo que hace.
+
+\vspace{1mm}
+\begin{minipage}[t]{0.485\linewidth}
+\begin{whitebox}
+\begin{itemize}
+  \item Separación estricta en capas presentación, negocio y datos.
+  \item Componentes con interfaz publicada e implementación oculta.
+  \item Inyección de dependencias mediante CDI y EJB.
+  \item Persistencia con JPA sobre un repositorio intercambiable.
+\end{itemize}
+\end{whitebox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\linewidth}
+\begin{whitebox}
+\begin{itemize}
+  \item Servicios REST con JAX-RS y, donde la consigna lo exija, SOAP.
+  \item Mensajería asincrónica con JMS: al menos una cola y un tópico.
+  \item Patrones de diseño aplicados con justificación escrita.
+  \item Pruebas unitarias sobre la capa de negocio.
+\end{itemize}
+\end{whitebox}
+\end{minipage}
+
+\vspace{4mm}
+\begin{softbox}
+\textbf{Trazabilidad.} Los siete bloques cubren las diez funcionalidades del MVP enunciadas en
+\texttt{MOCKUP\_TPO.md} §2 y las seis del alcance funcional mínimo del documento de arquitectura.
+La agrupación por componente evita duplicar compromisos y permite asignar responsables sin
+solapamientos.
+\end{softbox}
+
+\newpage
+
+% =============================================================================
+% 03 · FUERA DE ALCANCE
+% =============================================================================
+\sectiontitle{03 · FUERA DE ALCANCE}{Lo que el sistema NO hace, y por qué}
+
+Esta es la sección que convierte una intención en un alcance. Cada exclusión es deliberada:
+no responde a falta de tiempo sino a que incorporarla desplazaría el esfuerzo desde los
+contenidos de la materia hacia complejidad comercial que no se evalúa.
+
+\vspace{1mm}
+{\footnotesize
+\rowcolors{2}{surface}{white}
+\begin{tabularx}{\linewidth}{C{0.9cm} N{4.1cm} X}
+\toprule
+\thd{} & \thd{QUEDA AFUERA} & \thd{MOTIVO DE LA EXCLUSIÓN} \\
+\midrule
+\cross & Pagos reales &
+  La pasarela se simula tras una interfaz \texttt{PasarelaPago}. Integrar un proveedor real aporta
+  trámite y credenciales, no aprendizaje arquitectónico; el punto de extensión queda demostrado. \\
+\cross & Facturación fiscal &
+  Exige normativa impositiva y homologación externas al temario. \\
+\cross & Logística y tracking &
+  Depende de operadores reales; el pedido modela estados propios, suficientes para el flujo. \\
+\cross & Múltiples vendedores &
+  Un marketplace multiplica reglas de negocio y particiona los datos sin agregar ningún concepto
+  nuevo de componentes ni de capas. \\
+\cross & Promociones y descuentos complejos &
+  Motor de reglas de negocio propio; desvía el foco del recorrido entre capas. \\
+\cross & Microservicios independientes &
+  La consigna pide un único WAR desplegable. La modularidad se demuestra por componentes dentro
+  del despliegue, no por distribución en red. \\
+\cross & Infraestructura cloud y alta disponibilidad &
+  El entorno de evaluación es WildFly local. La landing publicada es material de apoyo, no parte
+  del sistema evaluado. \\
+\cross & Aplicación móvil nativa &
+  La interfaz web responsive cubre el requisito de presentación. \\
+\bottomrule
+\end{tabularx}}
+\rowcolors{1}{}{}
+
+\vspace{4mm}
+\begin{callout}
+\textbf{Cláusula de cambio.} Toda funcionalidad no enumerada en la sección 02 se considera fuera
+de alcance. Incorporarla requiere acuerdo del grupo, evaluación de impacto sobre el cronograma y
+una versión nueva de este documento. Sin ese paso, no se implementa.
+\end{callout}
+
+\vspace{3mm}
+\blocktitle{Evolución futura}
+
+Las exclusiones no son un juicio sobre su valor: son un recorte temporal. Pago real, facturación
+y logística son las tres extensiones naturales del sistema, y la arquitectura las contempla —cada
+una entra detrás de una interfaz ya definida, sin tocar el resto de los componentes. Esa es,
+justamente, la propiedad que el proyecto busca demostrar.
+
+\newpage
+
+% =============================================================================
+% 04 · SUPUESTOS Y RESTRICCIONES
+% =============================================================================
+\sectiontitle{04 · SUPUESTOS Y RESTRICCIONES}{Las condiciones bajo las que vale este alcance}
+
+\blocktitle{Restricciones impuestas}
+
+{\footnotesize
+\rowcolors{2}{surface}{white}
+\begin{tabularx}{\linewidth}{N{3.4cm} X}
+\toprule
+\thd{RESTRICCIÓN} & \thd{DETALLE} \\
+\midrule
+Plataforma      & Jakarta EE 10 sobre WildFly 41; JDK 17 o superior. \\
+Empaquetado     & Un único artefacto \texttt{ecommerce.war}, construido con Apache Maven. \\
+Arquitectura    & Tres capas y componentes con contrato explícito; no se admite lógica de negocio
+                  en la capa de presentación ni acceso a datos desde ella. \\
+Equipo          & Cinco integrantes, con excepción al tamaño de grupo acordada con la cátedra. \\
+Calendario      & Entregas del 14/09, checkpoint de mensajería del 19/10, integración del 09/11 y
+                  entrega final del 30/11/2026. \\
+Herramientas    & Repositorio Git con historial incremental y tablero Trello como registro de
+                  avance, ambos accesibles para la cátedra. \\
+Transparencia   & Se declara el uso de asistentes de IA en la elaboración de código y documentación. \\
+\bottomrule
+\end{tabularx}}
+\rowcolors{1}{}{}
+
+\vspace{4mm}
+\blocktitle{Supuestos asumidos}
+
+\begin{minipage}[t]{0.485\linewidth}
+\begin{whitebox}
+\begin{itemize}
+  \item El catálogo se inicializa con datos de prueba reproducibles; no hay migración desde un
+        sistema preexistente.
+  \item Los precios se expresan en una única moneda y sin impuestos discriminados.
+  \item El pago simulado devuelve un resultado determinístico, apto para demostrar ambos caminos.
+\end{itemize}
+\end{whitebox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\linewidth}
+\begin{whitebox}
+\begin{itemize}
+  \item La demo se ejecuta en un entorno local controlado, sin carga concurrente significativa.
+  \item El volumen de datos es acotado: no se compromete rendimiento bajo escala.
+  \item Cada integrante puede reproducir el despliegue completo desde cero en su máquina.
+\end{itemize}
+\end{whitebox}
+\end{minipage}
+
+\vspace{4mm}
+\begin{softbox}
+\textbf{Riesgo principal identificado.} El reemplazo del repositorio en memoria por JPA es la
+dependencia crítica del cronograma: los componentes Pedido, Carrito y Checkout no pueden cerrarse
+sin persistencia real. Se mitiga manteniendo la interfaz \texttt{ProductoRepository} estable, de
+modo que el cambio no alcance a la capa de negocio ni a sus pruebas.
+\end{softbox}
+
+\newpage
+
+% =============================================================================
+% 05 · ESTADO REAL DE AVANCE
+% =============================================================================
+\sectiontitle{05 · ESTADO REAL DE AVANCE}{Qué del alcance ya está construido — al 04/09/2026}
+
+Un alcance sin estado es una promesa. Esta sección declara, sin maquillaje, qué porción del
+compromiso ya es demostrable sobre el WAR desplegado y qué porción todavía no.
+
+\vspace{1mm}
+{\footnotesize
+\rowcolors{2}{surface}{white}
+\begin{tabularx}{\linewidth}{C{1.2cm} N{2.9cm} C{2.5cm} X}
+\toprule
+\thd{ID} & \thd{BLOQUE} & \thd{ESTADO} & \thd{EVIDENCIA O PENDIENTE} \\
+\midrule
+\idc{A-01} & Catálogo & \pill{ok}{IMPLEMENTADO} &
+  Controller, service y repository desplegados; endpoints REST de listado, facetas y detalle;
+  12 pruebas unitarias sobre \texttt{CatalogoServiceImpl}. Persistencia aún en memoria. \\
+\idc{A-02} & Usuarios y acceso & \pill{no}{PENDIENTE} &
+  Sin componente Usuario ni autorización declarativa. \\
+\idc{A-03} & Carrito & \pill{amberdk}{PARCIAL} &
+  Existe carrito en la interfaz web; falta el componente de negocio stateful con cálculo en
+  servidor. \\
+\idc{A-04} & Checkout y pago & \pill{no}{PENDIENTE} &
+  Sin \texttt{CheckoutFacade}, sin \texttt{PagoService}, sin transacción declarativa. \\
+\idc{A-05} & Pedido & \pill{no}{PENDIENTE} &
+  Depende de la persistencia con JPA. \\
+\idc{A-06} & Notificación & \pill{no}{PENDIENTE} &
+  Sin infraestructura JMS configurada. \\
+\idc{A-07} & Administración & \pill{no}{PENDIENTE} &
+  Requiere primero el componente Usuario y sus roles. \\
+\bottomrule
+\end{tabularx}}
+\rowcolors{1}{}{}
+
+\vspace{3mm}
+\blocktitle{Base técnica ya verificada}
+
+\begin{minipage}[t]{0.485\linewidth}
+\begin{whitebox}
+\begin{itemize}
+  \item[\tick] Proyecto Maven con Maven Wrapper; genera \texttt{ecommerce.war}.
+  \item[\tick] Despliegue en WildFly comprobado de punta a punta.
+  \item[\tick] API JAX-RS activa bajo \texttt{/ecommerce/api}.
+  \item[\tick] Estructura por componente y, dentro, por capa.
+\end{itemize}
+\end{whitebox}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\linewidth}
+\begin{whitebox}
+\begin{itemize}
+  \item[\tick] Interfaz web responsive conectada al backend.
+  \item[\tick] Manejo de errores de dominio vía \texttt{ExceptionMapper}.
+  \item[\tick] 12 pruebas unitarias en verde.
+  \item[\cross] Persistencia con JPA: todavía repositorio en memoria.
+\end{itemize}
+\end{whitebox}
+\end{minipage}
+
+\vspace{3mm}
+\begin{callout}
+\textbf{Lectura honesta.} Uno de los siete bloques está completo y uno parcial. Eso es coherente
+con el calendario: el checkpoint del 31/08 pedía un componente completo en capas dentro de un
+contenedor real, no el sistema entero. Los seis restantes se distribuyen entre las entregas del
+14/09, 19/10, 09/11 y la final del 30/11.
+\end{callout}
+
+\newpage
+
+% =============================================================================
+% 06 · ENTREGABLES Y CRITERIOS DE ACEPTACIÓN
+% =============================================================================
+\sectiontitle{06 · ENTREGABLES Y CRITERIOS DE ACEPTACIÓN}{Cómo se sabe que el alcance se cumplió}
+
+\blocktitle{Entregables comprometidos}
+
+{\footnotesize
+\rowcolors{2}{surface}{white}
+\begin{tabularx}{\linewidth}{N{3.6cm} X}
+\toprule
+\thd{ENTREGABLE} & \thd{DESCRIPCIÓN} \\
+\midrule
+Código fuente        & Repositorio Git con historial incremental y trazable por integrante. \\
+Artefacto desplegable& \texttt{ecommerce.war} compilable desde cero con \texttt{./mvnw clean package}. \\
+Documentación técnica& Documento final de 10 a 15 páginas: arquitectura, componentes, contratos,
+                       patrones justificados e integración. \\
+Demostración         & Recorrido en vivo del flujo completo sobre WildFly, reproducible por
+                       cualquier integrante. \\
+Registro de avance   & Tablero Trello reflejando el estado real, con responsable y revisor por tarjeta. \\
+Defensa oral         & Cada integrante explica cualquier parte del sistema, no sólo la propia. \\
+\bottomrule
+\end{tabularx}}
+\rowcolors{1}{}{}
+
+\vspace{4mm}
+\blocktitle{Criterios de aceptación del alcance}
+
+Un bloque funcional se considera cumplido únicamente si satisface los cinco criterios:
+
+\begin{enumerate}
+  \item \textbf{Funciona y se demuestra.} Se ejecuta sobre el WAR desplegado en WildFly, no en un
+        entorno simulado ni en diapositivas.
+  \item \textbf{Respeta las capas.} La petición recorre presentación \arrs{} negocio \arrs{} datos
+        sin saltos ni lógica fuera de lugar.
+  \item \textbf{Tiene evidencia enlazada.} Commit, prueba automatizada o sección del documento.
+  \item \textbf{Fue revisado por otra persona} distinta de quien lo implementó.
+  \item \textbf{Es defendible.} Responsable y revisor pueden explicar por qué está resuelto así y
+        qué alternativa se descartó.
+\end{enumerate}
+
+\vspace{3mm}
+\blocktitle{Hitos de verificación del alcance}
+
+{\footnotesize
+\rowcolors{2}{surface}{white}
+\begin{tabularx}{\linewidth}{C{2.1cm} N{4.6cm} X}
+\toprule
+\thd{FECHA} & \thd{HITO} & \thd{ALCANCE VERIFICADO} \\
+\midrule
+14/09/2026 & Entrega obligatoria 1 & \idc{A-01} con JPA, \idc{A-02} y \idc{A-03}; tres patrones justificados. \\
+19/10/2026 & Checkpoint de mensajería & \idc{A-06}: primer proceso asincrónico real y diagrama SOA. \\
+09/11/2026 & Integración completa & \idc{A-04} y \idc{A-05}: cola, tópico, SOAP, REST y transacción declarativa. \\
+30/11/2026 & Entrega final & Los siete bloques, documento final y defensa cruzada. \\
+\bottomrule
+\end{tabularx}}
+\rowcolors{1}{}{}
+
+\vspace{4mm}
+\begin{callout}
+\textbf{Compromiso del grupo.} Este documento delimita el trabajo del cuatrimestre. Lo enumerado
+en la sección 02 se entrega; lo enumerado en la sección 03 no se entrega, y esa decisión es parte
+del diseño, no una omisión. Cualquier modificación se registra como una versión nueva, fechada y
+acordada por los cinco integrantes.
+\end{callout}
+
+\vfill
+{\footnotesize\color{muted}\textbf{Control de versiones del documento.} v1.0 · 04/09/2026 ·
+redacción inicial sobre el estado verificado del repositorio.}
+
+\end{document}

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mockup colaborativo del TP Integrador de Desarrollo de Aplicaciones II: un e-commerce orientado a componentes y organizado en capas.">
+  <title>TPO Store · Mockup del TP Integrador</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Volver al inicio">
+      <span class="brand-mark">T</span>
+      <span>TPO Store <small>Arquitectura inicial</small></span>
+    </a>
+    <button class="menu" type="button" aria-label="Abrir navegación" aria-expanded="false">☰</button>
+    <nav aria-label="Navegación principal">
+      <a href="#alcance">Alcance</a>
+      <a href="#componentes">Componentes</a>
+      <a href="#capas">Capas</a>
+      <a href="#flujo">Caso de uso</a>
+      <a href="#patrones">Patrones</a>
+    </nav>
+    <a class="button small desktop-download" href="TP_Primera_Parte_Ecommerce.pdf" download>Descargar PDF</a>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">Desarrollo de Aplicaciones II · TP Integrador</p>
+        <h1>Un e-commerce para demostrar <em>arquitectura de verdad</em>.</h1>
+        <p class="lead">Mockup técnico para discutir en grupo: componentes con contratos claros, tres capas sin atajos y patrones aplicados a necesidades concretas.</p>
+        <div class="actions">
+          <a class="button" href="#capas">Ver arquitectura</a>
+          <a class="button ghost" href="TP_Primera_Parte_Ecommerce.pdf" target="_blank">Abrir PDF</a>
+        </div>
+        <ul class="hero-facts" aria-label="Tecnologías principales">
+          <li><strong>Java 17+</strong><span>Lenguaje</span></li>
+          <li><strong>Jakarta EE</strong><span>Plataforma</span></li>
+          <li><strong>WildFly</strong><span>Servidor</span></li>
+          <li><strong>Maven</strong><span>Build</span></li>
+        </ul>
+      </div>
+
+      <div class="browser reveal delay" aria-label="Vista conceptual del catálogo">
+        <div class="browser-bar"><i></i><i></i><i></i><span>tpo-store.local/catalogo</span></div>
+        <div class="store-head"><b>TPO<span>Store</span></b><span>Buscar productos…</span><strong>Carrito · 2</strong></div>
+        <div class="store-body">
+          <aside><b>Categorías</b><span>Todas</span><span>Tecnología</span><span>Hogar</span><span>Deportes</span></aside>
+          <div class="products">
+            <div class="product"><i>🎧</i><b>Auriculares</b><span>$25.000</span><small>Stock: 8</small><button>Agregar</button></div>
+            <div class="product"><i>💡</i><b>Lámpara</b><span>$18.500</span><small>Stock: 3</small><button>Agregar</button></div>
+            <div class="product"><i>⌨</i><b>Teclado</b><span>$41.000</span><small class="off">Sin stock</small><button disabled>Ver</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="alcance">
+      <div class="section-heading reveal">
+        <p class="eyebrow">01 · Visión y alcance</p>
+        <h2>Una tienda acotada, pero académicamente completa</h2>
+        <p>El objetivo no es copiar Mercado Libre. Es construir un flujo de compra defendible, con decisiones visibles y sin sobre-ingeniería.</p>
+      </div>
+      <div class="scope-grid">
+        <article class="panel reveal">
+          <span class="panel-number">Cliente</span>
+          <h3>Compra de punta a punta</h3>
+          <ul class="check-list">
+            <li>Registro e inicio de sesión</li><li>Búsqueda y detalle de productos</li><li>Administración del carrito</li><li>Checkout y pago simulado</li><li>Historial de pedidos</li>
+          </ul>
+        </article>
+        <article class="panel reveal delay">
+          <span class="panel-number">Administrador</span>
+          <h3>Operación básica</h3>
+          <ul class="check-list">
+            <li>Alta y edición de productos</li><li>Activación de publicaciones</li><li>Actualización de stock</li><li>Consulta de pedidos</li><li>Revisión de estados</li>
+          </ul>
+        </article>
+        <article class="panel dark reveal">
+          <span class="panel-number">No incluido</span>
+          <h3>Lo que dejamos afuera</h3>
+          <p>Pagos reales, facturación fiscal, múltiples vendedores, logística externa, microservicios y cloud. Pueden quedar como evolución futura.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section alt" id="componentes">
+      <div class="section-heading reveal">
+        <p class="eyebrow">02 · Orientación a componentes</p>
+        <h2>Capacidades de negocio, no pantallas</h2>
+        <p>Cada componente encapsula una responsabilidad y expone un contrato. Checkout coordina; no se apropia de las reglas internas.</p>
+      </div>
+      <div class="component-map reveal" aria-label="Mapa de componentes">
+        <div class="component c-user"><b>Usuario</b><span>Identidad y roles</span></div>
+        <div class="component c-catalog"><b>Catálogo</b><span>Productos y categorías</span></div>
+        <div class="component c-stock"><b>Inventario</b><span>Reserva de stock</span></div>
+        <div class="component c-cart"><b>Carrito</b><span>Ítems y totales</span></div>
+        <div class="component core"><b>Checkout Facade</b><span>Orquestación</span></div>
+        <div class="component c-payment"><b>Pago</b><span>Adapter simulado</span></div>
+        <div class="component c-order"><b>Pedido</b><span>Estados e historial</span></div>
+        <div class="component c-notify"><b>Notificación</b><span>Evento JMS</span></div>
+        <svg viewBox="0 0 1000 430" preserveAspectRatio="none" aria-hidden="true">
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z"/></marker></defs>
+          <path d="M225 300 L410 215"/><path d="M590 215 L775 125"/><path d="M590 215 L775 300"/><path d="M500 270 L500 345"/><path d="M590 390 L775 390"/><path d="M225 300 L225 125"/><path d="M275 125 L410 215"/>
+        </svg>
+      </div>
+      <div class="contracts reveal">
+        <span>UsuarioService</span><span>CatalogoService</span><span>InventarioService</span><span>CarritoService</span><span>PedidoService</span><span>PasarelaPago</span><span>NotificacionService</span>
+      </div>
+    </section>
+
+    <section class="section" id="capas">
+      <div class="section-heading reveal">
+        <p class="eyebrow">03 · Arquitectura solicitada</p>
+        <h2>Presentación → Negocio → Datos</h2>
+        <p>Las capas son lógicas y se despliegan juntas en un WAR. La regla principal: cada una habla solo con la inmediata siguiente.</p>
+      </div>
+      <div class="layers reveal">
+        <article class="layer presentation">
+          <span>1</span><div><p>Presentación</p><h3>Controllers, Resources y DTOs</h3><small>Renderiza, captura, valida formato y delega. No contiene reglas ni consulta JPA.</small></div><b>HTML/CSS/JS + JAX-RS</b>
+        </article>
+        <i class="down">DTO + interfaz</i>
+        <article class="layer business">
+          <span>2</span><div><p>Negocio</p><h3>Services, Facade y reglas</h3><small>Valida stock, calcula totales, controla estados y orquesta procesos transaccionales.</small></div><b>CDI + EJB + JTA</b>
+        </article>
+        <i class="down">Contrato de repositorio</i>
+        <article class="layer data">
+          <span>3</span><div><p>Datos</p><h3>Repositories, DAO y entidades</h3><small>Persiste y consulta. Aísla al negocio del esquema y del motor de almacenamiento.</small></div><b>JPA/Hibernate + SQL</b>
+        </article>
+      </div>
+      <div class="rules reveal">
+        <div><b>✓ Así sí</b><p>Controller → Service → Repository</p><p>Dependencias inyectadas contra interfaces</p><p>Transacciones en la capa de negocio</p></div>
+        <div class="no"><b>× Así no</b><p>SQL o JPA desde una vista/controller</p><p>Repository decidiendo reglas comerciales</p><p>Saltar capas “para ir más rápido”</p></div>
+      </div>
+    </section>
+
+    <section class="section alt" id="flujo">
+      <div class="section-heading reveal">
+        <p class="eyebrow">04 · Recorrido obligatorio</p>
+        <h2>Confirmar una compra atraviesa todo el sistema</h2>
+        <p>Este caso de uso demuestra las tres capas, la colaboración entre componentes y el manejo transaccional.</p>
+      </div>
+      <ol class="flow reveal">
+        <li><span>Presentación</span><b>CheckoutResource</b><p>Recibe POST /api/checkout y valida el formato.</p></li>
+        <li><span>Negocio</span><b>CheckoutFacade</b><p>Coordina carrito, inventario, pago y pedido.</p></li>
+        <li><span>Negocio</span><b>InventarioService</b><p>Valida y reserva existencias disponibles.</p></li>
+        <li><span>Integración</span><b>Pago Adapter</b><p>Procesa un pago simulado detrás de PasarelaPago.</p></li>
+        <li><span>Datos</span><b>PedidoRepository</b><p>JPA guarda el pedido dentro de la transacción.</p></li>
+        <li><span>Asincrónico</span><b>Evento JMS</b><p>Notifica sin bloquear la confirmación.</p></li>
+      </ol>
+      <div class="business-rules reveal"><b>Reglas clave</b><span>El total se recalcula en el servidor</span><span>No hay pedido sin stock y pago aprobado</span><span>Los fallos críticos revierten</span></div>
+    </section>
+
+    <section class="section" id="patrones">
+      <div class="section-heading reveal">
+        <p class="eyebrow">05 · Diseño y defensa</p>
+        <h2>Patrones con una justificación concreta</h2>
+      </div>
+      <div class="pattern-grid">
+        <article class="pattern reveal"><span>01</span><h3>Controller</h3><p>Traduce HTTP y delega. Mantiene la presentación delgada.</p></article>
+        <article class="pattern reveal"><span>02</span><h3>Service Layer</h3><p>Centraliza reglas y casos de uso del dominio.</p></article>
+        <article class="pattern reveal"><span>03</span><h3>Repository / DAO</h3><p>Encapsula JPA y permite probar el negocio aislado.</p></article>
+        <article class="pattern reveal"><span>04</span><h3>DTO</h3><p>No expone entidades persistentes en la API.</p></article>
+        <article class="pattern reveal"><span>05</span><h3>Facade</h3><p>Checkout simplifica la coordinación de componentes.</p></article>
+        <article class="pattern reveal"><span>06</span><h3>Adapter</h3><p>Permite reemplazar la pasarela sin tocar el checkout.</p></article>
+        <article class="pattern reveal"><span>07</span><h3>Factory</h3><p>Selecciona el canal de notificación sin acoplar al cliente.</p></article>
+        <article class="pattern reveal"><span>08</span><h3>Pub/Sub</h3><p>JMS desacopla la compra de tareas posteriores.</p></article>
+      </div>
+      <div class="cta reveal">
+        <div><p class="eyebrow">Documento para el equipo</p><h2>¿Qué cambiarían antes de empezar a programar?</h2><p>Revisemos alcance, componentes y stack. Después de acordarlos, esta será nuestra línea base.</p></div>
+        <a class="button light" href="TP_Primera_Parte_Ecommerce.pdf" download>Descargar PDF completo</a>
+      </div>
+    </section>
+  </main>
+
+  <footer><b>TPO Store</b><span>Mockup colaborativo · Desarrollo de Aplicaciones II · 2026</span><a href="#inicio">Volver arriba ↑</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>

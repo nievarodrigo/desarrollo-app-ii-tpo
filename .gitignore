@@ -1,0 +1,17 @@
+target/
+.vercel
+.DS_Store
+node_modules/
+
+# Credenciales locales (no versionar)
+.env
+.env.*
+!.env.example
+
+# Artefactos generados
+__pycache__/
+*.pyc
+*.aux
+*.log
+*.out
+*.toc

@@ -1,0 +1,225 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.45cm,top=1.55cm,bottom=1.45cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{xcolor,tabularx,array,enumitem,tikz,hyperref,fancyhdr,titlesec,amssymb}
+\usetikzlibrary{arrows.meta,positioning,fit}
+\definecolor{Fondo}{HTML}{F2EDE4}
+\definecolor{Tinta}{HTML}{1A150F}
+\definecolor{Sec}{HTML}{574C3D}
+\definecolor{Acento}{HTML}{BD3A1E}
+\definecolor{Profundo}{HTML}{1E332C}
+\definecolor{Mostaza}{HTML}{C78B26}
+\definecolor{Suave}{HTML}{E9E0D2}
+\hypersetup{colorlinks=true,urlcolor=Acento,linkcolor=Profundo}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\bfseries TPO Store · Desarrollo de Aplicaciones II}
+\fancyhead[R]{\small Checkpoint 1}
+\fancyfoot[L]{\footnotesize Equipo: Rodrigo · Nicolás · Tomás · Iván · Fol}
+\fancyfoot[R]{\footnotesize\thepage/4}
+\renewcommand{\headrulewidth}{0.5pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist[itemize]{nosep,leftmargin=4.5mm}
+\newcommand{\titulo}[2]{\vspace*{-2mm}{\color{Acento}\small\bfseries #1}\par{\color{Tinta}\LARGE\bfseries #2}\vspace{2mm}\hrule\vspace{4mm}}
+\newcommand{\subt}[1]{\vspace{2mm}{\color{Profundo}\large\bfseries #1}\par\vspace{1mm}}
+\newcommand{\pill}[1]{\colorbox{Suave}{\strut\small\bfseries #1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\begin{document}
+
+\titulo{ENTREGA PARCIAL N.º 1}{Arquitectura inicial y Catálogo funcionando}
+
+\textbf{Dominio.} TPO Store es un e-commerce de tecnología, audio, hogar, oficina y deportes.
+El objetivo del checkpoint es demostrar una arquitectura orientada a componentes y un primer
+componente completo, desplegado en un contenedor real.
+
+\subt{Alcance demostrado}
+\begin{itemize}
+  \item Proyecto Maven empaquetado como \texttt{ecommerce.war} y desplegado en WildFly.
+  \item Componente \textbf{Catálogo} completo: presentación, negocio y datos separados.
+  \item API JAX-RS para categorías, búsqueda, filtros, facetas y detalle de productos.
+  \item Interfaz web responsive conectada a la API; versión pública con datos estáticos.
+  \item 12 pruebas unitarias sobre reglas del servicio de Catálogo.
+\end{itemize}
+
+\subt{Arquitectura general propuesta}
+\begin{center}
+\begin{tikzpicture}[
+ node distance=4mm and 5mm,
+ box/.style={draw=Profundo,rounded corners=2mm,fill=Fondo,minimum width=31mm,minimum height=12mm,align=center,font=\small\bfseries},
+ ext/.style={draw=Acento,dashed,rounded corners=2mm,fill=white,minimum width=31mm,minimum height=12mm,align=center,font=\small},
+ arr/.style={-{Latex[length=2mm]},thick,color=Sec}
+]
+\node[box] (ui) {Presentación\\HTML/CSS/JS};
+\node[box,right=of ui] (rest) {Controllers\\JAX-RS};
+\node[box,right=of rest] (svc) {Componentes\\EJB/CDI};
+\node[box,right=of svc] (repo) {Repositories\\JPA};
+\node[box,right=of repo] (db) {Base de datos\\relacional};
+\draw[arr] (ui)--(rest); \draw[arr] (rest)--(svc); \draw[arr] (svc)--(repo); \draw[arr] (repo)--(db);
+\node[ext,below=8mm of svc,xshift=-18mm] (jms) {JMS / eventos\\entregas futuras};
+\node[ext,right=7mm of jms] (externos) {SOAP + REST\\entregas futuras};
+\draw[arr,dashed] (svc)--(jms); \draw[arr,dashed] (svc)--(externos);
+\end{tikzpicture}
+\end{center}
+
+\textbf{Regla de dependencia:} la presentación llama a recursos; los recursos traducen HTTP;
+los servicios aplican reglas; los repositorios acceden a datos. Ninguna capa salta a otra.
+
+\subt{Stack elegido}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{31mm}Y}
+Java 17 + Jakarta EE 10 & Estándar empresarial consistente con componentes, inyección, transacciones y seguridad declarativa.\\
+Maven + WAR & Build reproducible y un único artefacto desplegable.\\
+WildFly 41 EE10 & Contenedor real que provee JAX-RS, CDI, EJB, JSON-B y luego JPA/JMS.\\
+HTML/CSS/JS & Presentación sin build adicional, integrada directamente dentro del WAR.\\
+\end{tabularx}
+
+\vfill
+\pill{Estado: Catálogo implementado} \quad \pill{Persistencia JPA: siguiente iteración}
+
+\newpage
+\titulo{COMPONENTES}{Contratos y responsabilidades}
+
+Los ocho componentes mantienen responsabilidades separadas. En este checkpoint sólo
+\textbf{Catálogo} está implementado; el resto queda identificado y con interfaces previstas.
+
+\renewcommand{\arraystretch}{1.18}
+\small
+\begin{tabularx}{\textwidth}{>{\bfseries}p{25mm}p{23mm}Y}
+\textbf{Componente} & \textbf{Tipo previsto} & \textbf{Interfaz principal y responsabilidad}\\ \hline
+Usuarios & Stateless & \texttt{registrar}, \texttt{autenticar}, \texttt{obtenerPerfil}, \texttt{asignarRol}. Credenciales, perfiles y roles.\\
+Catálogo & Stateless & \texttt{listarProductos}, \texttt{buscar}, \texttt{obtenerProducto}, \texttt{listarCategorias}, \texttt{obtenerFacetas}. Consulta de productos visibles.\\
+Inventario & Stateless & \texttt{consultarStock}, \texttt{reservar}, \texttt{liberar}, \texttt{descontar}. Disponibilidad y reservas.\\
+Carrito & Stateful & \texttt{agregarItem}, \texttt{cambiarCantidad}, \texttt{quitarItem}, \texttt{obtenerResumen}, \texttt{vaciar}. Estado conversacional por cliente.\\
+Pedidos / Checkout & Stateless + Facade & \texttt{confirmarCompra}, \texttt{consultarPedido}, \texttt{cancelar}. Orquesta validación, reserva, pago y confirmación.\\
+Pagos & Stateless + Adapter & \texttt{autorizar}, \texttt{capturar}, \texttt{reembolsar}. Uniforma una pasarela moderna REST.\\
+Facturación Legacy & Stateless + Adapter & \texttt{emitirFactura}, \texttt{consultarComprobante}. Encapsula el facturador externo SOAP/WSDL.\\
+Notificaciones & MDB & \texttt{consumirPedidoConfirmado}, \texttt{notificar}. Procesamiento asincrónico por email u otros canales.\\
+\end{tabularx}
+\normalsize
+
+\subt{Dependencias principales}
+\begin{itemize}
+  \item Catálogo consulta datos sin depender de Carrito o Pedidos.
+  \item Carrito consulta Catálogo/Inventario para validar productos y disponibilidad.
+  \item Checkout actúa como fachada: coordina Carrito, Inventario, Pedidos y Pagos.
+  \item Un pedido confirmado publica eventos; Notificaciones y Auditoría los consumen sin acoplarse al checkout.
+  \item Pagos y Facturación aíslan contratos externos mediante Adapter.
+\end{itemize}
+
+\subt{Evolución incremental}
+\textbf{Checkpoint 1:} Catálogo. \quad
+\textbf{Entrega obligatoria 1:} Catálogo + Carrito + Usuarios/Pedidos, patrones y seguridad.\\
+\textbf{Entregas posteriores:} mensajería, SOAP, REST externo y transacción crítica.
+
+\vfill
+\colorbox{Fondo}{\parbox{0.96\textwidth}{\small
+\textbf{Decisión de alcance.} Identificar componentes no significa implementarlos todos ahora.
+La primera entrega prioriza un recorrido vertical completo y demostrable antes de ampliar funcionalidad.}}
+
+\newpage
+\titulo{PRIMER COMPONENTE}{Catálogo stateless en tres capas}
+
+\subt{Recorrido real}
+\begin{center}
+\begin{tikzpicture}[
+ node distance=5mm,
+ box/.style={draw=Profundo,rounded corners=2mm,fill=Fondo,minimum width=40mm,minimum height=14mm,align=center,font=\small},
+ arr/.style={-{Latex[length=2mm]},thick,color=Acento}
+]
+\node[box] (web) {\textbf{Web responsive}\\buscador, filtros, fichas};
+\node[box,right=of web] (res) {\textbf{ProductoResource}\\DTO + parámetros HTTP};
+\node[box,right=of res] (serv) {\textbf{CatalogoService}\\reglas y ordenamiento};
+\node[box,right=of serv] (rep) {\textbf{Repositories}\\datos en memoria};
+\draw[arr] (web)--(res); \draw[arr] (res)--(serv); \draw[arr] (serv)--(rep);
+\end{tikzpicture}
+\end{center}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{29mm}Y}
+Presentación & \texttt{index.html}, módulos JS y \texttt{ProductoResource}/\texttt{CategoriaResource}. Convierte entradas y devuelve DTO, sin decidir reglas de negocio.\\
+Negocio & \texttt{CatalogoServiceImpl} filtra activos, busca sin acentos, combina palabras, valida criterios, ordena y calcula facetas. No importa clases JAX-RS.\\
+Datos & Interfaces \texttt{ProductoRepository} y \texttt{CategoriaRepository}; implementación \texttt{CatalogoEnMemoria} intercambiable por JPA sin modificar el servicio.\\
+\end{tabularx}
+
+\subt{Por qué es stateless}
+Catálogo no conserva una conversación por usuario: ante los mismos criterios y datos devuelve
+el mismo resultado. Cada llamada contiene todo lo necesario. \texttt{@Stateless} permite que
+WildFly administre un pool de instancias y deja preparadas las transacciones declarativas para
+la futura persistencia JPA. El estado del carrito, en cambio, sí será conversacional y se modelará
+como stateful en la siguiente entrega.
+
+\subt{Contrato HTTP demostrado}
+\small
+\begin{tabularx}{\textwidth}{p{15mm}p{52mm}Y}
+\textbf{Método} & \textbf{Ruta} & \textbf{Resultado}\\ \hline
+GET & \texttt{/api/salud} & Disponibilidad y versión del backend.\\
+GET & \texttt{/api/categorias} & Categorías visibles.\\
+GET & \texttt{/api/productos} & Productos; acepta búsqueda, categoría, stock, precio y orden.\\
+GET & \texttt{/api/productos/facetas} & Total, conteo por categoría y rango de precios.\\
+GET & \texttt{/api/productos/\{id\}} & Detalle o error JSON con estado 404.\\
+\end{tabularx}
+\normalsize
+
+\subt{Decisiones que reducen acoplamiento}
+\begin{itemize}
+  \item Se programa contra interfaces y se inyectan dependencias.
+  \item Las entidades de dominio no se exponen: la API devuelve DTO.
+  \item Las excepciones de dominio no conocen HTTP; un mapper las transforma.
+  \item El front usa una única puerta de datos y funciona bajo el context root \texttt{/ecommerce}.
+\end{itemize}
+
+\vfill
+\pill{Controller → Service → Repository} \quad \pill{EJB @Stateless} \quad \pill{DTO + Mapper}
+
+\newpage
+\titulo{EVIDENCIA Y ENTREGA}{Cómo reproducir el checkpoint}
+
+\subt{Compilar y probar}
+\begin{verbatim}
+cd TPO
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+./mvnw clean test package
+# Resultado: target/ecommerce.war y 12 pruebas aprobadas
+\end{verbatim}
+
+\subt{Desplegar en WildFly}
+\begin{verbatim}
+WF=../wildfly/wildfly-41-ee10
+cp target/ecommerce.war "$WF/standalone/deployments/"
+"$WF/bin/standalone.sh"
+\end{verbatim}
+Abrir \url{http://localhost:8080/ecommerce/} y demostrar búsqueda, filtros, detalle y 404.
+
+\subt{Enlaces de la entrega}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{31mm}Y}
+Repositorio Git & \url{https://github.com/nievarodrigo/desarrollo-app-ii-tpo}\\
+Tablero Trello & \url{https://trello.com/b/gbrISl9W/desarrollo-de-aplicaciones-2-tpo}\\
+Landing pública & \url{https://landing-ecommerce-tau.vercel.app}\\
+Prototipo editable & Carpeta \texttt{figma-checkpoint-1/}: cuatro SVG importables y exportaciones PNG.\\
+\end{tabularx}
+
+\subt{Checklist verificado}
+\begin{itemize}
+  \item[$\square$] El repositorio y el tablero tienen acceso para docente y equipo.
+  \item[$\boxtimes$] Se identifican 8 componentes con interfaces y responsabilidades.
+  \item[$\boxtimes$] El diagrama muestra capas y dependencias.
+  \item[$\boxtimes$] El stack está justificado.
+  \item[$\boxtimes$] Catálogo funciona en un contenedor real y recorre las tres capas.
+  \item[$\boxtimes$] Se justifica explícitamente su carácter stateless.
+  \item[$\boxtimes$] Build, pruebas y demo son reproducibles.
+  \item[$\square$] Envío final realizado en el aula virtual.
+\end{itemize}
+
+\subt{Uso de IA generativa}
+Se utilizó IA como asistencia para generar boilerplate, revisar la separación de capas,
+redactar documentación y preparar pruebas. El equipo revisó los resultados y cada integrante
+debe poder explicar el código, las decisiones y el recorrido demostrado.
+
+\vfill
+\colorbox{Profundo}{\parbox{0.96\textwidth}{\color{white}\small
+\textbf{Conclusión.} El checkpoint entrega un corte vertical pequeño pero real: Catálogo está
+desplegado, probado y separado por capas. JPA, Carrito, seguridad e integraciones se incorporan
+en iteraciones posteriores sin alterar los contratos ya definidos.}}
+
+\end{document}
