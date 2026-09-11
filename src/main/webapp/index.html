@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#F2EDE4">
-  <meta name="description" content="TPO Store — tienda online de tecnología, audio, hogar, oficina y deportes. Envío gratis desde $150.000, 12 cuotas sin interés y cambios sin vueltas en toda la Argentina.">
+  <meta name="description" content="Fachada — tienda online de tecnología, audio, hogar, oficina y deportes. Envío gratis desde $150.000, 12 cuotas sin interés y cambios sin vueltas en toda la Argentina.">
   <meta name="color-scheme" content="light dark">
-  <title>TPO Store — Tecnología, hogar y equipamiento con envío a todo el país</title>
+  <title>Fachada — Tecnología, hogar y equipamiento con envío a todo el país</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
   <script>
     /* Aplica el tema guardado antes de pintar para evitar el flash de tema. */
     try {
-      var t = JSON.parse(localStorage.getItem('tpostore:tema'));
+      var t = JSON.parse(localStorage.getItem('fachada:tema') || localStorage.getItem('tpostore:tema'));
       document.documentElement.dataset.tema = ['normal', 'claro', 'oscuro'].includes(t) ? t : 'normal';
     } catch (e) {
       document.documentElement.dataset.tema = 'normal';
@@ -46,12 +46,12 @@
 
   <header class="cabecera" id="cabecera">
     <div class="cabecera__barra contenedor">
-      <a class="marca" href="#inicio" aria-label="TPO Store, inicio">
+      <a class="marca" href="#inicio" aria-label="Fachada, inicio">
         <span class="marca__sello" aria-hidden="true">
-          <svg viewBox="0 0 32 32" focusable="false"><path d="M6 24V8h8a5 5 0 0 1 0 10H6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
+          <svg viewBox="0 0 32 32" focusable="false"><path d="M8 24V8h12M8 16h9" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
         </span>
         <span class="marca__texto">
-          <strong>TPO</strong><em>Store</em>
+          <strong>Fa</strong><em>chada</em>
         </span>
       </a>
 
@@ -393,13 +393,13 @@
             <span class="marca__sello" aria-hidden="true">
               <svg viewBox="0 0 32 32" focusable="false"><path d="M6 24V8h8a5 5 0 0 1 0 10H6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
             </span>
-            <span class="marca__texto"><strong>TPO</strong><em>Store</em></span>
+            <span class="marca__texto"><strong>Fa</strong><em>chada</em></span>
           </span>
           <p>Tienda online de tecnología, audio, hogar, oficina y deportes. Catálogo corto, criterio largo.</p>
           <ul class="pie__redes">
-            <li><a href="#inicio" aria-label="Instagram de TPO Store"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg></a></li>
-            <li><a href="#inicio" aria-label="WhatsApp de TPO Store"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 20.5 5 16.4A8.2 8.2 0 1 1 8 19.3l-4.5 1.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.2c0 3 2.4 5.4 5.4 5.4l.9-1.6-2-1-.8.9a4.6 4.6 0 0 1-1.8-1.8l.9-.8-1-2-1.6.9Z" fill="currentColor"/></svg></a></li>
-            <li><a href="#inicio" aria-label="Canal de YouTube de TPO Store"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="5" width="19" height="14" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10.4 9 4.6 3-4.6 3V9Z" fill="currentColor"/></svg></a></li>
+            <li><a href="#inicio" aria-label="Instagram de Fachada"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg></a></li>
+            <li><a href="#inicio" aria-label="WhatsApp de Fachada"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 20.5 5 16.4A8.2 8.2 0 1 1 8 19.3l-4.5 1.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.2c0 3 2.4 5.4 5.4 5.4l.9-1.6-2-1-.8.9a4.6 4.6 0 0 1-1.8-1.8l.9-.8-1-2-1.6.9Z" fill="currentColor"/></svg></a></li>
+            <li><a href="#inicio" aria-label="Canal de YouTube de Fachada"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="5" width="19" height="14" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10.4 9 4.6 3-4.6 3V9Z" fill="currentColor"/></svg></a></li>
           </ul>
         </div>
 
@@ -426,7 +426,7 @@
         <div class="pie__columna">
           <h2>Atención</h2>
           <ul class="pie__contacto">
-            <li><a href="mailto:hola@tpostore.example">hola@tpostore.example</a></li>
+            <li><a href="mailto:hola@fachada.example">hola@fachada.example</a></li>
             <li>Lunes a sábado, 9 a 20 h</li>
             <li>Av. Corrientes 1234, CABA</li>
           </ul>
@@ -437,7 +437,7 @@
       </div>
 
       <div class="pie__legal">
-        <p>© <span data-anio></span> TPO Store. Proyecto académico sin fines comerciales — Desarrollo de Aplicaciones II.</p>
+        <p>© <span data-anio></span> Fachada. Proyecto académico sin fines comerciales — Desarrollo de Aplicaciones II.</p>
         <ul>
           <li><a href="#inicio">Términos</a></li>
           <li><a href="#inicio">Privacidad</a></li>

@@ -1,5 +1,5 @@
 /**
- * TPO Store — orquestación de la landing.
+ * Fachada — orquestación de la landing.
  *
  * Este archivo conecta la capa de datos (`core/api.js`) con la UI. No contiene
  * datos de productos ni reglas de negocio: eso vive en `core/` y `data/`.

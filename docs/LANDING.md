@@ -1,4 +1,4 @@
-# TPO Store — landing del e-commerce
+# Fachada — landing del e-commerce
 
 Tienda online del Trabajo Práctico Integrador de **Desarrollo de Aplicaciones II**.
 Es la capa de presentación real del proyecto: catálogo, búsqueda, filtros y carrito

@@ -65,7 +65,7 @@ Estas exclusiones mantienen el foco en los objetivos de la materia y evitan sobr
 
 ```text
 ┌────────────────────────────────────────────────────────────────────┐
-│ TPO Store          [ Buscar productos... ]     Carrito (2)  Usuario│
+│ Fachada          [ Buscar productos... ]     Carrito (2)  Usuario│
 ├───────────────┬────────────────────────────────────────────────────┤
 │ Categorías    │ CATÁLOGO                                           │
 │ ○ Todas       │ ┌────────────┐ ┌────────────┐ ┌────────────┐       │

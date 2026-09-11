@@ -10,7 +10,7 @@
   <version>1.0.0</version>
   <packaging>war</packaging>
 
-  <name>TPO Store — e-commerce</name>
+  <name>Fachada — e-commerce</name>
   <description>
     Trabajo Práctico Integrador de Desarrollo de Aplicaciones II.
     E-commerce orientado a componentes, organizado en tres capas y empaquetado

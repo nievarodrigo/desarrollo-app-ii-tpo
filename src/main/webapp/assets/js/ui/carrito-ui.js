@@ -226,7 +226,7 @@ export function iniciarCarritoUI({ alIrAlCatalogo } = {}) {
        el stock antes de crear el pedido. */
     setTimeout(() => {
       pedidoConfirmado = {
-        codigo: `TPO-${String(Math.floor(Math.random() * 90000) + 10000)}`,
+        codigo: `FCH-${String(Math.floor(Math.random() * 90000) + 10000)}`,
         total: resumen.total,
         unidades: resumen.unidades
       };

@@ -4,11 +4,25 @@
  * nunca dejamos que una preferencia rompa la página.
  */
 
-const PREFIJO = 'tpostore:';
+const PREFIJO = 'fachada:';
+
+/* Marca anterior. Se migra al vuelo para que quien ya visitó la tienda no pierda
+   el carrito ni el tema al cambiar el nombre. Se puede borrar dentro de unos meses. */
+const PREFIJO_ANTERIOR = 'tpostore:';
 
 export function leer(clave, porDefecto = null) {
   try {
-    const crudo = window.localStorage.getItem(PREFIJO + clave);
+    let crudo = window.localStorage.getItem(PREFIJO + clave);
+
+    if (crudo === null) {
+      const heredado = window.localStorage.getItem(PREFIJO_ANTERIOR + clave);
+      if (heredado !== null) {
+        window.localStorage.setItem(PREFIJO + clave, heredado);
+        window.localStorage.removeItem(PREFIJO_ANTERIOR + clave);
+        crudo = heredado;
+      }
+    }
+
     return crudo === null ? porDefecto : JSON.parse(crudo);
   } catch {
     return porDefecto;

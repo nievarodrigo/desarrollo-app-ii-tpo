@@ -1,39 +1,46 @@
-# TPO — Desarrollo de Aplicaciones II
+# Fachada
 
-Trabajo Práctico Integrador: **e-commerce orientado a componentes y organizado en capas**,
-empaquetado como un único WAR desplegable en WildFly.
+**E-commerce en capas sobre Jakarta EE 10.** Catálogo con búsqueda, filtros y facetas;
+carrito y checkout; API REST propia. Se empaqueta como un único WAR desplegable en
+WildFly y la misma UI se publica como sitio estático sin tocar una línea de código.
 
-## Entrega del Checkpoint 1
+> **¿Por qué "Fachada"?** Porque es lo que el patrón *Facade* y una tienda tienen en
+> común: **una entrada simple a un sistema complejo.** El cliente ve un botón "Comprar";
+> atrás hay capas, servicios, repositorios y transacciones. Esa es exactamente la
+> promesa de este proyecto — y el nombre nos obliga a cumplirla.
 
-- [Documento simple de 4 páginas](Checkpoint_1_Ecommerce.pdf)
-- [Versión técnica de respaldo](Checkpoint_1_Ecommerce_Tecnico.pdf)
-- [Enlaces, evidencia y checklist reproducible](ENTREGA_CHECKPOINT_1.md)
-- [Prototipo editable del Catálogo](figma-checkpoint-1/README.md)
-- [Tablero Trello](https://trello.com/b/gbrISl9W/desarrollo-de-aplicaciones-2-tpo)
-- [Landing pública](https://landing-ecommerce-tau.vercel.app)
+🔗 **[Ver la tienda en vivo](https://landing-ecommerce-tau.vercel.app)**
 
-## Estado actual
-
-| Capa | Estado |
-|---|---|
-| Presentación (HTML/CSS/JS + JAX-RS) | ✅ implementada |
-| Negocio (CDI + EJB) — componente **Catálogo** | ✅ implementado |
-| Datos (Repository) — **en memoria** | ✅ implementado, JPA pendiente |
-| Componentes Carrito, Pedido, Pago, Checkout, Notificación | ⏳ pendientes |
-
-- **Landing e-commerce publicada:** <https://landing-ecommerce-tau.vercel.app>
-- **Documentación de la UI:** [`docs/LANDING.md`](docs/LANDING.md)
+```
+Java 17  ·  Jakarta EE 10  ·  JAX-RS  ·  CDI + EJB  ·  JUnit 5  ·  WAR único
+```
 
 ---
 
-## Ejecutar el proyecto
+## Qué hace
 
-### Compilar y empaquetar
+| | |
+|---|---|
+| 🔎 **Búsqueda** | Sin acentos y por "todas las palabras": `cafe` encuentra *Cafetera*, `mouse inalambrico` exige ambos términos |
+| 🎚️ **Filtros** | Categoría, sólo con stock, precio máximo, y 4 ordenamientos |
+| 📊 **Facetas** | Conteo por categoría y rango real de precios, calculados sobre el catálogo vivo |
+| 🛒 **Carrito** | Alta, baja, cantidades y total, persistido en el navegador |
+| 💳 **Checkout** | Flujo completo de confirmación en el front |
+| 🎨 **3 temas** | Con persistencia por visitante |
+| ♿ **Accesible** | Contraste AA, navegación por teclado, foco atrapado en modales |
+| 📱 **Responsive** | De 320 a 1440 px |
+
+**Catálogo actual:** 16 productos en 5 categorías — Tecnología, Audio, Hogar, Oficina y Deportes.
+
+---
+
+## Arranque rápido
 
 No hace falta instalar Maven: el proyecto trae el **Maven Wrapper**.
 
+### Compilar
+
 ```bash
-cd TPO
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64   # o cualquier JDK 17+
 ./mvnw clean package
 # → target/ecommerce.war
@@ -47,7 +54,7 @@ cp target/ecommerce.war "$WF/standalone/deployments/"
 "$WF/bin/standalone.sh"
 ```
 
-Y queda en **<http://localhost:8080/ecommerce/>**.
+Queda en **<http://localhost:8080/ecommerce/>**
 
 ### Sólo el front, sin backend
 
@@ -55,9 +62,9 @@ Y queda en **<http://localhost:8080/ecommerce/>**.
 cd src/main/webapp && python3 -m http.server 4321
 ```
 
-Levanta en modo mock (ver *Un mismo front, dos destinos* más abajo).
+Levanta en modo mock — ver [*Un mismo front, dos destinos*](#un-mismo-front-dos-destinos).
 
-### Pruebas
+### Tests
 
 ```bash
 ./mvnw test          # 12 pruebas unitarias del CatalogoService
@@ -65,11 +72,50 @@ Levanta en modo mock (ver *Un mismo front, dos destinos* más abajo).
 
 ---
 
-## Estructura
+## Arquitectura
 
-Organizada **por componente** y, dentro de cada uno, **por capa** — como recomienda
-`MOCKUP_TPO.md` §7. Las piezas que cambian juntas quedan juntas, sin perder el
-recorrido Controller → Service → Repository.
+Tres capas, con una regla que no se negocia: **las dependencias apuntan hacia adentro.**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  PRESENTACIÓN                                           │
+│  HTML/CSS/JS sin framework  ·  JAX-RS (@Path)           │
+│  ProductoResource · CategoriaResource · SaludResource   │
+└───────────────────────────┬─────────────────────────────┘
+                            │ CriteriosDeBusqueda ↓   DTOs ↑
+┌───────────────────────────▼─────────────────────────────┐
+│  NEGOCIO                                                │
+│  CDI + EJB @Stateless                                   │
+│  CatalogoService ← CatalogoServiceImpl                  │
+│  buscar() · obtener() · listarCategorias() · rango()    │
+└───────────────────────────┬─────────────────────────────┘
+                            │ interfaces ↓      entidades ↑
+┌───────────────────────────▼─────────────────────────────┐
+│  DATOS                                                  │
+│  ProductoRepository · CategoriaRepository  (interfaces) │
+│  └── CatalogoEnMemoria            (impl. actual)        │
+│  └── CatalogoJpa                  (siguiente paso)      │
+└─────────────────────────────────────────────────────────┘
+```
+
+El negocio **no importa nada de `jakarta.ws.rs`** y **no conoce la implementación**
+del repositorio. Por eso los tests lo instancian a mano, sin levantar el contenedor.
+
+### Estado por componente
+
+| Componente | Presentación | Negocio | Datos |
+|---|---|---|---|
+| **Catálogo** | ✅ | ✅ | ✅ en memoria · JPA pendiente |
+| Carrito | ✅ front | ⏳ | ⏳ |
+| Pedido | ⏳ | ⏳ | ⏳ |
+| Pago | ⏳ | ⏳ | ⏳ |
+| Checkout | ✅ front | ⏳ | — |
+| Notificación | — | ⏳ | — |
+
+### Estructura del código
+
+Organizada **por componente** y, dentro de cada uno, **por capa**. Las piezas que
+cambian juntas quedan juntas, sin perder el recorrido Controller → Service → Repository.
 
 ```text
 TPO/
@@ -193,7 +239,7 @@ Dos detalles que lo hacen posible:
 
 ---
 
-## Verificación realizada
+## Verificación
 
 **Backend — 12 pruebas unitarias** (`./mvnw test`): visibilidad de inactivos, búsqueda
 sin acentos, "todas las palabras", filtros de categoría/stock/precio, ordenamientos y
@@ -213,7 +259,7 @@ correcto en cada destino, y que en WildFly **no** caiga al mock por accidente.
 
 ---
 
-## Qué sigue
+## Roadmap
 
 1. Reemplazar `CatalogoEnMemoria` por una implementación con **JPA/Hibernate**.
    Los contratos ya están: sólo cambia esa clase.
@@ -224,19 +270,57 @@ correcto en cada destino, y que en WildFly **no** caiga al mock por accidente.
 
 ---
 
-## Documentación
+## Cómo contribuir
 
+El repo es privado y se trabaja con colaboradores. Flujo:
+
+```bash
+git clone https://github.com/nievarodrigo/desarrollo-app-ii-tpo.git
+cd desarrollo-app-ii-tpo
+git switch -c feat/mi-cambio
+./mvnw test                      # que pase antes de pushear
+git push -u origin feat/mi-cambio
+```
+
+Después se abre un Pull Request. **Nadie commitea directo a `main`.**
+
+Convenciones: [Conventional Commits](https://www.conventionalcommits.org/)
+(`feat:`, `fix:`, `docs:`, `refactor:`, `test:`).
+
+> Si el clone te devuelve **404**, no es que el link esté mal: es que todavía no
+> aceptaste la invitación de colaborador. Revisá tu mail y corré `gh auth login`.
+
+---
+
+## Documentación técnica
+
+- [Documentación de la interfaz](docs/LANDING.md)
 - [Mockup integral del proyecto](MOCKUP_TPO.md)
-- [Documentación de la landing](docs/LANDING.md)
-- [PDF — Arquitectura del e-commerce (TP Primera Parte)](TP_Primera_Parte_Ecommerce.pdf)
-- [Fuente editable del PDF](TP_Primera_Parte_Ecommerce.tex)
-- [Plan de tareas para Trello](PLAN_TRELLO.md)
-- [Mockup web anterior](https://mockup-web-cyan.vercel.app)
+- [Arquitectura del e-commerce (PDF)](TP_Primera_Parte_Ecommerce.pdf) · [fuente `.tex`](TP_Primera_Parte_Ecommerce.tex)
 
-### Cómo recompilar el PDF
+Para recompilar los PDF hace falta **XeLaTeX** y las tipografías Inter, Inter Display
+y JetBrains Mono:
 
 ```bash
 xelatex TP_Primera_Parte_Ecommerce.tex   # dos pasadas
 ```
 
-Requiere **XeLaTeX** y las tipografías Inter, Inter Display y JetBrains Mono.
+---
+
+## Contexto académico
+
+Este proyecto es el **Trabajo Práctico Integrador de Desarrollo de Aplicaciones II**.
+Todo lo de arriba es el producto; acá quedan los artefactos de la cursada.
+
+### Entrega — Checkpoint 1
+
+- [Documento de 4 páginas](Checkpoint_1_Ecommerce.pdf)
+- [Versión técnica de respaldo](Checkpoint_1_Ecommerce_Tecnico.pdf)
+- [Enlaces, evidencia y checklist reproducible](ENTREGA_CHECKPOINT_1.md)
+- [Prototipo editable del Catálogo](figma-checkpoint-1/README.md)
+
+### Seguimiento
+
+- [Tablero Trello](https://trello.com/b/gbrISl9W/desarrollo-de-aplicaciones-2-tpo)
+- [Plan de tareas](PLAN_TRELLO.md)
+- [Mockup web anterior](https://mockup-web-cyan.vercel.app)

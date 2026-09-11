@@ -16,7 +16,7 @@ Antes de programar:
 3. Inspeccioná `TPO/mockup-web`, pero no lo sobrescribas: ese sitio documenta el mockup anterior.
 4. Creá la nueva landing en `TPO/landing-ecommerce/`.
 
-Nombre de trabajo de la marca: **TPO Store**. Podés mejorarlo visualmente, pero mantené ese nombre salvo que encuentres una alternativa claramente superior y la documentes.
+Nombre de trabajo de la marca: **Fachada**. Podés mejorarlo visualmente, pero mantené ese nombre salvo que encuentres una alternativa claramente superior y la documentes.
 
 Objetivo visual:
 - estética premium, moderna y confiable;
