@@ -29,7 +29,7 @@ globalThis.window = globalThis;
 
 /** Para poder inspeccionar qué quedó realmente guardado. */
 export function crudoDe(clave) {
-  return almacen.get(`fachada:${clave}`) ?? null;
+  return almacen.get(`gomarket:${clave}`) ?? null;
 }
 
 export function vaciarAlmacen() {

@@ -1,4 +1,4 @@
-# Fachada — landing del e-commerce
+# GOMARKET — landing del e-commerce
 
 Tienda online del Trabajo Práctico Integrador de **Desarrollo de Aplicaciones II**.
 Es la capa de presentación real del proyecto: catálogo, búsqueda, filtros y carrito

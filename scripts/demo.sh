@@ -15,7 +15,7 @@ PUERTO=4321
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WEBAPP="$RAIZ/src/main/webapp"
 WILDFLY="$(cd "$RAIZ/.." && pwd)/wildfly/wildfly-41-ee10"
-LOG_FRONT="/tmp/fachada-front.log"
+LOG_FRONT="/tmp/gomarket-front.log"
 
 verde()  { printf '\033[32m%s\033[0m\n' "$*"; }
 rojo()   { printf '\033[31m%s\033[0m\n' "$*"; }

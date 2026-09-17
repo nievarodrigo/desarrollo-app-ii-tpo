@@ -213,8 +213,8 @@ const CLAVE_MINIMA = 8;
  * un script de migración, no código de aplicación.
  */
 const SEMILLA = [
-  { nombre: 'Ana Gómez', email: 'cliente@fachada.com.ar', clave: 'cliente123', rol: ROLES.CLIENTE },
-  { nombre: 'Rodrigo Nieva', email: 'admin@fachada.com.ar', clave: 'admin123', rol: ROLES.ADMIN }
+  { nombre: 'Ana Gómez', email: 'cliente@gomarket.com.ar', clave: 'cliente123', rol: ROLES.CLIENTE },
+  { nombre: 'Rodrigo Nieva', email: 'admin@gomarket.com.ar', clave: 'admin123', rol: ROLES.ADMIN }
 ];
 
 /** @type {Promise<void>|null} */

@@ -226,7 +226,7 @@ class CarritoService {
     }
 
     const pedido = {
-      codigo: `FCH-${String(Math.floor(Math.random() * 90000) + 10000)}`,
+      codigo: `GM-${String(Math.floor(Math.random() * 90000) + 10000)}`,
       total: resumen.total,
       unidades: resumen.unidades,
       confirmadoEn: new Date().toISOString()

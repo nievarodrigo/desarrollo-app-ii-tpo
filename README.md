@@ -1,13 +1,13 @@
-# Fachada
+# GOMARKET
 
 **E-commerce en capas sobre Jakarta EE 10.** Catálogo con búsqueda, filtros y facetas;
 carrito y checkout; API REST propia. Se empaqueta como un único WAR desplegable en
 WildFly y la misma UI se publica como sitio estático sin tocar una línea de código.
 
-> **¿Por qué "Fachada"?** Porque es lo que el patrón *Facade* y una tienda tienen en
-> común: **una entrada simple a un sistema complejo.** El cliente ve un botón "Comprar";
-> atrás hay capas, servicios, repositorios y transacciones. Esa es exactamente la
-> promesa de este proyecto — y el nombre nos obliga a cumplirla.
+> **Una entrada simple a un sistema complejo.** El cliente ve un botón "Comprar";
+> atrás hay capas, servicios, repositorios y transacciones. Cada componente expone
+> una sola puerta de entrada —el patrón *Facade*— y esconde todo lo demás. Esa es
+> la promesa de este proyecto.
 
 🔗 **[Ver la tienda en vivo](https://landing-ecommerce-tau.vercel.app)**
 

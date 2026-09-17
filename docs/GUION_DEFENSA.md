@@ -1,6 +1,6 @@
 # Guion de la defensa — Entrega Obligatoria N.º 1
 
-> **Fachada** · Comisión Lunes TM · 2.º Cuatrimestre 2026
+> **GOMARKET** · Comisión Lunes TM · 2.º Cuatrimestre 2026
 > Duración: ~14 min de exposición + preguntas (la consigna da 20-25 min por grupo)
 
 **Integrantes y bloques:** Rodrigo (apertura + estructura y capas) ·
@@ -270,7 +270,7 @@ tapa el agujero.
 
 ### Lo que decís
 
-Buenas. Nosotros somos el grupo de **Fachada**, un e-commerce. Hoy les traemos
+Buenas. Nosotros somos el grupo de **GOMARKET**, un e-commerce. Hoy les traemos
 la primera entrega obligatoria y vamos a mostrar **el cliente**: tres
 componentes completos, cada uno con su arquitectura en capas.
 
@@ -655,7 +655,7 @@ Miren: intento confirmar la compra sin haber iniciado sesión, y el sistema **no
 me deja** y me abre el formulario. Eso, del lado del negocio, es un **401: no sé
 quién sos**.
 
-`[Ingresar como cliente@fachada.com.ar / cliente123 — hay un botón que carga los datos]`
+`[Ingresar como cliente@gomarket.com.ar / cliente123 — hay un botón que carga los datos]`
 
 ![Como **CLIENTE**: chip verde, y *no* aparece el panel de administración.](capturas/12-menu-cliente.png)
 
@@ -669,7 +669,7 @@ Ahora, alguien podría decir "bueno, ocultaste el botón". Vamos a la consola.
 `[F12 → Consola]`
 
 ```js
-fachada.usuario.listarUsuarios()
+gomarket.usuario.listarUsuarios()
 ```
 
 `[Ejecutar → sale AccesoDenegadoError]`
@@ -705,7 +705,7 @@ de código de seguridad.
 Cuando esto pase al backend, borramos `autorizar([...])` y ponemos
 `@RolesAllowed`. **Cambia el ejecutor, no el diseño.**
 
-`[Salir, ingresar como admin@fachada.com.ar / admin123]`
+`[Salir, ingresar como admin@gomarket.com.ar / admin123]`
 
 ![Como **ADMIN**: chip rojo, y ahora sí aparece **Panel de administración**.](capturas/13-menu-admin.png)
 

@@ -1,5 +1,5 @@
 /**
- * Fachada — orquestación de la landing.
+ * GOMARKET — orquestación de la landing.
  *
  * ARQUITECTURA (ver `docs/ARQUITECTURA_FRONT.md`)
  *
@@ -874,7 +874,7 @@ if (document.readyState === 'loading') {
  *
  * Son las FACHADAS de los tres componentes, no sus tripas: desde la consola se
  * puede ejercitar exactamente el mismo contrato que usa la UI. Sirve para
- * demostrar en vivo, por ejemplo, que `fachada.carrito.confirmarCompra()` tira
+ * demostrar en vivo, por ejemplo, que `gomarket.carrito.confirmarCompra()` tira
  * 401 sin sesión aunque nunca se toque el botón.
  */
-window.fachada = { catalogo, carrito, usuario, filtros };
+window.gomarket = { catalogo, carrito, usuario, filtros };
