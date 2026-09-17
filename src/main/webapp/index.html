@@ -84,13 +84,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
             <span class="accion__texto">Cuenta</span>
           </button>
-          <div class="menu-cuenta__panel" id="panel-cuenta" role="menu" hidden data-cuenta-panel>
-            <p class="menu-cuenta__saludo">Hola, invitado 👋</p>
-            <button role="menuitem" type="button" data-demo="ingresar">Ingresar</button>
-            <button role="menuitem" type="button" data-demo="registro">Crear cuenta</button>
-            <button role="menuitem" type="button" data-demo="pedidos">Mis pedidos</button>
-            <button role="menuitem" type="button" data-demo="favoritos">Favoritos</button>
-          </div>
+          <!-- Lo llena `componentes/usuario/presentacion/usuario-view.js` según
+               la sesión activa: invitado ve Ingresar/Crear cuenta; un ADMIN ve
+               además el panel de administración. -->
+          <div class="menu-cuenta__panel" id="panel-cuenta" role="menu" hidden data-cuenta-panel></div>
         </div>
 
         <button class="accion accion--carrito" type="button" data-abrir-carrito aria-haspopup="dialog" aria-controls="carrito">
@@ -120,7 +117,7 @@
         <div class="menu-movil__extras">
           <p class="menu-movil__titulo" id="etiqueta-tema-movil">Tema visual</p>
           <div class="temas" role="radiogroup" aria-labelledby="etiqueta-tema-movil" data-temas></div>
-          <button class="boton boton--fantasma boton--ancho" type="button" data-demo="ingresar">Ingresar o crear cuenta</button>
+          <button class="boton boton--fantasma boton--ancho" type="button" data-cuenta-movil data-cuenta-accion="ingresar">Ingresar o crear cuenta</button>
         </div>
       </div>
     </div>
@@ -481,6 +478,12 @@
   <!-- ========================= DETALLE DE PRODUCTO ========================== -->
   <div class="modal" id="modal-producto" role="dialog" aria-modal="true" aria-labelledby="modal-titulo" hidden data-modal>
     <div class="modal__caja" data-modal-caja tabindex="-1"></div>
+  </div>
+
+  <!-- Componente Usuario: ingreso, registro y panel de administración.
+       Lo llena `componentes/usuario/presentacion/usuario-view.js`. -->
+  <div class="modal modal--angosto" id="modal-cuenta" role="dialog" aria-modal="true" aria-labelledby="cuenta-titulo" hidden data-cuenta-modal>
+    <div class="modal__caja" data-cuenta-caja tabindex="-1"></div>
   </div>
 
   <!-- ================================ AVISOS =============================== -->

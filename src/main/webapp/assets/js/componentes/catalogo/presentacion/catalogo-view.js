@@ -1,7 +1,17 @@
-/** Render de tarjetas de producto, puntajes y ficha de detalle. */
+/**
+ * CAPA DE PRESENTACIÓN del componente Catálogo — `CatálogoView`.
+ *
+ * Dibuja tarjetas, puntajes y la ficha de detalle. Nada más. No decide qué
+ * producto es visible, no filtra, no ordena y no toca el carrito: recibe un
+ * producto ya resuelto por `CatalogoService` y devuelve HTML.
+ *
+ * Es la capa que, según Clase 3 (slide 16), "delega toda decisión de negocio a
+ * la capa siguiente". La única lógica admitida acá es de FORMATO: cómo se ve un
+ * precio, cuántas estrellas pintar, qué marbete corresponde.
+ */
 
-import { precio, cuota, numero, porcentajeDescuento } from '../core/format.js';
-import { arteProducto } from './art.js';
+import { precio, cuota, numero, porcentajeDescuento } from '../../../compartido/formato.js';
+import { arteProducto } from '../../../compartido/arte.js';
 
 const STOCK_BAJO = 5;
 

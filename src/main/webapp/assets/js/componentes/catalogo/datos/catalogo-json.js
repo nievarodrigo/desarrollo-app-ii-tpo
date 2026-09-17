@@ -1,13 +1,16 @@
 /**
- * Carga del catálogo mock.
+ * CAPA DE DATOS del componente Catálogo — la fuente de datos.
+ *
+ * Es el equivalente del `DataSource` que el contenedor le inyecta al backend:
+ * no es un repositorio, es de dónde el repositorio saca las filas. Por eso los
+ * repositorios (`producto-repository.js`, `categoria-repository.js`) dependen de
+ * este módulo y nadie más lo importa.
  *
  * Los datos NO viven acá: viven en `assets/data/catalogo.json`, que es el mismo
  * archivo que lee el backend (`CatalogoEnMemoria` lo toma del classpath, ver el
  * bloque <resources> del pom.xml). Una sola fuente para el WAR y para el
  * despliegue estático: si duplicáramos los productos, se desincronizarían a la
  * primera corrección.
- *
- * Este módulo sólo se usa cuando la API no está disponible (sitio estático).
  */
 
 const RUTA = 'assets/data/catalogo.json';

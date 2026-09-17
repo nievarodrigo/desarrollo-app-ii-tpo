@@ -1,10 +1,18 @@
-/** Panel lateral del carrito: render, controles de cantidad y checkout simulado. */
+/**
+ * CAPA DE PRESENTACIÓN del componente Carrito — `CarritoView`.
+ *
+ * Panel lateral: render de la lista, controles de cantidad y confirmación de
+ * compra. No calcula totales ni valida stock — todo eso sale ya resuelto de
+ * `carrito-service.js`. Lo que sí hace, y es su trabajo, es traducir el
+ * resultado del negocio a algo que una persona entienda: un tope de stock no es
+ * un error, es un aviso; una sesión faltante no es un error, es un formulario.
+ */
 
-import * as carrito from '../core/cart.js';
-import { precio, cuota } from '../core/format.js';
-import { arteProducto } from './art.js';
-import { abrirCapa, cerrarCapa, capaAbierta } from './overlay.js';
-import { avisar } from './avisos.js';
+import * as carrito from '../negocio/carrito-service.js';
+import { precio, cuota } from '../../../compartido/formato.js';
+import { arteProducto } from '../../../compartido/arte.js';
+import { abrirCapa, cerrarCapa, capaAbierta } from '../../../compartido/capa-modal.js';
+import { avisar } from '../../../compartido/avisos.js';
 
 const panel = document.querySelector('[data-carrito]');
 const cuerpo = document.querySelector('[data-carrito-cuerpo]');
@@ -149,8 +157,19 @@ export function cerrarCarrito() {
   if (panel && capaAbierta(panel)) cerrarCapa();
 }
 
-/** Conecta los eventos del panel. `alIrAlCatalogo` lo provee `main.js`. */
-export function iniciarCarritoUI({ alIrAlCatalogo } = {}) {
+/**
+ * Conecta los eventos del panel.
+ *
+ * Las dos dependencias las inyecta `main.js` como funciones, no como módulos:
+ * así esta vista no importa ni la navegación de la landing ni el componente
+ * Usuario, y se puede montar sola.
+ *
+ * @param {object} opciones
+ * @param {Function} [opciones.alIrAlCatalogo] llevar el foco al catálogo
+ * @param {Function} [opciones.alExigirSesion] `(roles) => boolean`; si devuelve
+ *   `false` ya se encargó de avisar y de ofrecer el ingreso
+ */
+export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
   if (!panel || !cuerpo) return;
 
   carrito.alCambiar(render);
@@ -214,27 +233,56 @@ export function iniciarCarritoUI({ alIrAlCatalogo } = {}) {
     cuerpo.focus({ preventScroll: true });
   });
 
+  /**
+   * Confirmar compra — OPERACIÓN SENSIBLE.
+   *
+   * Dos controles, con propósitos distintos:
+   *
+   *   1. `alExigirSesion()` es USABILIDAD: si no hay sesión, en vez de un error
+   *      seco le abrimos el formulario de ingreso. No autoriza nada.
+   *   2. `carrito.confirmarCompra()` es SEGURIDAD: está declarada con
+   *      `autorizar([CLIENTE, ADMIN], …)` en la capa de negocio y lanza igual
+   *      si alguien la invoca desde la consola salteando este botón.
+   *
+   * Si borráramos el paso 1, la operación seguiría protegida. Si borráramos el
+   * paso 2, no. Esa es la diferencia entre un chequeo de UI y un control de
+   * acceso, y es la pregunta que conviene tener contestada.
+   */
   document.querySelector('[data-checkout]')?.addEventListener('click', (evento) => {
     const boton = evento.currentTarget;
-    const resumen = carrito.resumen();
-    if (resumen.unidades === 0) return;
+    if (carrito.resumen().unidades === 0) return;
+
+    if (alExigirSesion && !alExigirSesion(['CLIENTE', 'ADMIN'], boton)) return;
 
     boton.disabled = true;
     boton.textContent = 'Procesando el pago…';
 
-    /* Simula `POST /api/checkout`: el backend recalculará el total y validará
-       el stock antes de crear el pedido. */
+    /* Simula la latencia de `POST /api/checkout`, donde el backend recalculará
+       el total y validará el stock antes de crear el pedido. */
     setTimeout(() => {
-      pedidoConfirmado = {
-        codigo: `FCH-${String(Math.floor(Math.random() * 90000) + 10000)}`,
-        total: resumen.total,
-        unidades: resumen.unidades
-      };
-      carrito.vaciar();
-      boton.disabled = false;
-      boton.textContent = 'Confirmar compra';
-      avisar('Pago aprobado. Creamos tu pedido.', 'ok');
-      panel.querySelector('[data-cerrar-carrito]')?.focus({ preventScroll: true });
+      try {
+        const { ok, pedido, motivo } = carrito.confirmarCompra();
+
+        if (!ok) {
+          avisar(motivo === 'carrito-vacio' ? 'El carrito quedó vacío.' : 'No pudimos confirmar la compra.', 'alerta');
+          return;
+        }
+
+        /* `confirmar()` vacía el carrito, y eso ya disparó un render con el
+           estado "vacío". Marcamos el comprobante y volvemos a pintar para que
+           gane la vista de confirmación. */
+        pedidoConfirmado = pedido;
+        render(carrito.resumen());
+        avisar('Pago aprobado. Creamos tu pedido.', 'ok');
+        panel.querySelector('[data-cerrar-carrito]')?.focus({ preventScroll: true });
+      } catch (error) {
+        /* El negocio rechazó la operación: 401 si no hay sesión, 403 si el rol
+           no alcanza. La vista sólo lo cuenta. */
+        avisar(error.message, error.name === 'AccesoDenegadoError' ? 'error' : 'alerta');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Confirmar compra';
+      }
     }, 1100);
   });
 
