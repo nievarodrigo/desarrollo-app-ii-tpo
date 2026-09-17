@@ -1,19 +1,38 @@
 /**
  * Fachada — orquestación de la landing.
  *
- * Este archivo conecta la capa de datos (`core/api.js`) con la UI. No contiene
- * datos de productos ni reglas de negocio: eso vive en `core/` y `data/`.
+ * ARQUITECTURA (ver `docs/ARQUITECTURA_FRONT.md`)
+ *
+ * El código está organizado POR COMPONENTE y, dentro de cada uno, POR CAPA:
+ *
+ *     componentes/<componente>/presentacion/   ← qué se muestra
+ *     componentes/<componente>/negocio/        ← qué reglas se aplican
+ *     componentes/<componente>/datos/          ← de dónde salen los datos
+ *
+ * Espeja la estructura del backend (`src/main/java/.../catalogo/{controller,
+ * service,repository}`) a propósito: es la misma arquitectura de las dos manos
+ * del cable.
+ *
+ * Este archivo NO es una capa: es el ARRANQUE de la landing. Monta los tres
+ * componentes, les pasa las dependencias que necesitan y maneja lo que no
+ * pertenece a ninguno (tema, menú móvil, contador de la promo, newsletter).
+ *
+ * No contiene reglas de negocio ni datos de productos, y sólo habla con las
+ * FACHADAS de los componentes — nunca con un repositorio ni con una
+ * implementación concreta.
  */
 
-import * as api from './core/api.js';
-import * as carrito from './core/cart.js';
-import { TEMAS, temaActual, aplicarTema } from './core/theme.js';
-import { precio, numero } from './core/format.js';
-import { tarjetaProducto, detalleProducto } from './ui/producto.js';
-import { arteProducto } from './ui/art.js';
-import { iniciarCarritoUI } from './ui/carrito-ui.js';
-import { abrirCapa, cerrarCapa } from './ui/overlay.js';
-import { avisar } from './ui/avisos.js';
+import * as catalogo from './componentes/catalogo/negocio/catalogo-service.js';
+import * as carrito from './componentes/carrito/negocio/carrito-service.js';
+import { tarjetaProducto, detalleProducto } from './componentes/catalogo/presentacion/catalogo-view.js';
+import { iniciarCarritoView } from './componentes/carrito/presentacion/carrito-view.js';
+import { exigirSesion, iniciarUsuarioView } from './componentes/usuario/presentacion/usuario-view.js';
+import * as usuario from './componentes/usuario/negocio/usuario-service.js';
+import { TEMAS, temaActual, aplicarTema } from './compartido/tema.js';
+import { precio, numero } from './compartido/formato.js';
+import { arteProducto } from './compartido/arte.js';
+import { abrirCapa, cerrarCapa } from './compartido/capa-modal.js';
+import { avisar } from './compartido/avisos.js';
 
 /* ------------------------------------------------------------------ */
 /* Estado de la vista de catálogo                                      */
@@ -183,10 +202,11 @@ function iniciarCabecera() {
       if (!abierto) $('button', panelCuenta)?.focus();
     });
 
+    /* Cerramos el menú cuando se elige una acción. Qué HACE cada acción lo
+       resuelve el componente Usuario: acá sólo se administra el desplegable. */
     panelCuenta.addEventListener('click', (evento) => {
-      if (!evento.target.closest('[data-demo]')) return;
+      if (!evento.target.closest('[data-cuenta-accion]')) return;
       cerrar();
-      botonCuenta.focus();
     });
 
     document.addEventListener('click', (evento) => {
@@ -213,20 +233,13 @@ function iniciarCabecera() {
     });
 
     menuMovil.addEventListener('click', (evento) => {
-      if (evento.target.closest('a, [data-demo]')) {
+      if (evento.target.closest('a, [data-cuenta-accion]')) {
         menuMovil.hidden = true;
         botonMenu.setAttribute('aria-expanded', 'false');
       }
     });
   }
 
-  /* Las acciones de cuenta son demostrativas hasta que exista el backend.
-     Un solo manejador cubre el menú de escritorio y el móvil. */
-  document.addEventListener('click', (evento) => {
-    if (evento.target.closest('[data-demo]')) {
-      avisar('Cuentas y pedidos llegan con la API del backend.', 'alerta');
-    }
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -240,7 +253,7 @@ async function iniciarHero() {
   await Promise.all(
     contenedores.map(async (figura) => {
       try {
-        const producto = await api.obtenerProducto(Number(figura.dataset.heroArte));
+        const producto = await catalogo.obtener(Number(figura.dataset.heroArte));
         figura.insertAdjacentHTML('afterbegin', arteProducto(producto));
         const etiqueta = $(`[data-hero-precio="${producto.id}"]`);
         if (etiqueta) etiqueta.textContent = precio(producto.precio);
@@ -260,13 +273,13 @@ async function iniciarCategorias() {
   if (!lista) return;
 
   try {
-    categorias = await api.listarCategorias();
+    categorias = await catalogo.listarCategorias();
   } catch {
     lista.innerHTML = '';
     return;
   }
 
-  const { porCategoria: conteo } = await api.contarPorCategoria({});
+  const { porCategoria: conteo } = await catalogo.contarPorCategoria({});
 
   lista.innerHTML = categorias
     .map(
@@ -384,7 +397,7 @@ function iniciarFiltros() {
 
   /* Error simulado, para poder mostrar el estado de error en vivo */
   $('[data-simular-error]')?.addEventListener('click', () => {
-    api.forzarProximoError();
+    catalogo.forzarProximoError();
     cargarCatalogo();
   });
 
@@ -618,7 +631,7 @@ async function cargarCatalogo() {
   if (nota) nota.textContent = 'Buscando…';
 
   try {
-    const { items, total } = await api.listarProductos(filtrosEfectivos());
+    const { items, total } = await catalogo.buscar(filtrosEfectivos());
     if (identificador !== peticionEnCurso) return;
 
     productosVisibles = items;
@@ -649,7 +662,7 @@ async function cargarCatalogo() {
 /** Cantidad de productos por categoría con los filtros actuales (sin la categoría). */
 async function actualizarConteos() {
   try {
-    const { total, porCategoria } = await api.contarPorCategoria(filtrosEfectivos());
+    const { total, porCategoria } = await catalogo.contarPorCategoria(filtrosEfectivos());
     $$('[data-conteo]').forEach((nodo) => {
       const slug = nodo.dataset.conteo;
       nodo.textContent = slug === 'todas' ? total : (porCategoria[slug] ?? 0);
@@ -672,7 +685,7 @@ async function abrirDetalle(id, disparador) {
   let producto = porId.get(Number(id));
   if (!producto) {
     try {
-      producto = await api.obtenerProducto(id);
+      producto = await catalogo.obtener(id);
       porId.set(producto.id, producto);
     } catch {
       avisar('No pudimos abrir el detalle del producto.', 'error');
@@ -823,14 +836,17 @@ async function iniciar() {
   iniciarCabecera();
   iniciarBuscadores();
   iniciarInteraccionesCatalogo();
-  iniciarCarritoUI({ alIrAlCatalogo: irAlCatalogo });
+  /* Los tres componentes se montan acá. Cada uno recibe por parámetro lo que
+     necesita del afuera, así ninguno importa al otro. */
+  iniciarUsuarioView();
+  iniciarCarritoView({ alIrAlCatalogo: irAlCatalogo, alExigirSesion: exigirSesion });
   iniciarContador();
   iniciarNewsletter();
 
   mostrarEsqueletos();
 
   try {
-    rango = await api.rangoDePrecios();
+    rango = await catalogo.rangoDePrecios();
   } catch {
     /* Sin rango el deslizante queda deshabilitado, pero el resto sigue. */
   }
@@ -853,5 +869,12 @@ if (document.readyState === 'loading') {
   iniciar();
 }
 
-/* Expuesto sólo para inspección manual desde la consola durante el desarrollo. */
-window.tpoStore = { filtros, carrito, api };
+/**
+ * Expuesto sólo para inspección manual desde la consola.
+ *
+ * Son las FACHADAS de los tres componentes, no sus tripas: desde la consola se
+ * puede ejercitar exactamente el mismo contrato que usa la UI. Sirve para
+ * demostrar en vivo, por ejemplo, que `fachada.carrito.confirmarCompra()` tira
+ * 401 sin sesión aunque nunca se toque el botón.
+ */
+window.fachada = { catalogo, carrito, usuario, filtros };

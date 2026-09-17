@@ -4,7 +4,7 @@
  * localStorage y se aplica antes del primer render para evitar el parpadeo.
  */
 
-import { leer, escribir } from './storage.js';
+import { leer, escribir } from './almacenamiento.js';
 
 export const TEMAS = [
   { id: 'normal', nombre: 'Normal', descripcion: 'Papel cálido, el look de la marca' },

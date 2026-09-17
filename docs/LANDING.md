@@ -45,19 +45,30 @@ src/main/webapp/
     │   └── estado-backend.json
     ├── css/styles.css         # sistema visual (tokens → componentes → responsive)
     └── js/
-        ├── main.js            # orquestación: conecta datos con UI
-        ├── data/catalog.js    # carga del catálogo estático (sólo modo mock)
-        ├── core/
-        │   ├── api.js         # capa de acceso a datos (http | mock, autodetectado)
-        │   ├── cart.js        # estado y reglas del carrito
-        │   ├── theme.js       # temas normal / claro / oscuro
-        │   ├── format.js      # precios en ARS, cuotas, descuentos
-        │   └── storage.js     # localStorage tolerante a fallos
-        └── ui/
-            ├── producto.js    # tarjeta y ficha de producto
-            ├── carrito-ui.js  # panel lateral del carrito
-            ├── art.js         # ilustraciones SVG de producto
-            ├── overlay.js     # velo, foco atrapado, Escape
+        ├── main.js                  # arranque: monta los componentes
+        ├── componentes/             # por componente y, adentro, por capa
+        │   ├── catalogo/
+        │   │   ├── presentacion/catalogo-view.js     # tarjeta y ficha
+        │   │   ├── negocio/catalogo-service.js       # contrato + factory
+        │   │   ├── negocio/catalogo-service-local.js # reglas propias
+        │   │   ├── negocio/catalogo-service-remoto.js# adapter al backend
+        │   │   ├── negocio/criterios-de-busqueda.js  # objeto de valor
+        │   │   └── datos/{producto,categoria}-repository.js
+        │   ├── carrito/
+        │   │   ├── presentacion/carrito-view.js      # panel lateral
+        │   │   ├── negocio/carrito-service.js        # STATEFUL
+        │   │   └── datos/carrito-repository.js
+        │   └── usuario/
+        │       ├── presentacion/usuario-view.js      # ingreso, registro, admin
+        │       ├── negocio/usuario-service.js        # sesión y roles
+        │       └── datos/usuario-repository.js
+        └── compartido/              # transversal, de ningún componente
+            ├── cliente-http.js      # transporte + detección de backend
+            ├── almacenamiento.js    # localStorage tolerante a fallos
+            ├── tema.js              # temas normal / claro / oscuro
+            ├── formato.js           # precios en ARS, cuotas, descuentos
+            ├── arte.js              # ilustraciones SVG de producto
+            ├── capa-modal.js        # velo, foco atrapado, Escape
             └── avisos.js      # notificaciones efímeras
 ```
 
@@ -95,38 +106,41 @@ copiar archivos. **La complejidad se agrega cuando duele, no antes.**
 
 ### La UI nunca toca los datos directamente
 
-`assets/js/core/api.js` es la única puerta. La interfaz importa `listarProductos`,
-`listarCategorias`, `obtenerProducto` y `contarPorCategoria`, y **no sabe de dónde
-salen**: puede ser la API Jakarta EE o el catálogo estático.
+La fachada del componente Catálogo
+(`componentes/catalogo/negocio/catalogo-service.js`) es la única puerta. La
+presentación importa `buscar`, `obtener`, `listarCategorias`,
+`contarPorCategoria` y `rangoDePrecios`, y **no sabe quién los cumple**: puede
+ser la API Jakarta EE o las reglas locales sobre el catálogo estático.
 
-El modo se resuelve solo, una vez, al arrancar (`GET api/salud`). Se puede forzar
-para probar:
-
-```js
-// assets/js/core/api.js
-const MODO = 'auto';   // 'auto' | 'http' | 'mock'
-```
+Una *factory* lo resuelve sola, una vez, al arrancar (`GET api/salud`) y elige
+entre dos implementaciones del mismo contrato — ver
+[Arquitectura del front §4.4](ARQUITECTURA_FRONT.md).
 
 Los contratos coinciden con los recursos JAX-RS del mockup (§11):
 
-| Función del front | Recurso REST | Componente Jakarta EE |
+| Operación de la fachada | Recurso REST | Componente Jakarta EE |
 |---|---|---|
-| `listarProductos(filtros)` | `GET /api/productos` | `ProductoResource` → `CatalogoService` |
-| `contarPorCategoria(filtros)` | `GET /api/productos/facetas` | `CatalogoService` |
-| `obtenerProducto(id)` | `GET /api/productos/{id}` | `ProductoResource` |
+| `buscar(criterios)` | `GET /api/productos` | `ProductoResource` → `CatalogoService` |
+| `contarPorCategoria(criterios)` | `GET /api/productos/facetas` | `CatalogoService` |
+| `obtener(id)` | `GET /api/productos/{id}` | `ProductoResource` |
 | `listarCategorias()` | `GET /api/categorias` | `CategoriaRepository` |
-| carrito (`core/cart.js`) | `POST/PATCH/DELETE /api/carritos/{id}/items` | ⏳ `CarritoResource` → `CarritoService` |
-| checkout (`ui/carrito-ui.js`) | `POST /api/checkout` | ⏳ `CheckoutFacade` |
+| carrito (`carrito-service.js`) | `POST/PATCH/DELETE /api/carritos/{id}/items` | ⏳ `CarritoResource` → `CarritoService` |
+| checkout (`carrito.confirmarCompra()`) | `POST /api/checkout` | ⏳ `CheckoutFacade` |
+| cuentas (`usuario-service.js`) | `POST /api/usuarios`, `POST /api/sesiones` | ⏳ `UsuarioResource` → `UsuarioService` |
 
-Las cuatro primeras ya existen y funcionan. Las dos últimas siguen simuladas en el
-front hasta que se implementen los componentes Carrito y Pedido.
+Las cuatro primeras ya existen y funcionan. Las tres últimas siguen resueltas en
+el front hasta que se implementen esos componentes del lado del servidor.
 
-El modo mock **simula latencia** (220–480 ms). No es un adorno: obliga a que los
-estados de carga existan de verdad y no sean una pantalla que nunca se ve.
+El repositorio en memoria **simula latencia** (220–480 ms). No es un adorno:
+obliga a que los estados de carga existan de verdad y no sean una pantalla que
+nunca se ve. Vive en la capa de datos, no en la de negocio, porque la latencia
+es E/S — y así los tests del negocio corren instantáneos con un repositorio
+falso.
 
 ### El carrito replica las reglas del backend, no las reemplaza
 
-`core/cart.js` aplica las mismas reglas que después validará `CarritoService`:
+`componentes/carrito/negocio/carrito-service.js` aplica las mismas reglas que
+después revalidará el `CarritoService` de Jakarta EE:
 
 - la cantidad nunca baja de 1 ni supera el stock;
 - el total **se recalcula siempre** desde los ítems, nunca se persiste;
@@ -145,7 +159,7 @@ en Java, se desincronizarían a la primera corrección.
 
 ### Ilustraciones propias en SVG
 
-Cero fotos de stock, cero CDN de imágenes, cero licencias dudosas. `ui/art.js` dibuja
+Cero fotos de stock, cero CDN de imágenes, cero licencias dudosas. `compartido/arte.js` dibuja
 17 objetos geométricos que toman su color de las variables CSS del tema, así que la
 misma ilustración funciona en los tres temas. El fondo de cada pieza se elige con un
 hash del SKU, para que un producto siempre se vea igual.
@@ -222,7 +236,7 @@ Suite de 46 pruebas automatizadas con Playwright sobre Chromium, corrida contra 
 ## Qué falta
 
 1. Componentes **Carrito** y **Pedido** con sus recursos REST.
-2. Reemplazar el checkout simulado de `ui/carrito-ui.js` por `POST /api/checkout` y
+2. Reemplazar el checkout simulado de `carrito.confirmarCompra()` por `POST /api/checkout` y
    mostrar el `PedidoResponse` real.
 3. Sumar autenticación: hoy el menú de cuenta es demostrativo.
 5. Cuando el backend cubra todo, `MODO = 'http'` fijo y el catálogo estático queda
