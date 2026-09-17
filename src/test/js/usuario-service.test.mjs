@@ -35,8 +35,8 @@ import {
   sesionActual
 } from '../../main/webapp/assets/js/componentes/usuario/negocio/usuario-service.js';
 
-const CLIENTE = { email: 'cliente@fachada.com.ar', clave: 'cliente123' };
-const ADMIN = { email: 'admin@fachada.com.ar', clave: 'admin123' };
+const CLIENTE = { email: 'cliente@gomarket.com.ar', clave: 'cliente123' };
+const ADMIN = { email: 'admin@gomarket.com.ar', clave: 'admin123' };
 
 beforeEach(async () => {
   egresar();
@@ -61,7 +61,7 @@ describe('Autenticación', () => {
   });
 
   test('el email no distingue mayúsculas', async () => {
-    const sesion = await ingresar('CLIENTE@Fachada.COM.AR', CLIENTE.clave);
+    const sesion = await ingresar('CLIENTE@Gomarket.COM.AR', CLIENTE.clave);
     assert.equal(sesion.email, CLIENTE.email);
   });
 
@@ -72,7 +72,7 @@ describe('Autenticación', () => {
   test('clave incorrecta y usuario inexistente dan el MISMO mensaje', async () => {
     /* Distinguirlos le confirmaría a un atacante qué correos están registrados. */
     const claveMal = await ingresar(CLIENTE.email, 'incorrecta').catch((e) => e.message);
-    const noExiste = await ingresar('fantasma@fachada.com.ar', 'incorrecta').catch((e) => e.message);
+    const noExiste = await ingresar('fantasma@gomarket.com.ar', 'incorrecta').catch((e) => e.message);
     assert.equal(claveMal, noExiste);
   });
 

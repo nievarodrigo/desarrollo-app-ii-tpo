@@ -3,7 +3,7 @@
 > Documento de apoyo para la **Entrega Obligatoria N.º 1 (1.º Parcial)**.
 > Unidades I – II – III · Comisión Lunes TM · 2.º Cuatrimestre 2026
 
-Este documento explica cómo está construida la capa cliente de **Fachada** y por
+Este documento explica cómo está construida la capa cliente de **GOMARKET** y por
 qué está construida así. La tesis es una sola:
 
 > **Un componente no es una pantalla.** El catálogo, el carrito y la cuenta no
@@ -392,12 +392,12 @@ $150.000.
 ### 4 · UsuarioComponent y seguridad (3 min)
 
 1. Sin sesión, tocar **Confirmar compra** → se abre el ingreso. *(Eso es el 401.)*
-2. Entrar como `cliente@fachada.com.ar` / `cliente123` → chip **CLIENTE**. El
+2. Entrar como `cliente@gomarket.com.ar` / `cliente123` → chip **CLIENTE**. El
    menú **no ofrece** el panel de administración.
-3. En la consola: `fachada.usuario.listarUsuarios()` → **`AccesoDenegadoError`**.
+3. En la consola: `gomarket.usuario.listarUsuarios()` → **`AccesoDenegadoError`**.
    *Ni desde la consola: el control está en la declaración de la operación.*
 4. Confirmar la compra → ahora sí, código de pedido.
-5. Salir, entrar como `admin@fachada.com.ar` / `admin123` → chip **ADMIN**,
+5. Salir, entrar como `admin@gomarket.com.ar` / `admin123` → chip **ADMIN**,
    aparece el panel, se puede cambiar un rol.
 6. Intentar degradarse a sí mismo → rechazado.
 

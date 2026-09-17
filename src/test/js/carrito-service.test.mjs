@@ -245,7 +245,7 @@ describe('Confirmar compra — operación sensible', () => {
 
   test('con sesión y con ítems, emite el pedido y vacía el carrito', async () => {
     await asegurarSemilla();
-    await ingresar('cliente@fachada.com.ar', 'cliente123');
+    await ingresar('cliente@gomarket.com.ar', 'cliente123');
 
     carrito.agregar(producto({ precio: 45000 }), 2);
     const totalEsperado = carrito.resumen().total;
@@ -253,7 +253,7 @@ describe('Confirmar compra — operación sensible', () => {
     const { ok, pedido } = carrito.confirmarCompra();
 
     assert.equal(ok, true);
-    assert.match(pedido.codigo, /^FCH-\d{5}$/);
+    assert.match(pedido.codigo, /^GM-\d{5}$/);
     assert.equal(pedido.total, totalEsperado, 'el total sale del resumen recalculado');
     assert.equal(pedido.unidades, 2);
     assert.equal(carrito.resumen().unidades, 0, 'la conversación se cerró');
@@ -261,14 +261,14 @@ describe('Confirmar compra — operación sensible', () => {
 
   test('con sesión pero carrito vacío, no emite pedido', async () => {
     await asegurarSemilla();
-    await ingresar('cliente@fachada.com.ar', 'cliente123');
+    await ingresar('cliente@gomarket.com.ar', 'cliente123');
 
     assert.deepEqual(carrito.confirmarCompra(), { ok: false, motivo: 'carrito-vacio' });
   });
 
   test('un ADMIN también puede comprar', async () => {
     await asegurarSemilla();
-    await ingresar('admin@fachada.com.ar', 'admin123');
+    await ingresar('admin@gomarket.com.ar', 'admin123');
 
     carrito.agregar(producto());
     assert.equal(carrito.confirmarCompra().ok, true);

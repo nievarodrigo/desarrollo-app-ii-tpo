@@ -4,22 +4,25 @@
  * nunca dejamos que una preferencia rompa la página.
  */
 
-const PREFIJO = 'fachada:';
+const PREFIJO = 'gomarket:';
 
-/* Marca anterior. Se migra al vuelo para que quien ya visitó la tienda no pierda
-   el carrito ni el tema al cambiar el nombre. Se puede borrar dentro de unos meses. */
-const PREFIJO_ANTERIOR = 'tpostore:';
+/* Nombres anteriores de la marca, del más reciente al más viejo. Se migran al
+   vuelo para que quien ya visitó la tienda no pierda el carrito ni el tema al
+   cambiar el nombre. Se pueden borrar dentro de unos meses. */
+const PREFIJOS_ANTERIORES = ['fachada:', 'tpostore:'];
 
 export function leer(clave, porDefecto = null) {
   try {
     let crudo = window.localStorage.getItem(PREFIJO + clave);
 
     if (crudo === null) {
-      const heredado = window.localStorage.getItem(PREFIJO_ANTERIOR + clave);
-      if (heredado !== null) {
+      for (const anterior of PREFIJOS_ANTERIORES) {
+        const heredado = window.localStorage.getItem(anterior + clave);
+        if (heredado === null) continue;
         window.localStorage.setItem(PREFIJO + clave, heredado);
-        window.localStorage.removeItem(PREFIJO_ANTERIOR + clave);
+        window.localStorage.removeItem(anterior + clave);
         crudo = heredado;
+        break;
       }
     }
 
