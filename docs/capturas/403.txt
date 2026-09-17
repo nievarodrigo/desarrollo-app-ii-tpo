@@ -1,0 +1,1 @@
+AccesoDenegadoError: Esta operación es sólo para: ADMIN.

@@ -21,10 +21,12 @@ Java 17  ·  Jakarta EE 10  ·  JAX-RS  ·  CDI + EJB  ·  JUnit 5  ·  WAR úni
 
 | | |
 |---|---|
-| 🔎 **Búsqueda** | Sin acentos y por "todas las palabras": `cafe` encuentra *Cafetera*, `mouse inalambrico` exige ambos términos |
+| 🔎 **Búsqueda** | Sin acentos y por "todas las palabras": `cafe` encuentra *Cafetera*, y `teclado cafetera` no devuelve nada porque exige ambos términos |
 | 🎚️ **Filtros** | Categoría, sólo con stock, precio máximo, y 4 ordenamientos |
 | 📊 **Facetas** | Conteo por categoría y rango real de precios, calculados sobre el catálogo vivo |
 | 🛒 **Carrito** | Alta, baja, cantidades y total, persistido en el navegador |
+| 👤 **Cuentas** | Registro, ingreso y sesión con roles `CLIENTE` / `ADMIN`; contraseñas con hash y salt |
+| 🔒 **Autorización** | Confirmar una compra exige sesión; el panel de administración exige `ADMIN` |
 | 💳 **Checkout** | Flujo completo de confirmación en el front |
 | 🎨 **3 temas** | Con persistencia por visitante |
 | ♿ **Accesible** | Contraste AA, navegación por teclado, foco atrapado en modales |
@@ -62,7 +64,7 @@ Queda en **<http://localhost:8080/ecommerce/>**
 cd src/main/webapp && python3 -m http.server 4321
 ```
 
-Levanta en modo mock — ver [*Un mismo front, dos destinos*](#un-mismo-front-dos-destinos).
+Levanta con `CatalogoServiceLocal` — ver [*Un mismo front, dos destinos*](#un-mismo-front-dos-destinos).
 
 ### Tests
 
@@ -103,14 +105,20 @@ del repositorio. Por eso los tests lo instancian a mano, sin levantar el contene
 
 ### Estado por componente
 
-| Componente | Presentación | Negocio | Datos |
-|---|---|---|---|
-| **Catálogo** | ✅ | ✅ | ✅ en memoria · JPA pendiente |
-| Carrito | ✅ front | ⏳ | ⏳ |
-| Pedido | ⏳ | ⏳ | ⏳ |
-| Pago | ⏳ | ⏳ | ⏳ |
-| Checkout | ✅ front | ⏳ | — |
-| Notificación | — | ⏳ | — |
+| Componente | Presentación | Negocio | Datos | Estado |
+|---|---|---|---|---|
+| **Catálogo** | ✅ front + JAX-RS | ✅ front + EJB | ✅ en memoria · JPA pendiente | **stateless** |
+| **Carrito** | ✅ front | ✅ front | ✅ front (localStorage) | **stateful** |
+| **Usuario** | ✅ front | ✅ front | ✅ front (localStorage) | sesión + roles |
+| Pago | ⏳ | ⏳ | ⏳ | — |
+| Pedido | ⏳ | ⏳ | ⏳ | — |
+| Notificación | — | ⏳ | — | — |
+
+Los tres primeros están completos **del lado del cliente**, cada uno con sus tres
+capas y su interfaz explícita — ver
+[Arquitectura del front](docs/ARQUITECTURA_FRONT.md). El Catálogo además está
+implementado en el backend; Carrito y Usuario todavía no, y por eso sus reglas
+corren en el front y el servidor tendrá que revalidarlas.
 
 ### Estructura del código
 
@@ -140,11 +148,25 @@ TPO/
     │   └── webapp/
     │       ├── index.html                    # la tienda
     │       ├── assets/
-    │       │   ├── css/ js/                  # UI sin framework ni build
-    │       │   └── data/catalogo.json        # ← semilla única (front y backend)
+    │       │   ├── css/styles.css
+    │       │   ├── data/catalogo.json        # ← semilla única (front y backend)
+    │       │   └── js/
+    │       │       ├── componentes/          # ← MISMO criterio que el backend
+    │       │       │   ├── catalogo/{presentacion,negocio,datos}/
+    │       │       │   ├── carrito/{presentacion,negocio,datos}/
+    │       │       │   └── usuario/{presentacion,negocio,datos}/
+    │       │       ├── compartido/           # servicios técnicos transversales
+    │       │       └── main.js               # arranque: monta los componentes
     │       └── WEB-INF/beans.xml
-    └── test/java/…/CatalogoServiceImplTest.java
+    └── test/
+        ├── java/…/CatalogoServiceImplTest.java
+        └── js/                               # 84 pruebas del front, sin navegador
 ```
+
+El front está organizado **por componente y, dentro de cada uno, por capa** —
+igual que el backend. No es simetría decorativa: es lo que permite decir con
+precisión qué pieza del cliente se borra cuando su equivalente del servidor
+entra en producción.
 
 ---
 
@@ -215,12 +237,16 @@ entre JPA, sin tocar el código.
 
 La UI se publica de dos formas y **el código fuente es exactamente el mismo**:
 
-| Destino | Origen de los datos |
-|---|---|
-| `ecommerce.war` en WildFly | API JAX-RS (`GET /ecommerce/api/...`) |
-| Sitio estático en Vercel | `assets/data/catalogo.json` |
+| Destino | Implementación activa de `CatalogoService` | Origen de los datos |
+|---|---|---|
+| `ecommerce.war` en WildFly | `CatalogoServiceRemoto` (Adapter) | API JAX-RS (`GET /ecommerce/api/...`) |
+| Sitio estático en Vercel | `CatalogoServiceLocal` | `assets/data/catalogo.json` |
 
-Al arrancar, el front consulta **una sola vez** `GET api/salud`:
+Son **dos implementaciones del mismo contrato**, y una *factory*
+(`implementacion()` en `catalogo-service.js`) elige una sola. La presentación no
+se entera: habla con la fachada del componente.
+
+Al arrancar, esa fábrica consulta **una sola vez** `GET api/salud`:
 
 - en WildFly responde `SaludResource` con `disponible: true` → usa HTTP;
 - en Vercel, un *rewrite* de `vercel.json` devuelve un JSON fijo con
@@ -248,14 +274,27 @@ facetas.
 **API en WildFly**: los 5 endpoints responden; `/productos/999` devuelve 404 con
 cuerpo JSON.
 
-**Front — 46 pruebas automatizadas con Playwright**, corridas contra los **tres**
-escenarios (WildFly, estático local y Vercel): catálogo, búsqueda, filtros, carrito
-completo, checkout, detalle, los tres temas con persistencia, accesibilidad
-(foco atrapado, contraste AA, navegación por teclado) y responsive de 320 a 1440 px.
-Cero errores de consola en los tres.
+**Front — 84 pruebas unitarias** (`node --test 'src/test/js/**/*.test.mjs'`), sin
+navegador, sin red y sin dependencias externas:
 
-**Portabilidad**: se verificó que la misma UI resuelva la API contra el context root
-correcto en cada destino, y que en WildFly **no** caiga al mock por accidente.
+| Archivo | Pruebas | Qué cubre |
+|---|---|---|
+| `catalogo-service-local.test.mjs` | 25 | espejo de `CatalogoServiceImplTest.java`: inactivos, búsqueda sin acentos, "todas las palabras", filtros, los 5 ordenamientos, facetas |
+| `carrito-service.test.mjs` | 28 | topes de stock, totales recalculados, umbral de envío, **que es stateful**, observer, operación sensible |
+| `usuario-service.test.mjs` | 31 | autenticación, hash con salt, registro, **autorización por rol**, cambio de rol |
+
+Que el test del catálogo no necesite ningún doble del navegador no es
+casualidad: es stateless y recibe sus repositorios por constructor. Si las capas
+no estuvieran separadas de verdad, ese archivo no podría existir.
+
+**Portabilidad**: se verificó que la misma UI resuelva la API contra el context
+root correcto en cada destino, y que en WildFly **no** caiga al modo local por
+accidente.
+
+> **Pendiente:** las pruebas de interfaz de punta a punta (navegación real,
+> accesibilidad, responsive) todavía no están automatizadas en este repo. Se
+> verificaron a mano en los tres escenarios; automatizarlas con Playwright está
+> en el roadmap.
 
 ---
 
@@ -266,7 +305,10 @@ correcto en cada destino, y que en WildFly **no** caiga al mock por accidente.
 2. Componentes **Carrito** y **Pedido** con sus recursos REST.
 3. **Checkout** como Facade, y **Pago** detrás de un Adapter.
 4. Evento `PedidoConfirmado` por **JMS** con su MDB.
-5. Autenticación de usuarios: hoy el menú de cuenta es demostrativo.
+5. Llevar **Usuario** al backend: `POST /api/usuarios`, hash con Argon2 y
+   `@RolesAllowed` real. El diseño de la autorización ya está hecho en el front
+   (`autorizar([...])`); lo que cambia es quién lo hace cumplir.
+6. Automatizar las pruebas de interfaz de punta a punta con **Playwright**.
 
 ---
 
@@ -294,6 +336,12 @@ Convenciones: [Conventional Commits](https://www.conventionalcommits.org/)
 
 ## Documentación técnica
 
+- [**Arquitectura del front — 3 componentes en capas**](docs/ARQUITECTURA_FRONT.md) — componentes, capas, patrones, stateful/stateless y seguridad declarativa
+- **Guion de la defensa** — [fuente en Markdown](docs/GUION_DEFENSA.md) · [capturas](docs/capturas/). Dos PDF desde el mismo fuente:
+  - [**GUION_EQUIPO.pdf**](docs/GUION_EQUIPO.pdf) (25 pág) — sólo el guion. Un bloque por integrante, en orden de presentación, con lo que dice, sus capturas y sus preguntas. **Este es el que se reparte.**
+  - [**GUION_DEFENSA.pdf**](docs/GUION_DEFENSA.pdf) (26 pág) — el anterior + la preparación previa y el montaje de WildFly, para quien arma la demo.
+
+Para levantar todo el día de la presentación: `./scripts/demo.sh --todo`
 - [Documentación de la interfaz](docs/LANDING.md)
 - [Mockup integral del proyecto](MOCKUP_TPO.md)
 - [Arquitectura del e-commerce (PDF)](TP_Primera_Parte_Ecommerce.pdf) · [fuente `.tex`](TP_Primera_Parte_Ecommerce.tex)
