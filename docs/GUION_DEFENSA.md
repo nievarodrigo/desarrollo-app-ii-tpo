@@ -382,10 +382,13 @@ y se pueden verificar leyendo los `import`. Miren esta, que es la que más cuest
 async buscarTodos() { ... }
 ```
 
-El repositorio devuelve **todo**, sin filtrar. Quién es visible, cómo se busca y
-cómo se ordena lo decide el negocio. Una capa de datos que filtra es una capa de
-datos que sabe demasiado de la capa de arriba — es uno de los anti-patrones de la
-slide de errores comunes.
+El repositorio devuelve **todo**, sin filtrar, y es **a propósito**: quién es
+visible, cómo se busca y cómo se ordena son decisiones del negocio, no de la
+base. Lo dejamos tonto a propósito.
+
+Si el repositorio filtrara, estaría tomando decisiones de negocio — justo lo que
+la **lámina 20** marca como no permitido: *«datos "subiendo" para tomar
+decisiones de negocio»*.
 
 `[Señalar el Java al lado]`
 

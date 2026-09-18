@@ -137,13 +137,23 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 >
 > ***«Todos los productos, sin filtrar. El filtrado es decisión del negocio.»***
 >
-> El repositorio devuelve **todo**. Quién es visible, cómo se busca y cómo se ordena
-> **no lo decide él**. Una capa de datos que filtra es una capa que sabe demasiado de la
-> de arriba: el anti-patrón que usted listó en la Clase 3.
+> El repositorio devuelve **todo**, sin filtrar. Y es **a propósito**: quién es visible,
+> cómo se busca y cómo se ordena son decisiones del **negocio**, no de la base. Lo
+> dejamos tonto a propósito.
+>
+> Porque si el repositorio filtrara, estaría tomando decisiones de negocio — que es
+> justo lo que su lámina 20 marca como **no permitido**: *«datos "subiendo" para tomar
+> decisiones de negocio»*.
 
 > **Si preguntan si lo copiaron del front al back:** el comentario de arriba del archivo
 > JS dice *"Espeja `catalogo/repository/ProductoRepository.java`"*. Está declarado en el
 > código.
+
+> **Si preguntan de dónde salieron los nombres:** de la lámina 35 de la Clase 3, donde
+> usted bajó la tienda online a tres capas — `CatálogoView`, `CarritoView`,
+> `CarritoService`, `UsuarioService`, `ProductoRepository`, `UsuarioRepository`. Son
+> exactamente los nombres de nuestros archivos: *View* en presentación, *Service* en
+> negocio, *Repository* en datos.
 
 ## 6 · La capa de NEGOCIO · 50 s
 
