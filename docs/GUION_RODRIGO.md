@@ -61,19 +61,30 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 
 # El guion, paso a paso
 
-## 1 · Abrís con la tienda a la vista · 30 s
+## 1 · Abrís con la tienda a la vista · 40 s
 
 **Pantalla:** el navegador
 
-> Buenas. Nosotros somos el grupo de **GOMARKET**, un e-commerce. Hoy les traemos la
-> primera entrega obligatoria y vamos a mostrar el cliente: tres componentes completos,
-> cada uno con su arquitectura en capas.
+> Buenas. Somos el grupo de **GOMARKET**: un e-commerce de **tecnología, hogar y
+> equipamiento**. Dieciséis productos, cinco categorías.
+>
+> Arranco por el negocio, porque **de ahí salieron nuestros componentes**:
+>
+> - Vendemos en cinco categorías: alguien tiene que **buscar, filtrar y ordenar**. Ese
+>   es el **Catálogo**.
+> - El cliente carga cosas y se va: el carrito **tiene que seguir ahí cuando vuelva**.
+>   Ese es el **Carrito**.
+> - Hay cuentas, y hay **roles**: no es lo mismo un cliente que un administrador. Ese es
+>   **Usuario**.
+>
+> Tres necesidades del negocio, tres componentes. No los inventamos: **los leímos del
+> dominio**.
 
 ## 2 · La tesis · 40 s
 
 **Pantalla:** el navegador, sin tocar nada. Decilo despacio y **hacé una pausa**.
 
-> Antes de abrir nada quiero decir la idea que ordena todo lo que sigue.
+> Y acá quiero decir la idea que ordena todo lo que sigue.
 >
 > **Un componente no es una pantalla.**
 >
@@ -83,28 +94,30 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 > componentes. No lo eran: eran tres pantallas y un archivo de orquestación de treinta
 > kilobytes.
 
-## 3 · Qué van a ver y en qué orden · 40 s
+## 3 · Qué van a ver y en qué orden · 60 s
 
 **Pantalla:** el navegador todavía
 
 > Lo que hicimos fue reorganizar el cliente **por componente y, dentro de cada
-> componente, por capa**. Van a ver tres **componentes**: Catálogo, Carrito y Usuario
-> —tres de los cuatro que usted mismo identificó para el caso de la tienda online—. Y
-> cada uno tiene adentro sus **tres capas**: presentación, negocio y datos.
+> componente, por capa**. Tres **componentes** —Catálogo, Carrito y Usuario, tres de los
+> cuatro que usted identificó para la tienda online—, y cada uno con sus **tres capas**
+> adentro: presentación, negocio y datos.
 >
-> El orden va a ser así: yo les muestro la estructura; después Fol toma el Catálogo,
-> que es nuestro componente *stateless*; Ivan el Carrito, que es el *stateful*; Tomás
-> el componente Usuario, que es el que nos da la seguridad declarativa; y Nicolás
-> cierra con las pruebas y con una cosa del servidor.
+> Después de mí: Fol toma el Catálogo, que es el *stateless*; Ivan el Carrito, el
+> *stateful*; Tomás el Usuario, que nos da la seguridad declarativa; Nicolás cierra con
+> las pruebas y el servidor.
 >
-> Una aclaración: dijimos que presentábamos solo el front, pero el componente Catálogo
-> **también está implementado en Jakarta EE 10 sobre Java 17**, empaquetado como un WAR
-> y desplegado en WildFly 41. Al final Nicolás lo muestra, porque hay un requisito que
-> sólo se puede ver ahí.
+> Y los tres **recorren un caso de uso completo, atravesando las tres capas**: Fol
+> busca en el catálogo; Ivan agrega al carrito —el ejemplo que usted usó en la Clase
+> 3—; Tomás confirma una compra sin estar autenticado. Siempre presentación, negocio,
+> datos. **Nunca al revés.**
+>
+> El Catálogo además está en **Jakarta EE 10 sobre WildFly**: Nicolás lo muestra al
+> final.
 >
 > Empiezo por la estructura, que es lo que ordena todo lo demás.
 
-## 4 · Las carpetas, enfrentadas · 50 s
+## 4 · Las carpetas, enfrentadas · 65 s
 
 **Hacés:** Terminal A -> `./scripts/capas.py`
 
@@ -128,7 +141,7 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 
 \newpage
 
-## 5 · La capa de DATOS · 50 s
+## 5 · La capa de DATOS · 45 s
 
 **Hacés:** `producto-repository.js` línea **46** | `ProductoRepository.java` línea **18**
 
@@ -155,7 +168,7 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 > exactamente los nombres de nuestros archivos: *View* en presentación, *Service* en
 > negocio, *Repository* en datos.
 
-## 6 · La capa de NEGOCIO · 50 s
+## 6 · La capa de NEGOCIO · 25 s
 
 **Hacés:** `catalogo-service-local.js` línea **81** | `CatalogoServiceImpl.java` línea **52**
 
@@ -188,7 +201,7 @@ productos.buscarTodos().stream()
          .sorted(comparador(criterios.orden()));
 ```
 
-## 7 · Lo que no es de nadie · 25 s
+## 7 · Lo que no es de nadie · 20 s
 
 **Hacés:** abrís la carpeta `compartido/`
 
@@ -197,7 +210,7 @@ productos.buscarTodos().stream()
 > los modales, el formato de los precios—. El equivalente de lo que el contenedor le
 > provee al backend sin que ninguno lo implemente.
 
-## 8 · El puente y la palabra · 15 s
+## 8 · El puente y la palabra · 20 s
 
 > Y una aclaración, para que se entienda qué estuve mostrando: **esto es la explicación
 > técnica.** Vieron el contrato y las reglas, no la app corriendo. Fol ahora toma el
