@@ -274,17 +274,46 @@ producto-repository.js      TRAE      <- no decide
 catalogo-service-local.js   DECIDE    <- acá se filtra y se ordena
 ```
 
-## El stack, si lo preguntan
+## El stack, capa por capa
 
-| | |
-|---|---|
-| Java | **17** |
-| Jakarta EE | **10.0.0** |
-| Servidor | **WildFly 41**, perfil EE 10 Full Platform |
-| Empaquetado | WAR único (`ecommerce.war`) |
+La rúbrica de la Clase 3 pide *"la tecnología elegida indicada en cada capa"*. Es esto.
+
+**Cliente** — módulos ES nativos, sin framework:
+
+| Capa | Tecnología | Dónde se ve |
+|---|---|---|
+| Presentación | HTML5 + CSS + JS | `*-view.js` |
+| Negocio | Módulos ES | `*-service.js` |
+| Datos | `localStorage` + `fetch` | `*-repository.js` |
+
+**Servidor** — Jakarta EE 10 sobre Java 17:
+
+| Capa | Tecnología | Dónde se ve |
+|---|---|---|
+| Presentación (API) | JAX-RS | `@Path`, `@GET`, `@Produces` |
+| Negocio | EJB + CDI | `@Stateless` en `CatalogoServiceImpl` |
+| Datos | CDI + JSON-B | `@ApplicationScoped` en `CatalogoEnMemoria` |
+
+**Transversal:** Java 17 · Jakarta EE 10.0.0 · WildFly 41, perfil EE 10 Full Platform ·
+Maven · WAR único (`ecommerce.war`).
 
 > **Jakarta EE es la especificación, no el producto.** Define contratos; WildFly los
 > implementa. Podría ser Payara u Open Liberty. Por eso la app es portable.
+
+## ¿Usan base de datos?
+
+**No, y hay que decirlo así, sin rodeos.** El repositorio lee `/datos/catalogo.json` del
+classpath — el mismo archivo que sirve el front. No hay JPA, ni Hibernate, ni
+`persistence.xml`, ni DataSource. El `pom.xml` tiene dos dependencias:
+`jakarta.jakartaee-api` y JUnit.
+
+> No usamos base de datos: el repositorio lee un JSON del classpath. Pero la **capa de
+> datos está, con su contrato**: `ProductoRepository` es la interfaz y `CatalogoEnMemoria`
+> la implementación. El día que haya JPA se cambia la implementación y **el negocio no se
+> entera**. Esa es justamente la razón de tener la capa.
+
+**El `Producto.java` ya lo deja anotado**, línea 11: *"pasa a ser una `@Entity` y el JSON
+queda sólo como carga inicial"*. Está previsto en el código, no improvisado.
 
 \newpage
 
@@ -296,6 +325,8 @@ catalogo-service-local.js   DECIDE    <- acá se filtra y se ordena
 | *¿`compartido` no rompe la separación?* | No: no tiene reglas de negocio de ningún componente. Es infraestructura -- transporte HTTP, foco, formato. |
 | *¿Qué pasa si un componente necesita a otro?* | Se inyecta desde `main.js` como función. El carrito recibe `alExigirSesion`; no importa el módulo de Usuario. |
 | *¿No es mucha carpeta para tan poco código?* | Es el costo de la separación, y el beneficio ya se cobró: la capa de negocio se prueba sin navegador. |
+| *¿Y el JPA/Hibernate que declararon en el documento?* | Es el stack objetivo del TP completo; el documento lo lista bajo "Próximos pasos de implementación". Esta es la Entrega 1: diseño en capas y componentes. Lo que ya está es el contrato de la capa de datos. |
+| *¿Y el JMS, la mensajería?* | Igual: entrega posterior. Hoy no hay integración asincrónica y no la presentamos como si la hubiera. |
 | *¿Por qué no usaron un framework?* | Los módulos ES nativos ya dan separación real y el despliegue es copiar archivos. La complejidad se agrega cuando duele, no antes. |
 | *¿Son componentes de verdad si no hay contenedor?* | Cumplen interfaz explícita e implementación oculta. La tercera condición -- que un contenedor gestione el ciclo de vida -- no se cumple en el navegador. Por eso al final mostramos WildFly. |
 | *¿Qué diferencia hay entre un objeto y un componente?* | El objeto lo instancio yo y quien lo usa conoce su clase. El componente lo crea el contenedor y quien lo usa conoce sólo su interfaz. |
