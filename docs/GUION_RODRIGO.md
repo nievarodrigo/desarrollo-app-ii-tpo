@@ -98,8 +98,8 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 
 **Pantalla:** el navegador todavía
 
-> Lo que hicimos fue reorganizar el cliente **por componente y, dentro de cada
-> componente, por capa**. Tres **componentes** —Catálogo, Carrito y Usuario, tres de los
+> Lo que hicimos fue reorganizar el **front** —por componente y, dentro de cada
+> componente, por capa—. Tres **componentes** —Catálogo, Carrito y Usuario, tres de los
 > cuatro que usted identificó para la tienda online—, y cada uno con sus **tres capas**
 > adentro: presentación, negocio y datos.
 >
@@ -121,8 +121,9 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 
 **Hacés:** Terminal A -> `./scripts/capas.py`
 
-> A la izquierda el **frontend**, lo que corre en el navegador. A la derecha el
-> **backend**, lo que corre en el servidor: Jakarta EE sobre WildFly.
+> A la izquierda el **frontend** —lo que corre en el navegador, lo que en
+> cliente-servidor se llama *el cliente*—. A la derecha el **backend**, lo que corre en
+> el servidor: Jakarta EE sobre WildFly.
 >
 > Tres componentes, y adentro de cada uno las mismas tres capas. **Es la misma forma de
 > los dos lados del cable.**
@@ -145,8 +146,8 @@ Dividís con `Ctrl+\` y saltás a la línea con `Ctrl+G`.
 
 **Hacés:** `producto-repository.js` línea **46** | `ProductoRepository.java` línea **18**
 
-> Bajemos a las capas. Esto es la capa de **datos**, del lado del cliente y del lado del
-> servidor. Y lean el comentario, que es el mismo de los dos lados:
+> Bajemos a las capas. Esto es la capa de **datos**, de los dos lados: en el navegador y
+> en el servidor. Y lean el comentario, que es el mismo de los dos lados:
 >
 > ***«Todos los productos, sin filtrar. El filtrado es decisión del negocio.»***
 >
@@ -235,18 +236,18 @@ tiene un *pool* y reparte pedidos sin que importe cuál te toca. Eso es `@Statel
 
 ## stateful — "con estado"
 
-**Guarda estado conversacional:** información que pertenece a **un** cliente y se va
+**Guarda estado conversacional:** información que pertenece a **un** usuario y se va
 acumulando a lo largo de una secuencia.
 
 El **Carrito** es stateful: `agregar(producto)` depende de todo lo que hiciste antes. Si
 el producto tiene stock 2 y ya llevás 2, te lo rechaza. **La misma llamada, con el mismo
 argumento, da distinto resultado.**
 
-**Consecuencia:** cada cliente necesita su propia instancia. El servidor no puede darte
+**Consecuencia:** cada usuario necesita su propia instancia. El servidor no puede darte
 cualquiera del pool: tiene que darte *la tuya*. Eso es `@Stateful`.
 
 > **El error a evitar:** no es "guarda cosas o no guarda". Un caché no te hace stateful.
-> Lo que define es si el resultado **depende de la historia previa de ese cliente**.
+> Lo que define es si el resultado **depende de la historia previa de ese usuario**.
 
 ## seguridad declarativa
 
@@ -273,6 +274,23 @@ los productos del JSON **sin filtrar**, y `buscarPorId(id)`. **No decide nada.**
 producto-repository.js      TRAE      <- no decide
 catalogo-service-local.js   DECIDE    <- acá se filtra y se ordena
 ```
+
+## "Cliente": ojo, significa dos cosas
+
+En esta presentación la palabra aparece con **dos sentidos distintos**, y conviene tenerlo
+claro antes de que alguien pregunte:
+
+| Sentido | Qué es | Quién lo usa |
+|---|---|---|
+| **Cliente-servidor** | El front, lo que corre en el navegador | Vos, en estructura y capas |
+| **El rol** | Quien compra — `ROLES.CLIENTE` | Tomás, en seguridad |
+
+Para no marear, **vos decís "el front" o "el navegador"** y dejás la palabra *cliente*
+para el rol. En el bloque 4 nombrás el sinónimo una vez —*"lo que en cliente-servidor se
+llama el cliente"*— y con eso queda saldado para toda la presentación.
+
+> **Si el profesor dice "cliente" y no sabés cuál:** preguntá. *"¿El navegador o el rol?"*
+> Preguntar no es no saber: es no adivinar.
 
 ## El stack, capa por capa
 
@@ -321,7 +339,7 @@ queda sólo como carga inicial"*. Está previsto en el código, no improvisado.
 
 | Pregunta | Respuesta |
 |---|---|
-| *¿Dónde está la capa de datos?* | En `componentes/<x>/datos/` del lado del cliente y en `catalogo/repository/` del lado del servidor. Son DAOs: entregan filas, no deciden. |
+| *¿Dónde está la capa de datos?* | En `componentes/<x>/datos/` en el navegador y en `catalogo/repository/` en el servidor. Son DAOs: entregan filas, no deciden. |
 | *¿`compartido` no rompe la separación?* | No: no tiene reglas de negocio de ningún componente. Es infraestructura -- transporte HTTP, foco, formato. |
 | *¿Qué pasa si un componente necesita a otro?* | Se inyecta desde `main.js` como función. El carrito recibe `alExigirSesion`; no importa el módulo de Usuario. |
 | *¿No es mucha carpeta para tan poco código?* | Es el costo de la separación, y el beneficio ya se cobró: la capa de negocio se prueba sin navegador. |
