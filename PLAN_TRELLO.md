@@ -1,5 +1,9 @@
 # Plan Trello simple — TPO E-commerce
 
+> **Plan vigente desde el 02/10/2026:** ver
+> [`PLAN_EQUIPO_BACKLOG_2026-10.md`](PLAN_EQUIPO_BACKLOG_2026-10.md).
+> Este archivo queda como historial del checkpoint anterior.
+
 Equipo: **Rodrigo, Nicolás, Tomás, Iván y Fol**  
 Fuente: consigna principal + anexo oficial  
 Última revisión: **28/08/2026**
