@@ -1,0 +1,19 @@
+{
+  "request": {
+    "items": [
+      { "idProducto": 1, "cantidad": 1 }
+    ]
+  },
+  "response": {
+    "statusHTTP": 202,
+    "contentType": "application/json",
+    "body": {
+      "estado": "PENDIENTE",
+      "id": "b0d57866-c24a-4e2a-a0e0-aaef9699a454",
+      "items": [
+        { "cantidad": 1, "idProducto": 1 }
+      ],
+      "total": 289900
+    }
+  }
+}

@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: GOMARKET - API de pedidos
+  version: 1.0.0
+  description: >-
+    Contrato de dos endpoints implementados. Aceptar un pedido no implica
+    cobrarlo ni reservar stock de forma definitiva.
+servers:
+  - url: http://localhost:8080/ecommerce/api
+# La API todavía no autentica: se declara explícitamente sin seguridad.
+security: []
+paths:
+  /pedidos:
+    post:
+      summary: Aceptar un pedido para procesamiento asincrónico
+      operationId: crearPedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudPedido'
+            example:
+              items:
+                - idProducto: 1
+                  cantidad: 1
+      responses:
+        '202':
+          description: >-
+            Pedido aceptado y publicado en la cola JMS; todavía no confirmado,
+            no pagado y sin stock reservado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+              example:
+                id: b0d57866-c24a-4e2a-a0e0-aaef9699a454
+                estado: PENDIENTE
+                items:
+                  - idProducto: 1
+                    cantidad: 1
+                total: 289900
+        '400':
+          description: >-
+            Lista vacía o con más de 50 ítems, producto o cantidad inválida o
+            repetida, cantidad superior al stock, o JSON malformado.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                type: about:blank
+                title: Solicitud inválida
+                status: 400
+                detail: No hay stock suficiente para Auriculares Cancelación Activa.
+                instance: /ecommerce/api/pedidos
+        '404':
+          description: Producto inexistente o inactivo.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un producto activo con id 9999
+                instance: /ecommerce/api/pedidos
+        '415':
+          description: El Content-Type no es application/json (respuesta del runtime, sin cuerpo).
+        '500':
+          description: >-
+            Falla del broker JMS u otra falla interna. El pedido queda en
+            ERROR_ENVIO; el cuerpo lo genera el runtime y no se documenta.
+  /pedidos/{id}:
+    get:
+      summary: Consultar el estado de un pedido
+      operationId: obtenerPedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: >-
+            Identificador devuelto por POST /pedidos. El servidor no valida el
+            formato: cualquier valor desconocido responde 404.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Estado actual del pedido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: >-
+            No existe un pedido con ese identificador (los pedidos viven en
+            memoria y se pierden al reiniciar el servidor).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                type: about:blank
+                title: Recurso no encontrado
+                status: 404
+                detail: No existe un pedido con id no-existe
+                instance: /ecommerce/api/pedidos/no-existe
+components:
+  schemas:
+    Item:
+      type: object
+      required: [idProducto, cantidad]
+      properties:
+        idProducto:
+          type: integer
+          format: int64
+          minimum: 1
+        cantidad:
+          type: integer
+          minimum: 1
+    SolicitudPedido:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/Item'
+    Pedido:
+      type: object
+      required: [id, estado, items, total]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          type: string
+          enum: [PENDIENTE, PROCESADO, ERROR_ENVIO]
+          description: >-
+            PENDIENTE = publicado en la cola; PROCESADO = el MDB recibió el
+            mensaje (no implica pago ni reserva de stock); ERROR_ENVIO = falló
+            la publicación JMS.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        total:
+          type: number
+          format: double
+          description: >-
+            Total recalculado por el servidor con precios del catálogo; suma
+            8900 de envío si el subtotal es menor a 150000.
+    ProblemDetail:
+      type: object
+      required: [type, title, status, detail, instance]
+      properties:
+        type:
+          type: string
+          example: about:blank
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
