@@ -57,6 +57,8 @@ figma-checkpoint-1/
 ├── README.md
 ├── generar_frames.py          # genera los SVG desde catalogo.json y los tokens del CSS
 ├── exportar_png.py            # renderiza cada SVG a PNG 2x con Chromium headless
+├── generar_script_figma.py    # arma el script de Plugin API embebiendo los SVG
+├── figma-checkpoint-1.js      # script: crea los 4 frames y cablea el prototipo
 ├── 01-catalogo-desktop.svg    # 1440 × 1024
 ├── 02-detalle-desktop.svg     # 1440 × 1024
 ├── 03-catalogo-mobile.svg     #  390 × 844
@@ -207,6 +209,24 @@ Componentes a publicar — estos, y ni uno más:
 En el `Product Card` y en el `Panel de filtros` conviene aplicar **Auto Layout**
 (`Shift + A`) sobre la columna de textos: el resto ya está posicionado y no lo necesita.
 No construyas un design system más grande que esto — no es lo que pide el checkpoint.
+
+### Atajo: armarlo con un script
+
+Los pasos 3, 4 y 5 se pueden hacer de una con `figma-checkpoint-1.js`, que usa
+`figma.createNodeFromSvg()` — devuelve un `FrameNode` ya armado — y setea las
+`reactions` del prototipo. Se ejecuta con **Scripter**, un plugin de Figma Community
+que corre en el navegador:
+
+1. `Plugins` → `Scripter` (buscarlo en Community la primera vez)
+2. Pegar el contenido de `figma-checkpoint-1.js`
+3. `▶`
+
+Los cuatro disparadores son capas con nombre propio en los SVG —
+`Hotspot / Cerrar detalle`, `Hotspot / Abrir filtros`, `Hotspot / Aplicar filtros`
+y la tarjeta `Componente / Product Card — Auriculares Cancelación Activa` — así que
+el script los encuentra por nombre y no por coordenadas.
+
+Queda pendiente sólo el paso 6: publicar el enlace de lectura.
 
 ### 5. Cablear el prototipo
 

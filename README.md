@@ -27,7 +27,7 @@ Java 17  ·  Jakarta EE 10  ·  JAX-RS  ·  CDI + EJB  ·  JUnit 5  ·  WAR úni
 | 🛒 **Carrito** | Alta, baja, cantidades y total, persistido en el navegador |
 | 👤 **Cuentas** | Registro, ingreso y sesión con roles `CLIENTE` / `ADMIN`; contraseñas con hash y salt |
 | 🔒 **Autorización** | Confirmar una compra exige sesión; el panel de administración exige `ADMIN` |
-| 💳 **Checkout** | Flujo completo de confirmación en el front |
+| 💳 **Pedido de demostración** | Con WildFly: REST → JMS → MDB y consulta de estado. Sin backend: simulación local claramente rotulada. No hay cobro real. |
 | 🎨 **3 temas** | Con persistencia por visitante |
 | ♿ **Accesible** | Contraste AA, navegación por teclado, foco atrapado en modales |
 | 📱 **Responsive** | De 320 a 1440 px |
@@ -53,7 +53,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64   # o cualquier JDK 17+
 ```bash
 WF=../wildfly/wildfly-41-ee10
 cp target/ecommerce.war "$WF/standalone/deployments/"
-"$WF/bin/standalone.sh"
+"$WF/bin/standalone.sh" -c standalone-full.xml  # habilita Artemis/JMS
 ```
 
 Queda en **<http://localhost:8080/ecommerce/>**
@@ -69,7 +69,8 @@ Levanta con `CatalogoServiceLocal` — ver [*Un mismo front, dos destinos*](#un-
 ### Tests
 
 ```bash
-./mvnw test          # 12 pruebas unitarias del CatalogoService
+./mvnw test          # catálogo y reglas del pedido
+node --test src/test/js/*.test.mjs
 ```
 
 ---
@@ -181,11 +182,34 @@ Base: `/ecommerce/api`
 | `GET` | `/productos` | `{items, total}` — acepta `q`, `categoria`, `orden`, `soloStock`, `precioMax` |
 | `GET` | `/productos/facetas` | `{total, porCategoria, precioMin, precioMax}` |
 | `GET` | `/productos/{id}` | `ProductoResponse`, o `404` con cuerpo JSON |
+| `POST` | `/pedidos` | `202 Accepted` con `{id, estado, items, total}`; `400` si la solicitud es inválida |
+| `GET` | `/pedidos/{id}` | Estado `PENDIENTE` o `PROCESADO`; `404` si no existe |
+
+Los errores de negocio `400`/`404` de Pedido y el `404` de Catálogo se
+devuelven como `application/problem+json` (`type`, `title`, `status`, `detail`,
+`instance`). La [entrega de Clase 10](entrega-clase10/LEEME.md) incluye
+catálogo de endpoints, OpenAPI, ejemplos y diagrama.
 
 ```bash
 curl http://localhost:8080/ecommerce/api/productos?q=cafe
 curl http://localhost:8080/ecommerce/api/productos/999   # → 404
+curl -X POST http://localhost:8080/ecommerce/api/pedidos \
+  -H 'Content-Type: application/json' \
+  -d '{"items":[{"idProducto":1,"cantidad":1}]}'
+# Luego GET /ecommerce/api/pedidos/<id devuelto>
 ```
+
+### Avance del 09/10: alcance real
+
+`PedidoService` valida cantidades y stock contra el catálogo, recalcula el total
+en el servidor y publica un mensaje persistente en `ProcesarPedidoQueue`.
+`ProcesarPedidoMDB` consume ese mensaje y marca el pedido como `PROCESADO` en
+`PedidoEnMemoria`. Esto demuestra mensajería real y consulta REST; **no** cobra,
+reserva stock, persiste pedidos entre reinicios ni autentica el endpoint del
+servidor. El `202` sólo significa aceptación para procesamiento. Se requiere
+WildFly con `standalone-full.xml`; el despliegue estático mantiene una
+simulación local diferente. Ver el
+[guion de exposición](docs/ENTREGA_AVANCE_2026-10-09.md).
 
 ---
 

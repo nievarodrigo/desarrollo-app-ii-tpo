@@ -13,6 +13,7 @@ import { precio, cuota } from '../../../compartido/formato.js';
 import { arteProducto } from '../../../compartido/arte.js';
 import { abrirCapa, cerrarCapa, capaAbierta } from '../../../compartido/capa-modal.js';
 import { avisar } from '../../../compartido/avisos.js';
+import { hayBackend, obtener, publicar } from '../../../compartido/cliente-http.js';
 
 const panel = document.querySelector('[data-carrito]');
 const cuerpo = document.querySelector('[data-carrito-cuerpo]');
@@ -50,15 +51,22 @@ function vacio() {
 }
 
 function confirmado(pedido) {
+  const pendiente = pedido.estado === 'PENDIENTE';
+  const procesado = pedido.estado === 'PROCESADO';
   return `
     <div class="carrito__confirmado">
       <span class="estado__icono" aria-hidden="true">
         <svg viewBox="0 0 24 24" focusable="false"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
-      <h3>¡Compra confirmada!</h3>
-      <p>Te mandamos el detalle por correo. Podés seguir el pedido desde tu cuenta.</p>
+      <h3>${pendiente ? 'Pedido recibido' : procesado ? 'Pedido procesado' : 'Compra simulada'}</h3>
+      <p>${pendiente
+        ? 'El servidor aceptó el pedido y lo procesa en segundo plano. Aún no se cobró ni confirmó el pago.'
+        : procesado
+          ? 'El consumidor de la cola recibió el pedido. Todavía no se cobró ni reservó stock.'
+        : 'Esta confirmación es una simulación local; no se cobró ni envió un correo.'}</p>
       <code>Pedido ${pedido.codigo}</code>
       <p><strong>${precio(pedido.total)}</strong> en ${pedido.unidades} ${pedido.unidades === 1 ? 'producto' : 'productos'}</p>
+      ${pendiente ? '<button class="boton boton--fantasma" type="button" data-consultar-pedido>Consultar estado</button>' : ''}
       <button class="boton boton--fantasma" type="button" data-seguir-comprando>Seguir comprando</button>
     </div>`;
 }
@@ -212,6 +220,16 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
       render(carrito.resumen());
       cerrarCarrito();
       alIrAlCatalogo?.();
+    } else if (boton.dataset.consultarPedido !== undefined && pedidoConfirmado?.estado === 'PENDIENTE') {
+      boton.disabled = true;
+      obtener(`pedidos/${pedidoConfirmado.codigo}`)
+        .then((actual) => {
+          pedidoConfirmado.estado = actual.estado;
+          render(carrito.resumen());
+          avisar(actual.estado === 'PROCESADO' ? 'El consumidor procesó el mensaje.' : 'El pedido sigue pendiente.', 'ok');
+        })
+        .catch(() => avisar('No pudimos consultar el estado. Intentá de nuevo.', 'alerta'))
+        .finally(() => { boton.disabled = false; });
     }
   });
 
@@ -248,42 +266,51 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
    * paso 2, no. Esa es la diferencia entre un chequeo de UI y un control de
    * acceso, y es la pregunta que conviene tener contestada.
    */
-  document.querySelector('[data-checkout]')?.addEventListener('click', (evento) => {
+  document.querySelector('[data-checkout]')?.addEventListener('click', async (evento) => {
     const boton = evento.currentTarget;
     if (carrito.resumen().unidades === 0) return;
 
     if (alExigirSesion && !alExigirSesion(['CLIENTE', 'ADMIN'], boton)) return;
 
     boton.disabled = true;
-    boton.textContent = 'Procesando el pago…';
+    boton.textContent = 'Enviando pedido…';
 
-    /* Simula la latencia de `POST /api/checkout`, donde el backend recalculará
-       el total y validará el stock antes de crear el pedido. */
-    setTimeout(() => {
-      try {
-        const { ok, pedido, motivo } = carrito.confirmarCompra();
-
-        if (!ok) {
-          avisar(motivo === 'carrito-vacio' ? 'El carrito quedó vacío.' : 'No pudimos confirmar la compra.', 'alerta');
+    try {
+      let pedido;
+      if (await hayBackend()) {
+        // REST acepta el comando; JMS procesa después. No se manda el precio
+        // calculado por el navegador, sólo producto y cantidad.
+        const items = carrito.obtenerItems().map((item) => ({
+          idProducto: item.id, cantidad: item.cantidad
+        }));
+        const aceptado = await publicar('pedidos', { items });
+        pedido = {
+          codigo: aceptado.id,
+          total: Number(aceptado.total),
+          unidades: items.reduce((suma, item) => suma + item.cantidad, 0),
+          estado: aceptado.estado
+        };
+        carrito.vaciar();
+      } else {
+        // Despliegue estático: conserva la simulación local, rotulada como tal.
+        const resultado = carrito.confirmarCompra();
+        if (!resultado.ok) {
+          avisar('El carrito quedó vacío.', 'alerta');
           return;
         }
-
-        /* `confirmar()` vacía el carrito, y eso ya disparó un render con el
-           estado "vacío". Marcamos el comprobante y volvemos a pintar para que
-           gane la vista de confirmación. */
-        pedidoConfirmado = pedido;
-        render(carrito.resumen());
-        avisar('Pago aprobado. Creamos tu pedido.', 'ok');
-        panel.querySelector('[data-cerrar-carrito]')?.focus({ preventScroll: true });
-      } catch (error) {
-        /* El negocio rechazó la operación: 401 si no hay sesión, 403 si el rol
-           no alcanza. La vista sólo lo cuenta. */
-        avisar(error.message, error.name === 'AccesoDenegadoError' ? 'error' : 'alerta');
-      } finally {
-        boton.disabled = false;
-        boton.textContent = 'Confirmar compra';
+        pedido = resultado.pedido;
       }
-    }, 1100);
+      pedidoConfirmado = pedido;
+      render(carrito.resumen());
+      avisar(pedido.estado === 'PENDIENTE' ? 'Pedido aceptado para procesar.' : 'Pedido simulado localmente.', 'ok');
+      panel.querySelector('[data-cerrar-carrito]')?.focus({ preventScroll: true });
+    } catch (error) {
+      // Si falló REST no vaciamos el carrito ni simulamos una compra exitosa.
+      avisar(error.message || 'No pudimos enviar el pedido.', 'alerta');
+    } finally {
+      boton.disabled = false;
+      boton.textContent = 'Confirmar compra';
+    }
   });
 
   render(carrito.resumen());

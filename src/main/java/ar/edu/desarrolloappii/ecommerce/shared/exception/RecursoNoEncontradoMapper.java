@@ -1,8 +1,9 @@
 package ar.edu.desarrolloappii.ecommerce.shared.exception;
 
-import ar.edu.desarrolloappii.ecommerce.shared.dto.ErrorResponse;
-import jakarta.ws.rs.core.MediaType;
+import ar.edu.desarrolloappii.ecommerce.shared.dto.ProblemDetail;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
@@ -14,12 +15,13 @@ import jakarta.ws.rs.ext.Provider;
  */
 @Provider
 public class RecursoNoEncontradoMapper implements ExceptionMapper<RecursoNoEncontradoException> {
+    @Context UriInfo uriInfo;
 
     @Override
     public Response toResponse(RecursoNoEncontradoException excepcion) {
         return Response.status(Response.Status.NOT_FOUND)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(new ErrorResponse(404, "recurso-no-encontrado", excepcion.getMessage()))
+                .type(ProblemDetail.MEDIA_TYPE)
+                .entity(ProblemDetail.notFound(excepcion.getMessage(), uriInfo.getRequestUri().getPath()))
                 .build();
     }
 }

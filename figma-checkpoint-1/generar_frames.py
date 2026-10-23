@@ -818,8 +818,9 @@ def frame_detalle_desktop(datos, pfx='m'):
         m += texto(bx + bw / 2, fy + 27, k.upper(), 10, 700, TINTA_3, anchor='middle', ls=1.1)
         m += texto(bx + bw / 2, fy + 49, v, 14, 700, TINTA, anchor='middle')
 
-    m += rect(mx + mw - 66, my + 22, 40, 40, 13, fill=SUPERFICIE_2, stroke=BORDE, sw=1)
-    m += icono('cerrar', mx + mw - 57, my + 31, 22, TINTA, 2)
+    m += g('Hotspot / Cerrar detalle',
+           rect(mx + mw - 66, my + 22, 40, 40, 13, fill=SUPERFICIE_2, stroke=BORDE, sw=1)
+           + icono('cerrar', mx + mw - 57, my + 31, 22, TINTA, 2))
 
     cx, cw = mx + 476, 476
     meta = f"{prod['marca']}  ·  {CATEGORIAS_NOMBRE[prod['categoria']]}"
@@ -876,7 +877,8 @@ def frame_catalogo_mobile(datos, pfx='cm'):
     enc += texto(16, 206, 'Lo que tenemos hoy', 26, 700, TINTA, familia=DISPLAY)
     out += g('Encabezado del catálogo', enc)
 
-    fila = boton(16, 224, 112, 42, 'Filtros', 'fantasma', 14, icono_izq='filtros')
+    fila = g('Hotspot / Abrir filtros',
+             boton(16, 224, 112, 42, 'Filtros', 'fantasma', 14, icono_izq='filtros'))
     fila += texto(374, 250, '16 productos', 12.5, 500, TINTA_3, anchor='end')
     out += g('Barra de filtros mobile', fila)
 
@@ -941,7 +943,8 @@ def frame_filtros_mobile(datos, pfx='fm'):
 
     s += linea(0, sy + 492, W_M, sy + 492, BORDE)
     s += boton(20, sy + 512, 160, 52, 'Limpiar filtros', 'fantasma', 14.5)
-    s += boton(192, sy + 512, 178, 52, 'Aplicar filtros', 'primario', 14.5)
+    s += g('Hotspot / Aplicar filtros',
+           boton(192, sy + 512, 178, 52, 'Aplicar filtros', 'primario', 14.5))
     out += g('Panel de filtros — Bottom sheet', s)
     return out
 

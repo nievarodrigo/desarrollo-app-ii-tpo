@@ -73,10 +73,6 @@ export class UsuarioRepositoryLocal {
     return normalizado;
   }
 
-  existeAlguno() {
-    return this.buscarTodos().length > 0;
-  }
-
   /* ------------------------------- Sesión ------------------------------- */
 
   /** @returns {Sesion|null} */

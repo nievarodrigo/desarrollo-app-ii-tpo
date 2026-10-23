@@ -1,0 +1,11 @@
+{
+  "statusHTTP": 400,
+  "contentType": "application/problem+json",
+  "body": {
+    "detail": "No hay stock suficiente para Auriculares Cancelación Activa.",
+    "instance": "/ecommerce/api/pedidos",
+    "status": 400,
+    "title": "Solicitud inválida",
+    "type": "about:blank"
+  }
+}

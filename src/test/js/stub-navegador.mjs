@@ -35,3 +35,12 @@ export function crudoDe(clave) {
 export function vaciarAlmacen() {
   almacen.clear();
 }
+
+/**
+ * Escribe una clave TAL CUAL, con su prefijo completo, sin pasar por la capa de
+ * almacenamiento. Sirve para simular un navegador que viene de una versión
+ * anterior de la app y todavía tiene datos con el prefijo viejo.
+ */
+export function sembrarCrudo(claveCompleta, valor) {
+  almacen.set(claveCompleta, JSON.stringify(valor));
+}

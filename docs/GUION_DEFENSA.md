@@ -193,14 +193,30 @@ rg 'Catálogo cargado|Deployed' ~/Materias/DesarrolloAppII/wildfly/wildfly-41-ee
 Tiene que aparecer:
 
 ```
-INFO  [ar.edu.desarrolloappii.ecommerce.catalogo.repository.CatalogoEnMemoria]
-      Catálogo cargado: 16 productos, 5 categorías
 INFO  [org.jboss.as.server] WFLYSRV0010: Deployed "ecommerce.war"
+INFO  [org.jboss.as] WFLYSRV0025: WildFly 41.0.0.Final started
+INFO  [ar.edu.desarrolloappii...CatalogoEnMemoria] (default task-2)
+      Catálogo cargado: 16 productos, 5 categorías        <- con la 1.ª petición
 ```
 
 **Esa línea la imprimió el contenedor, no nosotros.** Nadie llamó a `cargar()`:
 lo llamó WildFly al crear el bean. Eso es la evidencia del ciclo de vida
 gestionado que pide la consigna.
+
+> **(!) La línea NO aparece sola al arrancar WildFly.** `CatalogoEnMemoria` es
+> `@ApplicationScoped`, y ese scope es **perezoso**: el contenedor crea el bean —y
+> corre el `@PostConstruct`— recién cuando alguien lo usa por primera vez. **Antes de
+> mostrar el log hay que tocar la API una vez:**
+>
+> ```bash
+> curl -s http://localhost:8080/ecommerce/api/salud
+> ```
+>
+> Medido: WildFly arrancó a las 07:27:16 y la línea salió a las 07:27:41, con la primera
+> petición. Si te preguntan por qué aparece recién ahí, **es una respuesta que suma**: es
+> la diferencia entre un scope perezoso y uno ansioso, y muestra que entendiste cuándo
+> instancia el contenedor.
+
 
 **2 · Las dos anotaciones, en el editor**
 
@@ -260,11 +276,21 @@ tapa el agujero.
 ## 🎙️ RODRIGO — Apertura, estructura y capas · 5 min
 
 **Abrís vos.** No hay nadie antes.
-**Preparás:** el editor con estas dos carpetas lado a lado, y
-`producto-repository.js` abierto en otra pestaña:
+**Preparás:** el editor con estas dos carpetas lado a lado:
 
 - `src/main/webapp/assets/js/componentes/`
 - `src/main/java/ar/edu/desarrolloappii/ecommerce/catalogo/`
+
+Y estas cuatro pestañas, que se muestran **de a pares en pantalla dividida**:
+
+| Capa | Panel izquierdo (JS) | Panel derecho (Java) |
+|---|---|---|
+| **datos** | `producto-repository.js` · línea **46** | `ProductoRepository.java` · línea **18** |
+| **negocio** | `catalogo-service-local.js` · línea **81** | `CatalogoServiceImpl.java` · línea **52** |
+
+> Para el negocio va `catalogo-service-local.js`, **no** `catalogo-service.js`. Ese
+> último es la fachada y la factory —no tiene ni una regla de dominio adentro— y además
+> es el que abre Fol en su bloque.
 
 **Entrás cuando:** No hay nadie antes. Arrancás con el proyector ya en el editor.
 
@@ -310,7 +336,8 @@ Empiezo por la estructura, que es lo que ordena todo lo demás.
 
 `[En la TERMINAL — no en el navegador — correr `./scripts/capas.py`]`
 
-Esto de la izquierda es el cliente. Esto de la derecha es el backend en Java.
+A la izquierda el **frontend**, lo que corre en el navegador. A la derecha el
+**backend**, lo que corre en el servidor: Jakarta EE sobre WildFly.
 
 ```
 assets/js/componentes/              src/main/java/…/ecommerce/catalogo/
@@ -332,13 +359,18 @@ assets/js/componentes/              src/main/java/…/ecommerce/catalogo/
 es lo que nos permite decir con precisión qué pieza del cliente se borra cuando
 su equivalente del servidor entre en producción.
 
-Nos preguntaron por qué agrupamos primero por componente y después por capa, y
-no al revés. La alternativa era tener `presentacion/`, `negocio/` y `datos/`
-arriba, y los componentes adentro. La descartamos por una razón concreta: **las
-piezas que cambian juntas tienen que estar juntas.** Si mañana agregamos un
-filtro al catálogo, tocamos su vista, su servicio y sus criterios de búsqueda.
-Con la carpeta por capa, ese cambio se reparte en tres ramas del árbol; con la
-carpeta por componente, cae en una sola.
+Lo agrupamos así por una razón concreta, y la vivimos en esta misma entrega.
+
+Cuando agregamos el componente **Usuario** —el del login y los roles—, **nació entero
+en una sola carpeta**: su vista, su servicio y su repositorio. Lo único que tocamos
+afuera fue el arranque, para cablearlo.
+
+Si hubiéramos agrupado primero por capa, ese mismo componente quedaba **repartido en
+tres ramas del árbol**, con un pedazo de Usuario en cada una. Y el día que haya que
+sacarlo, hay que ir a buscar los restos a tres lugares.
+
+**Las piezas que cambian juntas tienen que estar juntas.** Por eso: primero el
+componente, después la capa.
 
 `[Abrir producto-repository.js]`
 
@@ -350,15 +382,41 @@ y se pueden verificar leyendo los `import`. Miren esta, que es la que más cuest
 async buscarTodos() { ... }
 ```
 
-El repositorio devuelve **todo**, sin filtrar. Quién es visible, cómo se busca y
-cómo se ordena lo decide el negocio. Una capa de datos que filtra es una capa de
-datos que sabe demasiado de la capa de arriba — es uno de los anti-patrones de la
-slide de errores comunes.
+El repositorio devuelve **todo**, sin filtrar, y es **a propósito**: quién es
+visible, cómo se busca y cómo se ordena son decisiones del negocio, no de la
+base. Lo dejamos tonto a propósito.
+
+Si el repositorio filtrara, estaría tomando decisiones de negocio — justo lo que
+la **lámina 20** marca como no permitido: *«datos "subiendo" para tomar
+decisiones de negocio»*.
 
 `[Señalar el Java al lado]`
 
 Y es exactamente lo que dice el `ProductoRepository` de Java, con las mismas
 palabras, porque lo escribimos primero ahí.
+
+`[Panel izquierdo: catalogo-service-local.js línea 81 · derecho: CatalogoServiceImpl.java línea 52]`
+
+Y acá está la otra mitad: la capa de **negocio**. Fíjense cómo arranca —pidiéndole al
+repositorio `buscarTodos()`—. **Recién después decide**: filtra por activo, por
+categoría, por texto, por stock, por precio, y ordena.
+
+El repositorio entrega. El negocio decide. Y es la misma cadena en los dos lenguajes:
+
+```
+JavaScript                                    Java
+const todos = await productos.buscarTodos()   productos.buscarTodos().stream()
+  .filter(p => p.activo)                        .filter(Producto::isActivo)
+  .filter(p => cumpleCategoria(p, criterios))   .filter(p -> cumpleCategoria(p, criterios))
+  .filter(p => cumpleTexto(p, criterios))       .filter(p -> cumpleTexto(p, criterios))
+  .filter(p => cumpleStock(p, criterios))       .filter(p -> cumpleStock(p, criterios))
+  .filter(p => cumplePrecio(p, criterios))      .filter(p -> cumplePrecio(p, criterios))
+  .sort(ESTRATEGIAS_DE_ORDEN[criterios.orden])  .sorted(comparador(criterios.orden()))
+```
+
+Y una aclaración, para que se entienda qué estoy mostrando: **esto es la explicación
+técnica**. Están viendo el contrato y las reglas, no la app corriendo. En un minuto Fol
+les muestra en la demo **cómo se ejecuta todo esto** contra el catálogo real.
 
 `[Abrir compartido/]`
 
@@ -790,21 +848,19 @@ abiertos en el editor.
 
 ### Lo que decís
 
-`[Terminal]`
+`[Terminal 2 — apretás Enter]`
 
-```bash
-node --test 'src/test/js/**/*.test.mjs'
-```
+Antes de terminar les quiero mostrar dos cosas. La primera son los tests.
 
-`[Correr]`
+`[Corren, tardan menos de un segundo]`
 
-**84 pruebas, cero fallas, menos de un segundo.** Sin navegador, sin red y sin
-una sola dependencia externa: es el `node --test` que viene con Node.
+**Ochenta y cuatro pruebas, todas pasan.** Pero lo importante no es el número: es
+**cómo** corren. Fíjense que no abrí el navegador, no hay internet de por medio, y no
+instalamos ninguna librería. Es Node y nada más.
 
 `[Abrir catalogo-service-local.test.mjs]`
 
-Pero lo que quiero mostrarles de este archivo no es que pasa. Es lo que **no
-tiene**:
+Y esto es lo que lo hace posible. Miren estas tres líneas:
 
 ```js
 servicio = new CatalogoServiceLocal(
@@ -813,100 +869,89 @@ servicio = new CatalogoServiceLocal(
 );
 ```
 
-Repositorios falsos en tres líneas. Este archivo no importa ni un pedazo de
-navegador, ni un `localStorage`, ni una petición de red. **Y puede no
-importarlos porque el servicio no depende de ninguno de los tres**: recibe sus
-repositorios por constructor y programa contra sus contratos.
+Al servicio le pasamos **repositorios de mentira**, inventados ahí mismo para la prueba.
+Y funciona igual, porque **el servicio no sabe de dónde vienen los datos**: sólo sabe
+que alguien se los va a dar.
 
-Eso que en la clase tres figura como "testing aislado" es esto. Y es la prueba
-concreta de que las capas están separadas de verdad y no solamente dibujadas en
-un diagrama: **si estuvieran mezcladas, este archivo no podría existir.**
+Por eso lo podemos probar sin navegador, sin base de datos y sin la API. Y por eso
+también decimos que las capas están separadas de verdad: **si estuvieran todas
+mezcladas, este archivo directamente no andaría.**
 
 `[Abrir carrito-service.test.mjs]`
 
-Y este es el test que prueba que el carrito es stateful:
+Y acá está el test que prueba lo que contó Ivan, el tema del estado:
 
 ```js
-test('la MISMA llamada da distinto resultado según la historia previa', () => {
-  assert.equal(carrito.agregar(disponible).ok, true);   // 1.ª vez: entra
-  assert.equal(carrito.agregar(disponible).ok, true);   // 2.ª vez: entra
-  assert.equal(carrito.agregar(disponible).ok, false);  // 3.ª: la rechaza el estado
-});
+carrito.agregar(producto)  →  ok
+carrito.agregar(producto)  →  ok
+carrito.agregar(producto)  →  RECHAZADO
 ```
 
-Los casos del test del catálogo son, además, **el espejo** de
-`CatalogoServiceImplTest.java`. Misma especificación, dos implementaciones. Si
-una se desvía, un test lo canta.
+Tres veces exactamente lo mismo, y la tercera dice que no. Porque el carrito se acuerda
+de las dos anteriores. Eso es lo que hace que sea *stateful*.
 
-`[Cambiar a la terminal de WildFly]`
+Una cosa más: los tests del catálogo son **los mismos casos** que los del backend en
+Java. Si alguna de las dos versiones se desviara, el test lo avisa.
 
-Y ahora la cosa del servidor que les anticipé. La consigna pide evidencia de que
-**el contenedor** gestiona el ciclo de vida de los componentes. Un frontend no
-tiene contenedor, así que eso no se puede mostrar con JavaScript.
+`[Terminal 3 — WildFly]`
 
-Pero el componente Catálogo también está implementado en Jakarta EE y está
-desplegado acá. Miren el log del arranque:
+Y lo segundo es el servidor.
+
+Vamos acá porque hay una cosa que **no se puede mostrar desde el navegador**. La
+consigna pide demostrar que el contenedor —el servidor— es el que maneja los
+componentes: el que los crea, los usa y los destruye. Y en el navegador no hay
+contenedor, así que eso no lo podemos probar con JavaScript.
+
+Pero el componente Catálogo también lo tenemos hecho en Java, y está corriendo acá.
+Miren esta línea del log:
 
 ```
-INFO [...CatalogoEnMemoria] Catálogo cargado: 16 productos, 5 categorías
-INFO [org.jboss.as.server] WFLYSRV0010: Deployed "ecommerce.war"
+Catálogo cargado: 16 productos, 5 categorías
 ```
 
 `[Abrir CatalogoEnMemoria.java]`
 
-Esa línea la imprimió este método:
+Esa línea la escribe este método de acá. Y lo importante es esto: **nosotros nunca lo
+llamamos.** No hay ni una línea en nuestro código que diga "ejecutá esto". Lo único que
+hicimos fue ponerle una etiqueta arriba:
 
 ```java
-@ApplicationScoped
-public class CatalogoEnMemoria implements ProductoRepository, CategoriaRepository {
-    @PostConstruct
-    void cargar() { ... }
+@PostConstruct
+void cargar() { ... }
 ```
 
-**Nadie llamó a `cargar()`.** Lo llamó WildFly al crear el bean. Nosotros
-declaramos *cuándo* queremos que pase, y el contenedor lo hace. Eso es el ciclo
-de vida gestionado.
+Esa etiqueta le dice al servidor *"cuando crees este objeto, ejecutá esto"*. Y el
+servidor lo hizo solo. **Eso es el contenedor manejando el ciclo de vida.**
 
 `[Abrir CatalogoServiceImpl.java]`
 
-Y acá el `@Stateless`, que le da al servicio el pool de instancias y las
-transacciones declarativas del contenedor.
+Y acá hay otra etiqueta parecida, `@Stateless`, que le avisa al servidor que este
+componente no guarda estado — así puede reutilizar la misma instancia para atender a
+cualquiera.
 
-Y una precisión sobre el stack, que conviene decirla bien:
-
-> **Jakarta EE es una especificación, no un producto.** Define contratos
-> —interfaces y anotaciones—, no una implementación. Nosotros usamos
-> **Jakarta EE 10 sobre Java 17**; el servidor que la implementa es
-> **WildFly 41**, pero podría ser Payara u Open Liberty. Programamos contra el
-> estándar, así que la aplicación puede migrar de servidor sin reescribir el
-> negocio.
-
-Y un detalle que se nota en el código: **todos los imports son `jakarta.*`, ni
-uno `javax.*`**. El namespace cambió en Jakarta EE 9 y rompe compatibilidad
-binaria con el código legado.
-
----
-
-Para cerrar, lo que **nos falta** y lo sabemos:
-
-- **PagoComponent**, el cuarto del caso. Hoy el checkout simula el pago adentro
-  del Carrito; separarlo pide un Adapter hacia la pasarela.
-- **JPA.** El repositorio del backend sigue siendo el de memoria. Los contratos
-  ya están: cambia esa clase y nada más.
-- **Llevar Carrito y Usuario al servidor.** Sus reglas hoy corren en el cliente y
-  el servidor va a tener que revalidarlas.
-
-Y dos cosas que el Anexo marca como puntos extra y están hechas.
-
+> **(!) La línea NO aparece sola al arrancar WildFly.** `CatalogoEnMemoria` es
+> `@ApplicationScoped`, y ese scope es **perezoso**: el contenedor crea el bean —y
+> corre el `@PostConstruct`— recién cuando alguien lo usa por primera vez. **Antes de
+> mostrar el log hay que tocar la API una vez:**
+>
+> ```bash
+> curl -s http://localhost:8080/ecommerce/api/salud
+> ```
+>
+> Medido: WildFly arrancó a las 07:27:16 y la línea salió a las 07:27:41, con la primera
+> petición. Si te preguntan por qué aparece recién ahí, **es una respuesta que suma**: es
+> la diferencia entre un scope perezoso y uno ansioso, y muestra que entendiste cuándo
+> instancia el contenedor.
 `[Tocar el selector de temas de la cabecera]`
 
-Los tres temas se alternan en tiempo real, no son maquetas de cada variante.
+Y dos cositas más que el Anexo marca como puntos extra y están hechas. Los tres temas se
+cambian en el momento, no son capturas de cada variante.
 
 ![Tema oscuro, alternable en vivo (Anexo §7).](capturas/16-tema-oscuro.png)
 
 `[Angostar la ventana, o abrirlo en el celular]`
 
-Y es responsive de 320 a 1440 px: la misma UI, sin una segunda versión móvil.
+Y es responsive de 320 a 1440 px: la misma interfaz, sin una segunda versión para móvil.
 
 ![La misma UI a 400 px de ancho (Anexo §8).](capturas/18-responsive-movil.png)
 
@@ -917,11 +962,12 @@ Eso es todo. Quedamos para las preguntas.
 | Pregunta | Respuesta |
 |---|---|
 | *¿84 tests de qué?* | 25 del catálogo, 28 del carrito, 31 de usuario. Reglas de negocio, no interfaz. |
-| *¿Y las pruebas de interfaz?* | No están automatizadas todavía, lo verificamos a mano en los tres escenarios. Automatizarlas con Playwright está en el roadmap. **(No inventes un número.)** |
-| *¿Por qué el catálogo no necesita el navegador para probarse?* | Porque es stateless y recibe sus repositorios por constructor. No depende del DOM ni de la red. |
-| *¿Qué hace exactamente `@PostConstruct`?* | Es un callback de inicialización: el contenedor lo invoca después de construir el bean y antes del primer uso. Acá carga el JSON semilla una sola vez. |
-| *¿Por qué `@ApplicationScoped` y no `@Stateless` en el repositorio?* | Porque queremos UNA instancia por despliegue, para leer el catálogo una única vez. `@Stateless` daría un pool y lo leería cada instancia. |
-| *¿Tienen `@PreDestroy`?* | No, todavía no: hoy no hay nada que liberar al apagar. Cuando entre JPA va a hacer falta para cerrar recursos. |
+| *¿Y las pruebas de interfaz?* | No están automatizadas todavía, lo verificamos a mano. Automatizarlas con Playwright está en el roadmap. **(No inventes un número.)** |
+| *¿Por qué el catálogo no necesita el navegador para probarse?* | Porque no depende de él: recibe sus repositorios por constructor. Le pasamos unos falsos y anda igual. |
+| *¿Qué hace exactamente `@PostConstruct`?* | Le dice al servidor que ejecute ese método apenas crea el objeto, antes de que nadie lo use. Acá carga el catálogo una sola vez. |
+| *¿Por qué la línea aparece recién con la primera petición?* | Porque `@ApplicationScoped` es perezoso: el servidor crea el objeto cuando alguien lo necesita, no al desplegar. |
+| *¿Por qué `@ApplicationScoped` y no `@Stateless` en el repositorio?* | Porque queremos una sola instancia por despliegue, para leer el catálogo una vez. `@Stateless` daría varias y cada una lo leería de nuevo. |
+| *¿Tienen `@PreDestroy`?* | Todavía no: hoy no hay nada que liberar al apagar. Cuando entre la base de datos va a hacer falta. |
 
 ---
 

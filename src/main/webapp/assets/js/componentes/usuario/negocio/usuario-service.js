@@ -224,9 +224,11 @@ export function asegurarSemilla() {
   if (semillaLista) return semillaLista;
 
   semillaLista = (async () => {
-    if (repositorio.existeAlguno()) return;
-
+    // Cuenta por cuenta, no "¿hay alguien?": si el almacén trae usuarios de una
+    // versión anterior, un corte global dejaría las cuentas de demo sin crear y
+    // el ingreso fallaría con un mensaje que no explica nada.
     for (const { nombre, email, clave, rol } of SEMILLA) {
+      if (repositorio.buscarPorEmail(email)) continue;
       const salt = nuevoSalt();
       repositorio.guardar({
         nombre,

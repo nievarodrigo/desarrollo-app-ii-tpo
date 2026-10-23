@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "GOMARKET - Clase 10 REST",
+    "description": "Bonus: API de pedidos implementada en WildFly. Ejecutar en orden y guardar capturas; la colección no demuestra por sí sola que se haya usado Postman. Nota: un Accept sólo con application/problem+json devuelve 406, porque el recurso produce application/json.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/ecommerce/api" },
+    { "key": "pedidoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1 - Crear pedido válido (202)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"items\":[{\"idProducto\":1,\"cantidad\":1}]}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/pedidos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Aceptado con 202', () => pm.response.to.have.status(202));",
+              "const pedido = pm.response.json();",
+              "pm.collectionVariables.set('pedidoId', pedido.id);",
+              "pm.test('Tiene id y estado', () => pm.expect(pedido.id && pedido.estado).to.be.ok);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Consultar pedido creado (200)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/pedidos/{{pedidoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Consulta con 200', () => pm.response.to.have.status(200));",
+              "const pedido = pm.response.json();",
+              "pm.test('Es el mismo pedido', () => pm.expect(pedido.id).to.eql(pm.collectionVariables.get('pedidoId')));",
+              "pm.test('Estado visible', () => pm.expect(['PENDIENTE', 'PROCESADO']).to.include(pedido.estado));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Stock insuficiente (400 Problem Details)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json, application/problem+json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"items\":[{\"idProducto\":1,\"cantidad\":999}]}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/pedidos"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Rechazado con 400', () => pm.response.to.have.status(400));",
+              "pm.test('Es Problem Details', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'));",
+              "const problema = pm.response.json();",
+              "pm.test('Incluye detalle', () => pm.expect(problema.status === 400 && problema.detail).to.be.ok);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

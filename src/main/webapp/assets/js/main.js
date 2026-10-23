@@ -714,8 +714,7 @@ function manejarAgregar(id, origen) {
     avisar(`${producto.nombre} agregado al carrito.`, 'ok');
   }
 
-  /* Refrescamos los botones para reflejar el tope de stock. */
-  pintarGrilla();
+  /* La grilla la repinta el OBSERVER del carrito, no esta función. */
   if (origen === 'modal' && modalCaja) {
     modalCaja.innerHTML = detalleProducto(producto, carrito.cantidadDe(producto.id));
     $('[data-cerrar-modal]', modalCaja)?.addEventListener('click', cerrarCapa);
@@ -723,6 +722,21 @@ function manejarAgregar(id, origen) {
 }
 
 function iniciarInteraccionesCatalogo() {
+  /* OBSERVER del carrito. Los botones de la grilla dicen cuántas unidades ya
+     están en el carrito, así que son estado derivado: cualquier cambio
+     —agregar, quitar, vaciar, confirmar— tiene que repintarla.
+
+     Antes esto lo hacía a mano sólo `manejarAgregar()`, que es el único camino
+     que el catálogo controla. Vaciar el carrito ocurre en el componente
+     Carrito, que no conoce a la grilla ni tiene por qué: el botón quedaba en
+     "Máximo en carrito" con el carrito vacío.
+
+     `alCambiar` avisa una vez al suscribirse, y en ese momento todavía no hay
+     productos cargados; sin la guarda borraría los esqueletos del arranque. */
+  carrito.alCambiar(() => {
+    if (productosVisibles.length) pintarGrilla();
+  });
+
   grilla?.addEventListener('click', (evento) => {
     const agregar = evento.target.closest('[data-agregar]');
     if (agregar) {

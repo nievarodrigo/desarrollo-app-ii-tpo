@@ -12,7 +12,7 @@
  */
 
 import './stub-navegador.mjs';
-import { crudoDe, vaciarAlmacen } from './stub-navegador.mjs';
+import { crudoDe, sembrarCrudo, vaciarAlmacen } from './stub-navegador.mjs';
 
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -291,5 +291,75 @@ describe('Persistencia', () => {
     await ingresar(CLIENTE.email, CLIENTE.clave);
     egresar();
     assert.equal(crudoDe('sesion'), null);
+  });
+});
+
+describe('Semilla de cuentas de demo', () => {
+  /**
+   * `asegurarSemilla()` memoiza su promesa, así que dentro de un mismo proceso
+   * corre una sola vez. Para probar el arranque hay que importar el módulo de
+   * nuevo con la caché de ESM salteada.
+   */
+  const arrancarDeCero = async (precarga = {}) => {
+    vaciarAlmacen();
+    for (const [clave, valor] of Object.entries(precarga)) sembrarCrudo(clave, valor);
+    const modulo = await import(
+      `../../main/webapp/assets/js/componentes/usuario/negocio/usuario-service.js?${Math.random()}`
+    );
+    await modulo.asegurarSemilla();
+    return modulo;
+  };
+
+  /** Un usuario con el formato que guardaba la app antes del renombre. */
+  const usuarioViejo = (email, rol) => ({
+    nombre: 'De una versión anterior',
+    email,
+    rol,
+    clave: { hash: 'a'.repeat(64), salt: 'ff' },
+    creadoEn: '2026-09-01T00:00:00.000Z'
+  });
+
+  test('en un navegador limpio crea las dos cuentas de demo', async () => {
+    const { ingresar } = await arrancarDeCero();
+
+    assert.equal((await ingresar(CLIENTE.email, CLIENTE.clave)).rol, ROLES.CLIENTE);
+    assert.equal((await ingresar(ADMIN.email, ADMIN.clave)).rol, ROLES.ADMIN);
+  });
+
+  test('las crea aunque el almacén ya traiga usuarios de una versión anterior', async () => {
+    // Regresión: el corte era `if (existeAlguno()) return`, y los usuarios
+    // migrados del prefijo viejo lo hacían verdadero. La semilla no corría
+    // nunca y las credenciales que ofrece el formulario no existían.
+    const { ingresar } = await arrancarDeCero({
+      'fachada:usuarios': [
+        usuarioViejo('cliente@fachada.com.ar', ROLES.CLIENTE),
+        usuarioViejo('admin@fachada.com.ar', ROLES.ADMIN)
+      ]
+    });
+
+    assert.equal((await ingresar(CLIENTE.email, CLIENTE.clave)).rol, ROLES.CLIENTE);
+    assert.equal((await ingresar(ADMIN.email, ADMIN.clave)).rol, ROLES.ADMIN);
+  });
+
+  test('no pisa una cuenta que el usuario ya tenía registrada', async () => {
+    const propia = usuarioViejo('fol@uade.edu.ar', ROLES.CLIENTE);
+    await arrancarDeCero({ 'gomarket:usuarios': [propia] });
+
+    const guardados = JSON.parse(crudoDe('usuarios'));
+    assert.deepEqual(
+      guardados.find((u) => u.email === propia.email),
+      propia,
+      'la cuenta preexistente queda intacta, sin rehashear ni cambiarle la fecha'
+    );
+    assert.equal(guardados.length, 3, 'y las dos de demo se suman, no reemplazan');
+  });
+
+  test('correr la semilla dos veces no duplica cuentas', async () => {
+    const modulo = await arrancarDeCero();
+    await modulo.asegurarSemilla();
+
+    const emails = JSON.parse(crudoDe('usuarios')).map((u) => u.email);
+    assert.equal(new Set(emails).size, emails.length, 'sin repetidos');
+    assert.equal(emails.length, 2);
   });
 });

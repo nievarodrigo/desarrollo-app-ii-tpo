@@ -48,6 +48,25 @@ export async function obtener(ruta, params = {}) {
   return respuesta.json();
 }
 
+/** POST JSON hacia la API. Una respuesta 202 indica aceptación, no procesamiento final. */
+export async function publicar(ruta, cuerpo) {
+  const url = new URL(ruta.replace(/^\//, ''), BASE_URL);
+  const respuesta = await fetch(url, {
+    method: 'POST',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(cuerpo)
+  });
+  if (!respuesta.ok) {
+    let detalle;
+    try {
+      const problema = await respuesta.json();
+      detalle = problema.detail || problema.error;
+    } catch { /* respuesta sin JSON */ }
+    throw new ErrorDeRed(detalle || `La API respondió ${respuesta.status}`);
+  }
+  return respuesta.json();
+}
+
 /* ------------------------------------------------------------------ */
 /* Detección del backend                                              */
 /* ------------------------------------------------------------------ */
