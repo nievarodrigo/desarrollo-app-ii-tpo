@@ -5,6 +5,7 @@ import ar.edu.desarrolloappii.ecommerce.catalogo.service.CatalogoService;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.SolicitudPedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.TransicionInvalidaException;
 import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoRepository;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.AccesoDenegadoException;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Identidad;
@@ -50,7 +51,13 @@ public class PedidoService {
         try {
             publicador.publicar(pedido);
         } catch (RuntimeException error) {
-            repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
+            try {
+                repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
+            } catch (TransicionInvalidaException transicion) {
+                // JMS pudo entregar antes de informar un error ambiguo. No regresar el estado
+                // ni responder 409 por una transición interna: conservar la falla de publicación.
+                error.addSuppressed(transicion);
+            }
             throw error;
         }
         return pedido;
