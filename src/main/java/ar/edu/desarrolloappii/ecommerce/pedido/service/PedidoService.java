@@ -2,55 +2,56 @@ package ar.edu.desarrolloappii.ecommerce.pedido.service;
 
 import ar.edu.desarrolloappii.ecommerce.catalogo.domain.Producto;
 import ar.edu.desarrolloappii.ecommerce.catalogo.service.CatalogoService;
-import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.SolicitudPedido;
-import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoEnMemoria;
+import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoRepository;
+import ar.edu.desarrolloappii.ecommerce.seguridad.domain.AccesoDenegadoException;
+import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Identidad;
+import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Rol;
+import ar.edu.desarrolloappii.ecommerce.shared.exception.RecursoNoEncontradoException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.jms.JMSContext;
-import jakarta.jms.JMSDestinationDefinition;
-import jakarta.jms.Queue;
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
-import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/** Valida, recalcula y publica el comando; no espera al consumidor. */
+/**
+ * Valida, recalcula y publica el comando; no espera al consumidor.
+ * Depende de dos puertos (repositorio y publicador), no de la base ni de JMS.
+ */
 @ApplicationScoped
-@JMSDestinationDefinition(
-        name = "java:/jms/queue/ProcesarPedidoQueue",
-        interfaceName = "jakarta.jms.Queue",
-        destinationName = "ProcesarPedidoQueue",
-        resourceAdapter = "activemq-ra")
 public class PedidoService {
     private static final BigDecimal ENVIO_GRATIS_DESDE = new BigDecimal("150000");
     private static final BigDecimal COSTO_ENVIO = new BigDecimal("8900");
 
     @Inject CatalogoService catalogo;
-    @Inject PedidoEnMemoria repositorio;
-    @Inject JMSContext jms;
-    @Resource(lookup = "java:/jms/queue/ProcesarPedidoQueue") Queue cola;
+    @Inject PedidoRepository repositorio;
+    @Inject PublicadorPedidos publicador;
 
-    public Pedido crear(SolicitudPedido solicitud) {
+    public PedidoService() { }
+
+    /** Constructor para tests unitarios, sin contenedor. */
+    public PedidoService(CatalogoService catalogo, PedidoRepository repositorio, PublicadorPedidos publicador) {
+        this.catalogo = catalogo;
+        this.repositorio = repositorio;
+        this.publicador = publicador;
+    }
+
+    public Pedido crear(SolicitudPedido solicitud, Identidad solicitante) {
         BigDecimal total = validarYCalcular(solicitud, catalogo);
         List<SolicitudPedido.Item> copia = solicitud.getItems().stream()
                 .map(i -> new SolicitudPedido.Item(i.getIdProducto(), i.getCantidad())).toList();
-        Pedido pedido = new Pedido(UUID.randomUUID().toString(), "PENDIENTE", copia, total);
+        Pedido pedido = new Pedido(UUID.randomUUID().toString(), "PENDIENTE", copia, total,
+                solicitante.email());
         repositorio.guardar(pedido);
-        try (Jsonb jsonb = JsonbBuilder.create()) {
-            jms.createProducer().setDeliveryMode(jakarta.jms.DeliveryMode.PERSISTENT)
-                    .send(cola, jsonb.toJson(pedido));
+        try {
+            publicador.publicar(pedido);
         } catch (RuntimeException error) {
             repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
             throw error;
-        } catch (Exception error) {
-            repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
-            throw new IllegalStateException("No se pudo serializar el pedido.", error);
         }
         return pedido;
     }
@@ -78,5 +79,30 @@ public class PedidoService {
                 ? subtotal : subtotal.add(COSTO_ENVIO);
     }
 
-    public Pedido obtener(String id) { return repositorio.obtener(id); }
+    /** Un cliente sólo ve sus pedidos; un ADMIN ve todos. */
+    public Pedido obtener(String id, Identidad solicitante) {
+        return visiblePara(id, solicitante);
+    }
+
+    /** Aplica un evento de negocio. Si el estado actual no lo acepta, State lanza TransicionInvalidaException (409). */
+    public Pedido aplicarEvento(String id, EventoPedido evento, Identidad solicitante) {
+        visiblePara(id, solicitante);
+        Pedido actualizado = repositorio.aplicar(id, evento);
+        if (actualizado == null) throw noExiste(id);
+        return actualizado;
+    }
+
+    private Pedido visiblePara(String id, Identidad solicitante) {
+        Pedido pedido = repositorio.obtener(id);
+        if (pedido == null) throw noExiste(id);
+        boolean esDuenio = solicitante.email().equalsIgnoreCase(pedido.getCliente());
+        if (solicitante.rol() != Rol.ADMIN && !esDuenio) {
+            throw new AccesoDenegadoException("Ese pedido pertenece a otro cliente.");
+        }
+        return pedido;
+    }
+
+    private static RecursoNoEncontradoException noExiste(String id) {
+        return new RecursoNoEncontradoException("No existe un pedido con id " + id);
+    }
 }
