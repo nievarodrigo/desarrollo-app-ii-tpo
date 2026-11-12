@@ -6,14 +6,14 @@ import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Rol;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Usuario;
 import ar.edu.desarrolloappii.ecommerce.seguridad.repository.UsuarioRepository;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
 
 /** Registro e ingreso. Es el único lugar que conoce claves, hashes y el límite de intentos. */
-@Singleton
+@ApplicationScoped
 public class AuthService {
     static final int CLAVE_MINIMA = 8;
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
@@ -21,13 +21,15 @@ public class AuthService {
     /** Resultado de un ingreso exitoso. */
     public record Sesion(String token, long expiraEnSegundos, Usuario usuario) { }
 
-    private final UsuarioRepository usuarios;
-    private final PasswordHasher hasher;
-    private final JwtService jwt;
-    private final LimiteDeIntentos limite;
-    private final Clock reloj;
+    private UsuarioRepository usuarios;
+    private PasswordHasher hasher;
+    private JwtService jwt;
+    private LimiteDeIntentos limite;
+    private Clock reloj;
     /** Hash de relleno: se verifica contra él cuando el email no existe, para tardar lo mismo. */
-    private final String hashFalso;
+    private String hashFalso;
+
+    protected AuthService() { } // para el proxy de CDI
 
     @Inject
     public AuthService(UsuarioRepository usuarios, PasswordHasher hasher, JwtService jwt) {

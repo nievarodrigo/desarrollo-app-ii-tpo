@@ -3,10 +3,11 @@ package ar.edu.desarrolloappii.ecommerce.seguridad.service;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Identidad;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.NoAutenticadoException;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Rol;
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
+import jakarta.annotation.PostConstruct;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -32,18 +33,24 @@ import javax.crypto.spec.SecretKeySpec;
  * sistema gomarket.jwt.secret). Si no está, se genera una al azar al arrancar:
  * sirve para demo, pero los tokens dejan de valer al reiniciar.
  */
-@Singleton
+@ApplicationScoped
 public class JwtService {
     public static final String EMISOR = "gomarket";
     private static final Logger LOG = Logger.getLogger(JwtService.class.getName());
     private static final String CABECERA = base64url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(StandardCharsets.UTF_8));
 
-    private final byte[] clave;
-    private final Duration vida;
-    private final Clock reloj;
+    private byte[] clave;
+    private Duration vida;
+    private Clock reloj;
 
-    public JwtService() {
-        this(claveDeConfiguracion(), Duration.ofMinutes(30), Clock.systemUTC());
+    /** Para CDI (el proxy del bean). La configuración real se carga en {@link #iniciar()}. */
+    public JwtService() { }
+
+    @PostConstruct
+    void iniciar() {
+        this.clave = claveDeConfiguracion();
+        this.vida = Duration.ofMinutes(30);
+        this.reloj = Clock.systemUTC();
     }
 
     public JwtService(byte[] clave, Duration vida, Clock reloj) {

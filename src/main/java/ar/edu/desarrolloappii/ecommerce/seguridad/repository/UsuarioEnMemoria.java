@@ -4,7 +4,7 @@ import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Rol;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Usuario;
 import ar.edu.desarrolloappii.ecommerce.seguridad.service.PasswordHasher;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * Usuarios de la demo en memoria, con dos cuentas semilla (las mismas del front).
  * Las claves de la semilla son SÓLO para demostración y se guardan hasheadas.
  */
-@Singleton
+@ApplicationScoped
 public class UsuarioEnMemoria implements UsuarioRepository {
     private final Map<String, Usuario> usuarios = new ConcurrentHashMap<>();
+
+    protected UsuarioEnMemoria() { } // para el proxy de CDI
 
     @Inject
     public UsuarioEnMemoria(PasswordHasher hasher) {

@@ -7,7 +7,7 @@ import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
@@ -21,10 +21,12 @@ import java.util.Optional;
  *  - @DenyAll → 403 siempre.
  * Es una clase común (sin JAX-RS) para poder probarla con tests unitarios.
  */
-@Singleton
+@ApplicationScoped
 public class AutorizadorDeAcceso {
     private static final String PREFIJO = "Bearer ";
-    private final JwtService jwt;
+    private JwtService jwt;
+
+    protected AutorizadorDeAcceso() { } // para el proxy de CDI
 
     @Inject
     public AutorizadorDeAcceso(JwtService jwt) { this.jwt = jwt; }

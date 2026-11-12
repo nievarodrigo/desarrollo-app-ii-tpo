@@ -1,6 +1,6 @@
 package ar.edu.desarrolloappii.ecommerce.seguridad.service;
 
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -15,7 +15,7 @@ import javax.crypto.spec.PBEKeySpec;
  * es aceptado por OWASP con 600.000 iteraciones. Formato guardado:
  * {@code pbkdf2$iteraciones$sal$hash} (todo en Base64).
  */
-@Singleton
+@ApplicationScoped
 public class PasswordHasher {
     static final int ITERACIONES = 600_000;
     private static final int BYTES_SAL = 16;

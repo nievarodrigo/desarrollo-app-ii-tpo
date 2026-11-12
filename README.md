@@ -75,6 +75,28 @@ node --test src/test/js/*.test.mjs
 
 ---
 
+
+### Seguridad y pedidos (2.ª entrega)
+
+La API de pedidos exige un **JWT**. Cuentas de demostración: `cliente@gomarket.com.ar` / `cliente123` (rol CLIENTE) y `admin@gomarket.com.ar` / `admin123` (rol ADMIN). La clave de firma sale de `GOMARKET_JWT_SECRET`.
+
+```bash
+./scripts/levantar-wildfly.sh        # compila, despliega y levanta (JDK 17+, sin sudo)
+./scripts/probar-entrega2.sh         # recorre login, roles, pedido, mensajería y el 409
+```
+
+| Método y ruta | Quién | Respuestas |
+|---|---|---|
+| `POST /api/auth/login` · `POST /api/auth/registro` | público | 200/201 · 401 · 429 (5 fallos) |
+| `GET /api/auth/yo` | CLIENTE, ADMIN | 200 · 401 |
+| `GET /api/auth/usuarios` | ADMIN | 200 · 401 · 403 |
+| `POST /api/pedidos` | CLIENTE | 202 · 400 · 401 · 403 |
+| `GET /api/pedidos/{id}` | dueño o ADMIN | 200 · 403 · 404 |
+| `POST /api/pedidos/{id}/cancelar` | dueño o ADMIN | 200 · **409** si ya está CONFIRMADO |
+| `POST /api/pedidos/{id}/confirmar` | ADMIN | 200 · **409** si no está PROCESADO |
+
+Decisiones en `docs/adr/` (ADR-008 JWT y roles, ADR-009 REST y no SOAP, ADR-010 puertos).
+
 ## Arquitectura
 
 Tres capas, con una regla que no se negocia: **las dependencias apuntan hacia adentro.**
