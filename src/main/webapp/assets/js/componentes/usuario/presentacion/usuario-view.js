@@ -65,12 +65,19 @@ function menuInvitado() {
     <button role="menuitem" type="button" data-cuenta-accion="registro">Crear cuenta</button>`;
 }
 
+/** Datos del usuario dentro de HTML: escapar también comillas usadas en atributos. */
+function escaparHtml(valor) {
+  return String(valor).replace(/[&<>"']/g, (caracter) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[caracter]);
+}
+
 function menuAutenticado(sesion) {
   const esAdmin = sesion.rol === ROLES.ADMIN;
   return `
     <p class="menu-cuenta__saludo">
-      Hola, <strong>${sesion.nombre.split(' ')[0]}</strong>
-      <span class="chip-rol" data-rol="${sesion.rol}">${sesion.rol}</span>
+      Hola, <strong>${escaparHtml(sesion.nombre.split(' ')[0])}</strong>
+      <span class="chip-rol" data-rol="${escaparHtml(sesion.rol)}">${escaparHtml(sesion.rol)}</span>
     </p>
     <button role="menuitem" type="button" data-cuenta-accion="pedidos">Mis pedidos</button>
     ${esAdmin ? '<button role="menuitem" type="button" data-cuenta-accion="admin">Panel de administración</button>' : ''}
@@ -242,13 +249,13 @@ function vistaAdmin() {
                 (u) => `
               <tr>
                 <td>
-                  <strong>${u.nombre}</strong>
-                  <span class="cuenta__email">${u.email}${u.email === yo?.email ? ' · vos' : ''}</span>
+                  <strong>${escaparHtml(u.nombre)}</strong>
+                  <span class="cuenta__email">${escaparHtml(u.email)}${u.email === yo?.email ? ' · vos' : ''}</span>
                 </td>
                 <td>${fechaCorta(u.creadoEn)}</td>
                 <td>
-                  <label class="visualmente-oculto" for="rol-${u.email}">Rol de ${u.nombre}</label>
-                  <select id="rol-${u.email}" class="cuenta__select" data-cuenta-rol="${u.email}">
+                  <label class="visualmente-oculto" for="rol-${escaparHtml(u.email)}">Rol de ${escaparHtml(u.nombre)}</label>
+                  <select id="rol-${escaparHtml(u.email)}" class="cuenta__select" data-cuenta-rol="${escaparHtml(u.email)}">
                     ${Object.values(ROLES)
                       .map((r) => `<option value="${r}" ${r === u.rol ? 'selected' : ''}>${r}</option>`)
                       .join('')}
