@@ -130,11 +130,16 @@ Más 90 tests de JavaScript del front (carrito 28, catálogo 25, usuarios 35 y v
 
 ## Commits en `entrega-2`
 
-1. `feat(pedido): aplicar el patrón State al pedido y documentar los ADR` (tu trabajo previo)
-2. `feat(pedido): devolver 409 ante una transición inválida y sumar el estado CANCELADO`
-3. `feat(seguridad): autenticación con JWT HS256 y control de acceso por rol`
-4. `refactor(pedido): puertos de repositorio y mensajería, pedidos protegidos por rol y dueño`
-5. `fix(seguridad): usar @ApplicationScoped … y sumar scripts y ADR 008-010`
+1. `2beca28` feat(pedido): aplicar el patrón State al pedido y documentar los ADR
+2. `5c7f59c` feat(pedido): devolver 409 ante una transición inválida y sumar el estado CANCELADO
+3. `927bf6e` feat(seguridad): autenticación con JWT HS256 y control de acceso por rol
+4. `f47b4d5` refactor(pedido): puertos de repositorio y mensajería, pedidos protegidos por rol y dueño
+5. `2139377` fix(seguridad): usar @ApplicationScoped (con @Singleton WildFly no los descubre) y sumar scripts y ADR 008-010
+6. `5f0c789` fix(seguridad): validar secreto JWT, reglas de acceso y datos de entrada
+7. `bd93855` fix(pedido): conservar estado y error ante una entrega JMS ambigua
+8. `7b9a176` fix(usuario): escapar datos al mostrar el menú y el padrón
+9. `33d7a0d` docs(entrega): registrar la revisión y actualizar el guion de defensa
+10. `c4b3ae3` docs(entrega): agregar la imagen de la consigna de la 2.ª entrega
 
 
 ## 6. Revisión independiente del 12/11/2026
@@ -165,6 +170,4 @@ También compiló el WAR con `./mvnw -q -DskipTests package`. El PDF actualizado
 - Un mensaje persistente puede sobrevivir al reinicio, pero su pedido en memoria no: el MDB rechazará el id desconocido y el broker podrá terminar enviándolo a su cola de errores.
 - SEC-07 y la conexión del front al JWT siguen pendientes. Las cuentas y la clave del script son de demo; el contador de intentos sólo vive en memoria y no tiene limpieza global de correos desconocidos.
 
-**Commits:** se intentó crear un commit nuevo, pero `.git` está montado como solo lectura: `Unable to create .git/index.lock: Read-only file system`. No se crearon commits, no se reescribió el historial, no se hizo push ni se cambió de rama. Los cambios quedan listos para revisar y commitear desde un entorno con escritura en `.git`.
-
-Los comandos para crear cuatro commits pequeños, con rutas explícitas, están en `.entrega2/COMMITS_REVISION.md`.
+**Commits:** Codex no pudo commitear porque su sandbox dejó `.git` en solo lectura. Después se crearon en `entrega-2` los commits `5f0c789`, `bd93855`, `7b9a176`, `33d7a0d` y `c4b3ae3` (la imagen de la consigna). No se reescribió el historial, no se hizo push ni se tocó `main`. Tras esos commits, `./mvnw test` volvió a dar 69 tests en verde.
