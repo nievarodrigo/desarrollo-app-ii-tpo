@@ -1,6 +1,7 @@
 package ar.edu.desarrolloappii.ecommerce.pedido.service;
 
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoEnMemoria;
 import jakarta.ejb.ActivationConfigProperty;
 import jakarta.ejb.MessageDriven;
@@ -25,10 +26,8 @@ public class ProcesarPedidoMDB implements MessageListener {
             if (pedido == null || pedido.getId() == null || repositorio.obtener(pedido.getId()) == null) {
                 throw new IllegalArgumentException("Pedido desconocido o mensaje inválido.");
             }
-            // Idempotencia básica para redelivery: no se procesa dos veces en esta demo.
-            if (!"PROCESADO".equals(repositorio.obtener(pedido.getId()).getEstado())) {
-                repositorio.cambiarEstado(pedido.getId(), "PROCESADO");
-            }
+            // State + compute atómico: la reentrega no regresa un pedido confirmado.
+            repositorio.aplicar(pedido.getId(), EventoPedido.MENSAJE_PROCESADO);
         } catch (Exception error) {
             // Al fallar el MDB, el contenedor puede reentregar; no se acusa recibo silenciosamente.
             throw new IllegalStateException("Falló el procesamiento del mensaje de pedido.", error);

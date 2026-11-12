@@ -3,6 +3,7 @@ package ar.edu.desarrolloappii.ecommerce.pedido.service;
 import ar.edu.desarrolloappii.ecommerce.catalogo.domain.Producto;
 import ar.edu.desarrolloappii.ecommerce.catalogo.service.CatalogoService;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.SolicitudPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoEnMemoria;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -45,10 +46,10 @@ public class PedidoService {
             jms.createProducer().setDeliveryMode(jakarta.jms.DeliveryMode.PERSISTENT)
                     .send(cola, jsonb.toJson(pedido));
         } catch (RuntimeException error) {
-            repositorio.cambiarEstado(pedido.getId(), "ERROR_ENVIO");
+            repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
             throw error;
         } catch (Exception error) {
-            repositorio.cambiarEstado(pedido.getId(), "ERROR_ENVIO");
+            repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
             throw new IllegalStateException("No se pudo serializar el pedido.", error);
         }
         return pedido;

@@ -1,6 +1,7 @@
 package ar.edu.desarrolloappii.ecommerce.pedido.repository;
 
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,8 +13,8 @@ public class PedidoEnMemoria {
 
     public void guardar(Pedido pedido) { pedidos.put(pedido.getId(), pedido); }
     public Pedido obtener(String id) { return pedidos.get(id); }
-    public void cambiarEstado(String id, String estado) {
+    public void aplicar(String id, EventoPedido evento) {
         pedidos.computeIfPresent(id, (clave, anterior) ->
-                new Pedido(anterior.getId(), estado, anterior.getItems(), anterior.getTotal()));
+                anterior.transicionar(evento));
     }
 }
