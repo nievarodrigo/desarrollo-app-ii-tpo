@@ -29,6 +29,8 @@
          wildfly-41-ee10 que usamos para desplegar. -->
     <version.jakartaee>10.0.0</version.jakartaee>
     <version.junit>5.10.2</version.junit>
+    <version.parsson>1.1.6</version.parsson>
+    <version.yasson>3.0.3</version.yasson>
     <version.war.plugin>3.4.0</version.war.plugin>
     <version.surefire>3.2.5</version.surefire>
   </properties>
@@ -51,6 +53,24 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      Implementaciones de JSON-P y JSON-B sólo para los tests. En WildFly las
+      pone el servidor (por eso la API va `provided`); fuera del servidor no hay
+      nadie que las aporte y los tests de JWT y del flujo de pedido las necesitan.
+    -->
+    <dependency>
+      <groupId>org.eclipse.parsson</groupId>
+      <artifactId>jakarta.json</artifactId>
+      <version>${version.parsson}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
+      <version>${version.yasson}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
