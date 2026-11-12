@@ -71,4 +71,21 @@ class JwtServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new JwtService("corta".getBytes(StandardCharsets.UTF_8), Duration.ofMinutes(1), reloj));
     }
+    @Test void la_clave_corta_de_configuracion_impide_iniciar_el_servicio() {
+        org.junit.jupiter.api.Assumptions.assumeTrue(System.getenv("GOMARKET_JWT_SECRET") == null);
+        String anterior = System.getProperty("gomarket.jwt.secret");
+        try {
+            System.setProperty("gomarket.jwt.secret", "corta");
+            assertThrows(IllegalArgumentException.class, () -> new JwtService().iniciar());
+            System.setProperty("gomarket.jwt.secret", new String(CLAVE, StandardCharsets.UTF_8));
+            JwtService configurado = new JwtService();
+            configurado.iniciar();
+            assertEquals(Rol.ADMIN, configurado.verificar(
+                    configurado.emitir(new Identidad("a@b.com", Rol.ADMIN))).rol());
+        } finally {
+            if (anterior == null) System.clearProperty("gomarket.jwt.secret");
+            else System.setProperty("gomarket.jwt.secret", anterior);
+        }
+    }
+
 }

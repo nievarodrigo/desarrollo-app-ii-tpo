@@ -3,6 +3,7 @@ package ar.edu.desarrolloappii.ecommerce.seguridad.controller;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Identidad;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Usuario;
 import ar.edu.desarrolloappii.ecommerce.seguridad.service.AuthService;
+import ar.edu.desarrolloappii.ecommerce.shared.exception.DatosInvalidosException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -58,7 +59,7 @@ public class AuthResource {
     @POST
     @Path("/login")
     public TokenResponse login(Credenciales c) {
-        if (c == null) throw new IllegalArgumentException("Falta el cuerpo con email y clave.");
+        if (c == null) throw new DatosInvalidosException("Falta el cuerpo con email y clave.");
         AuthService.Sesion sesion = auth.ingresar(c.getEmail(), c.getClave());
         return new TokenResponse(sesion.token(), "Bearer", sesion.expiraEnSegundos(), CuentaResponse.desde(sesion.usuario()));
     }
@@ -66,7 +67,7 @@ public class AuthResource {
     @POST
     @Path("/registro")
     public Response registro(DatosRegistro d) {
-        if (d == null) throw new IllegalArgumentException("Falta el cuerpo con nombre, email y clave.");
+        if (d == null) throw new DatosInvalidosException("Falta el cuerpo con nombre, email y clave.");
         return Response.status(Response.Status.CREATED)
                 .entity(CuentaResponse.desde(auth.registrar(d.getNombre(), d.getEmail(), d.getClave()))).build();
     }

@@ -5,6 +5,7 @@ import ar.edu.desarrolloappii.ecommerce.seguridad.domain.NoAutenticadoException;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Rol;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Usuario;
 import ar.edu.desarrolloappii.ecommerce.seguridad.repository.UsuarioRepository;
+import ar.edu.desarrolloappii.ecommerce.shared.exception.DatosInvalidosException;
 import jakarta.inject.Inject;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Clock;
@@ -63,13 +64,13 @@ public class AuthService {
     public Usuario registrar(String nombre, String email, String clave) {
         String correo = email == null ? "" : email.trim().toLowerCase();
         if (nombre == null || nombre.isBlank() || nombre.length() > 80) {
-            throw new IllegalArgumentException("El nombre es obligatorio (hasta 80 caracteres).");
+            throw new DatosInvalidosException("El nombre es obligatorio (hasta 80 caracteres).");
         }
         if (!EMAIL.matcher(correo).matches() || correo.length() > 120) {
-            throw new IllegalArgumentException("El correo no es válido.");
+            throw new DatosInvalidosException("El correo no es válido.");
         }
         if (clave == null || clave.length() < CLAVE_MINIMA || clave.length() > 128) {
-            throw new IllegalArgumentException("La contraseña necesita entre " + CLAVE_MINIMA + " y 128 caracteres.");
+            throw new DatosInvalidosException("La contraseña necesita entre " + CLAVE_MINIMA + " y 128 caracteres.");
         }
         Usuario nuevo = new Usuario(nombre.trim(), correo, Rol.CLIENTE, hasher.hashear(clave), Instant.now(reloj));
         if (!usuarios.guardarSiNoExiste(nuevo)) throw new ConflictoException("Ya existe una cuenta con ese correo.");

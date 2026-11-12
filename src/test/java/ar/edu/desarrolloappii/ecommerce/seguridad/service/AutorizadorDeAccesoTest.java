@@ -24,6 +24,13 @@ class AutorizadorDeAccesoTest {
         @DenyAll public void cerrado() { }
     }
 
+    @DenyAll
+    static class RecursoCerrado {
+        public void cerradoPorClase() { }
+        @PermitAll public void publicoExplicito() { }
+        @RolesAllowed("ADMIN") public void adminExplicito() { }
+    }
+
     static class RecursoSinAnotaciones {
         public void abierto() { }
     }
@@ -78,4 +85,18 @@ class AutorizadorDeAccesoTest {
         assertThrows(AccesoDenegadoException.class,
                 () -> autorizador.autorizar(metodo(RecursoFalso.class, "cerrado"), bearer(Rol.ADMIN)));
     }
+    @Test void denyAll_de_clase_cierra_y_las_reglas_de_metodo_lo_reemplazan() throws Exception {
+        assertThrows(AccesoDenegadoException.class,
+                () -> autorizador.autorizar(metodo(RecursoCerrado.class, "cerradoPorClase"), bearer(Rol.ADMIN)));
+        assertTrue(autorizador.autorizar(metodo(RecursoCerrado.class, "publicoExplicito"), null).isEmpty());
+        assertTrue(autorizador.autorizar(metodo(RecursoCerrado.class, "adminExplicito"), bearer(Rol.ADMIN)).isPresent());
+        assertThrows(AccesoDenegadoException.class,
+                () -> autorizador.autorizar(metodo(RecursoCerrado.class, "adminExplicito"), bearer(Rol.CLIENTE)));
+    }
+
+    @Test void el_esquema_bearer_admite_minusculas() throws Exception {
+        assertTrue(autorizador.autorizar(metodo(RecursoFalso.class, "soloAdmin"),
+                "bearer " + jwt.emitir(new Identidad("a@b.com", Rol.ADMIN))).isPresent());
+    }
+
 }

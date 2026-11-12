@@ -33,14 +33,16 @@ public class AutorizadorDeAcceso {
 
     /** @return la identidad si el endpoint es protegido y el acceso es válido; vacío si es público. */
     public Optional<Identidad> autorizar(Method metodo, String cabeceraAuthorization) {
-        if (metodo.isAnnotationPresent(DenyAll.class)) throw new AccesoDenegadoException("Operación no disponible.");
-        RolesAllowed roles = metodo.getAnnotation(RolesAllowed.class);
-        if (roles == null && !metodo.isAnnotationPresent(PermitAll.class)) {
-            roles = metodo.getDeclaringClass().getAnnotation(RolesAllowed.class);
-        }
+        // La regla del método reemplaza la de clase, también para DenyAll y PermitAll.
+        boolean reglaEnMetodo = metodo.isAnnotationPresent(DenyAll.class)
+                || metodo.isAnnotationPresent(PermitAll.class) || metodo.isAnnotationPresent(RolesAllowed.class);
+        java.lang.reflect.AnnotatedElement origen = reglaEnMetodo ? metodo : metodo.getDeclaringClass();
+        if (origen.isAnnotationPresent(DenyAll.class)) throw new AccesoDenegadoException("Operación no disponible.");
+        RolesAllowed roles = origen.getAnnotation(RolesAllowed.class);
         if (roles == null) return Optional.empty();
 
-        if (cabeceraAuthorization == null || !cabeceraAuthorization.startsWith(PREFIJO)) {
+        if (cabeceraAuthorization == null
+                || !cabeceraAuthorization.regionMatches(true, 0, PREFIJO, 0, PREFIJO.length())) {
             throw new NoAutenticadoException("Falta el encabezado Authorization: Bearer <token>.");
         }
         Identidad identidad = jwt.verificar(cabeceraAuthorization.substring(PREFIJO.length()).trim());

@@ -1,6 +1,7 @@
 package ar.edu.desarrolloappii.ecommerce.seguridad.service;
 
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.ConflictoException;
+import ar.edu.desarrolloappii.ecommerce.shared.exception.DatosInvalidosException;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.DemasiadosIntentosException;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Identidad;
 import ar.edu.desarrolloappii.ecommerce.seguridad.domain.NoAutenticadoException;
@@ -84,9 +85,10 @@ class AuthServiceTest {
     }
 
     @Test void el_registro_valida_los_datos_y_rechaza_duplicados() {
-        assertThrows(IllegalArgumentException.class, () -> auth.registrar("", "a@b.com", "clave-larga-1"));
-        assertThrows(IllegalArgumentException.class, () -> auth.registrar("Ana", "no-es-mail", "clave-larga-1"));
-        assertThrows(IllegalArgumentException.class, () -> auth.registrar("Ana", "a@b.com", "corta"));
+        assertEquals(400, assertThrows(DatosInvalidosException.class,
+                () -> auth.registrar("", "a@b.com", "clave-larga-1")).status());
+        assertThrows(DatosInvalidosException.class, () -> auth.registrar("Ana", "no-es-mail", "clave-larga-1"));
+        assertThrows(DatosInvalidosException.class, () -> auth.registrar("Ana", "a@b.com", "corta"));
         assertThrows(ConflictoException.class,
                 () -> auth.registrar("Otra", "cliente@gomarket.com.ar", "clave-larga-1"));
     }

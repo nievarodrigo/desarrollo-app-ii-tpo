@@ -48,12 +48,14 @@ public class JwtService {
 
     @PostConstruct
     void iniciar() {
-        this.clave = claveDeConfiguracion();
-        this.vida = Duration.ofMinutes(30);
-        this.reloj = Clock.systemUTC();
+        configurar(claveDeConfiguracion(), Duration.ofMinutes(30), Clock.systemUTC());
     }
 
     public JwtService(byte[] clave, Duration vida, Clock reloj) {
+        configurar(clave, vida, reloj);
+    }
+
+    private void configurar(byte[] clave, Duration vida, Clock reloj) {
         if (clave == null || clave.length < 32) {
             throw new IllegalArgumentException("La clave JWT debe tener al menos 32 bytes.");
         }
