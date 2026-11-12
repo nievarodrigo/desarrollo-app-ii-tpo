@@ -9,9 +9,15 @@ public class Pedido {
     private EstadoPedido estado;
     private List<SolicitudPedido.Item> items;
     private BigDecimal total;
+    /** Email del cliente dueño del pedido (sale del JWT, nunca del cuerpo). */
+    private String cliente;
 
     public Pedido() { }
     public Pedido(String id, String estado, List<SolicitudPedido.Item> items, BigDecimal total) {
+        this(id, estado, items, total, null);
+    }
+    public Pedido(String id, String estado, List<SolicitudPedido.Item> items, BigDecimal total, String cliente) {
+        this.cliente = cliente;
         this.id = id;
         this.estado = EstadosPedido.desde(estado);
         this.items = items;
@@ -24,10 +30,12 @@ public class Pedido {
     public void setEstado(String estado) { this.estado = EstadosPedido.desde(estado); }
     public Pedido transicionar(EventoPedido evento) {
         if (estado == null) throw new IllegalStateException("Pedido sin estado inicial.");
-        return new Pedido(id, estado.aplicar(evento).nombre(), items, total);
+        return new Pedido(id, estado.aplicar(evento).nombre(), items, total, cliente);
     }
     public List<SolicitudPedido.Item> getItems() { return items; }
     public void setItems(List<SolicitudPedido.Item> items) { this.items = items; }
+    public String getCliente() { return cliente; }
+    public void setCliente(String cliente) { this.cliente = cliente; }
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
 }

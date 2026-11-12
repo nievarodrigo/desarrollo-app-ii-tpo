@@ -10,7 +10,7 @@ public final class EstadosPedido {
         Base(String nombre) { this.nombre = nombre; }
         @Override public String nombre() { return nombre; }
         @Override public EstadoPedido aplicar(EventoPedido evento) {
-            throw new IllegalStateException("Evento " + evento + " inválido en " + nombre);
+            throw new TransicionInvalidaException(nombre, evento);
         }
     }
     public static final EstadoPedido PENDIENTE_VALIDACION = new Base("PENDIENTE_VALIDACION") {
@@ -18,6 +18,7 @@ public final class EstadosPedido {
             return switch (e) {
                 case RESERVA_ACEPTADA -> PENDIENTE;
                 case RESERVA_RECHAZADA -> RECHAZADO;
+                case CANCELAR -> CANCELADO;
                 default -> super.aplicar(e);
             };
         }
@@ -27,6 +28,7 @@ public final class EstadosPedido {
             return switch (e) {
                 case MENSAJE_PROCESADO -> PROCESADO;
                 case ENVIO_FALLIDO -> ERROR_ENVIO;
+                case CANCELAR -> CANCELADO;
                 default -> super.aplicar(e);
             };
         }
@@ -35,6 +37,7 @@ public final class EstadosPedido {
         @Override public EstadoPedido aplicar(EventoPedido e) {
             return switch (e) {
                 case REINTENTAR_ENVIO -> PENDIENTE;
+                case CANCELAR -> CANCELADO;
                 case MENSAJE_PROCESADO -> PROCESADO; // entrega tardía tras envío ambiguo
                 default -> super.aplicar(e);
             };
@@ -45,6 +48,7 @@ public final class EstadosPedido {
             return switch (e) {
                 case MENSAJE_PROCESADO -> this; // redelivery sin segundo efecto
                 case CONFIRMAR -> CONFIRMADO;
+                case CANCELAR -> CANCELADO;
                 default -> super.aplicar(e);
             };
         }
@@ -56,10 +60,13 @@ public final class EstadosPedido {
         }
     };
     public static final EstadoPedido RECHAZADO = new Base("RECHAZADO") { };
+    /** Estado final: lo cancela el cliente (o un admin) antes de confirmarse. */
+    public static final EstadoPedido CANCELADO = new Base("CANCELADO") { };
     private static final Map<String, EstadoPedido> ESTADOS = Map.of(
             "PENDIENTE_VALIDACION", PENDIENTE_VALIDACION, "PENDIENTE", PENDIENTE,
             "ERROR_ENVIO", ERROR_ENVIO, "PROCESADO", PROCESADO,
-            "CONFIRMADO", CONFIRMADO, "RECHAZADO", RECHAZADO);
+            "CONFIRMADO", CONFIRMADO, "RECHAZADO", RECHAZADO,
+            "CANCELADO", CANCELADO);
 
     public static EstadoPedido desde(String nombre) {
         EstadoPedido estado = ESTADOS.get(nombre);
