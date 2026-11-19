@@ -13,10 +13,10 @@
 </div>
 
 <h2>1. El formato: primero la presentación, después una sola demo</h2>
-<p><b>Recomendación:</b> 16 minutos de diapositivas, después 8 a 10 minutos de demo continua y al final las preguntas. Conviene esto y no intercalar demo entre diapositivas por tres razones: no se cambia de pantalla diez veces, si la demo se traba no arrastra a la presentación, y la demo puede seguir la consigna punto por punto como una lista de control que el docente va tachando.</p>
+<p><b>Recomendación:</b> 17 minutos de diapositivas, después 8 a 10 minutos de demo continua y al final las preguntas. Conviene esto y no intercalar demo entre diapositivas por tres razones: no se cambia de pantalla diez veces, si la demo se traba no arrastra a la presentación, y la demo puede seguir la consigna punto por punto como una lista de control que el docente va tachando.</p>
 <table>
   <tr><th>Momento</th><th>Duración</th><th>Quién</th></tr>
-  <tr><td>Presentación (19 diapositivas, ver el guion)</td><td>16:25</td><td>Los cinco, en orden</td></tr>
+  <tr><td>Presentación (20 diapositivas, ver el guion)</td><td>17:10</td><td>Los cinco, en orden</td></tr>
   <tr><td>Demo en vivo, siguiendo la consigna</td><td>8:00 – 10:00</td><td><b>Iván maneja el teclado</b>; cada uno comenta su parte</td></tr>
   <tr><td>Preguntas</td><td>lo que quede</td><td>Responde el dueño del tema (ver el guion)</td></tr>
 </table>
@@ -141,7 +141,7 @@ kill -9 $(pgrep -f jboss-modules.jar)     # se cae todo: WildFly y su broker Art
 # en la terminal 2, el curl que imprimió el script:
 curl -s localhost:8080/ecommerce/api/v1/pedidos/&lt;id&gt; -H 'Authorization: Bearer &lt;token&gt;'
 # → "estado":"PROCESADO": el mensaje persistente sobrevivió al kill -9</pre>
-<p class="nota"><b>Qué decir:</b> “Frenamos el consumidor para que el mensaje quede esperando en la cola; matamos el proceso sin darle tiempo a nada; al volver, Artemis lo tenía en disco y el MDB lo procesó.”</p>
+<p class="nota"><b>Qué decir:</b> “Frenamos el consumidor para que el mensaje quede esperando en la cola; matamos el proceso sin darle tiempo a nada; al volver, Artemis lo tenía en disco y el MDB lo procesó. Y el pedido no se perdió porque ahora vive en la base: JPA, migraciones Flyway y outbox.” Para mostrarlo con un pedido ya confirmado: confirmarlo antes del <span class="mono">kill -9</span> y consultarlo después.</p>
 
 <h3>D6 · CI con cobertura · Nicolás · 1:00</h3>
 <ol>

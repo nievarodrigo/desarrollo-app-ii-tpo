@@ -49,7 +49,7 @@
 <div class="caja ok"><b>Tu tarea de hoy:</b> leer esos archivos, correr <span class="mono">./mvnw test -Dtest='IdempotenciaPedidosTest,EtagsTest,ProblemasTest'</span> y hacer un commit propio, por ejemplo un test nuevo: que una clave con caracteres inválidos dé 400, o que el ETag cambie cuando cambia el estado del pedido.</div>
 
 <h2 class="salto">Folco · Resiliencia de la mensajería</h2>
-<p><b>Qué expone:</b> consumidor idempotente, DLQ, broker caído sin pérdida y el tópico pub/sub.</p>
+<p><b>Qué expone:</b> consumidor idempotente, DLQ, broker caído sin pérdida, el tópico pub/sub y la persistencia (JPA, Flyway, outbox). Es el rol de <b>Datos</b> del equipo.</p>
 <table>
   <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
   <tr><td class="mono">pedido/service/ProcesarPedidoMDB.java</td><td>Consumidor de la cola: idempotente (<span class="mono">idMensaje</span>), rehidratación tras reinicio, propaga fallas para provocar la reentrega</td></tr>
@@ -58,6 +58,9 @@
   <tr><td class="mono">pedido/service/MensajesMuertosMDB.java</td><td>Consumidor de la DLQ</td></tr>
   <tr><td class="mono">PublicadorDeEventosJms.java, NotificacionMDB / AuditoriaMDB / EstadisticasMDB</td><td>Tópico <span class="mono">PedidoConfirmadoTopic</span> y sus 3 suscriptores durables</td></tr>
   <tr><td class="mono">scripts/mensajeria.cli</td><td>3 intentos, reentregas a 1 s y 2 s, DLQ</td></tr>
+  <tr><td class="mono">pedido/repository/jpa/PedidoJpa, PedidoMapper, *Entity</td><td>Repository y Data Mapper con JPA; el <span class="mono">EntityManager</span> es la Unit of Work</td></tr>
+  <tr><td class="mono">OutboxPedidos, PublicacionInmediata, RelayOutbox, EntregaOutbox</td><td>Transactional Outbox: fila en la misma transacción, publicación tras el commit, relay cada 5 s</td></tr>
+  <tr><td class="mono">src/main/resources/db/migration/V1–V3, scripts/datasource.cli</td><td>Migraciones Flyway y datasource por JNDI</td></tr>
 </table>
 <dl class="qa">
   <dt>Conceptual: cola vs. tópico</dt>
@@ -66,10 +69,12 @@
   <dd>El broker identifica al suscriptor (<span class="mono">clientId</span> + <span class="mono">subscriptionName</span>) y le guarda los mensajes mientras está caído; al volver los recibe.</dd>
   <dt>Código que no escribiste: ¿por qué <span class="mono">registro.registrar(idMensaje)</span> va DESPUÉS de aplicar el evento?</dt>
   <dd>Si se registrara antes y el procesamiento fallara, la reentrega se descartaría como duplicada y el pedido quedaría sin procesar.</dd>
+  <dt>Conceptual: ¿qué problema resuelve el Transactional Outbox?</dt>
+  <dd>“Guardé pero no publiqué” (o al revés): base y broker son dos sistemas sin una transacción común. Se guarda el mensaje en una tabla en la MISMA transacción que el pedido y se publica después; si falla, se reintenta con el mismo id y el receptor deduplica.</dd>
   <dt>En vivo: “matá el servidor con un pedido en la cola. ¿Qué pasa?”</dt>
   <dd>El mensaje es persistente (journal en disco). Al volver, el MDB lo procesa y reconstruye el pedido desde el mensaje. Demo: <span class="mono">probar-resiliencia.sh --broker</span>.</dd>
 </dl>
-<div class="caja ok"><b>Tu tarea de hoy:</b> correr <span class="mono">./mvnw test -Dtest='FlujoPedidoTest,EventosPedidoTest,RegistroDeMensajesTest'</span>, ensayar el <span class="mono">kill -9</span> con el plan de demo y hacer un commit propio: por ejemplo, un test de que un evento sin <span class="mono">idPedido</span> falla, o documentar el diagrama cola + tópico en el ADR-013.</div>
+<div class="caja ok"><b>Tu tarea de hoy:</b> correr <span class="mono">./mvnw test -Dtest='FlujoPedidoTest,EventosPedidoTest,RegistroDeMensajesTest,DatosJpaTest'</span>, ensayar el <span class="mono">kill -9</span> con el plan de demo y hacer un commit propio: por ejemplo, un test de que un evento sin <span class="mono">idPedido</span> falla, o documentar el diagrama cola + tópico en el ADR-013.</div>
 
 <h2 class="salto">Tomás · Integraciones y front</h2>
 <p><b>Qué expone:</b> arquitectura de las integraciones y cómo el front las usa (búsqueda con IA, JWT, Idempotency-Key en el checkout).</p>
