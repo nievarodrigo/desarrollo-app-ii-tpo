@@ -34,6 +34,7 @@
     <version.war.plugin>3.4.0</version.war.plugin>
     <version.surefire>3.2.5</version.surefire>
     <version.anthropic>3.3.0</version.anthropic>
+    <version.jacoco>0.8.12</version.jacoco>
   </properties>
 
   <dependencies>
@@ -129,6 +130,29 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.surefire}</version>
+      </plugin>
+
+      <!--
+        Cobertura de tests con JaCoCo. `./mvnw verify` deja el reporte en
+        target/site/jacoco/ (index.html para mirarlo, jacoco.csv/xml para el CI).
+        Es un reporte PARCIAL: mide lo que cubren los tests unitarios, sin
+        servidor; JMS, MDB y JAX-RS reales se prueban con los scripts contra WildFly.
+      -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${version.jacoco}</version>
+        <executions>
+          <execution>
+            <id>preparar-agente</id>
+            <goals><goal>prepare-agent</goal></goals>
+          </execution>
+          <execution>
+            <id>reporte</id>
+            <phase>verify</phase>
+            <goals><goal>report</goal></goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
