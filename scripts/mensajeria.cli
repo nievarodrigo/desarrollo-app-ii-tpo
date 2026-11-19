@@ -4,7 +4,7 @@
 #   $WILDFLY_HOME/bin/jboss-cli.sh --file=scripts/mensajeria.cli
 #
 # Qué hace:
-#   · ProcesarPedidoQueue reintenta 3 veces (1 s, 2 s, 4 s) y después manda el mensaje a ProcesarPedidoDLQ.
+#   · ProcesarPedidoQueue hace 3 intentos de entrega (reintenta a 1 s y a 2 s) y después manda el mensaje a ProcesarPedidoDLQ.
 #   · Los mensajes son persistentes (journal en disco): si se apaga el broker, al volver siguen ahí.
 
 embed-server --server-config=standalone-full.xml --std-out=discard

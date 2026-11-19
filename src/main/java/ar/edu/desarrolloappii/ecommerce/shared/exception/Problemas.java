@@ -29,6 +29,12 @@ public final class Problemas {
             }
             if (causa instanceof WebApplicationException web && web.getResponse() != null) {
                 int status = web.getResponse().getStatus();
+                // JAX-RS responde 404 cuando no puede convertir un @PathParam/@QueryParam
+                // (p. ej. /productos/abc o ?precioMax=abc). Es un dato mal formado: 400.
+                if (status == 404 && web.getCause() != null) {
+                    return new Resultado(ProblemDetail.badRequest(
+                            "Hay un parámetro con formato inválido en la URL.", instance), Map.of());
+                }
                 return new Resultado(new ProblemDetail("about:blank", tituloDe(status), status,
                         detalleDe(status), instance), Map.of());
             }

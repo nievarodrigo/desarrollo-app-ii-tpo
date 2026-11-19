@@ -70,6 +70,7 @@ Tocá un producto para ver su descripción, precio, cuotas, stock disponible y p
    - **quitar** un producto o **vaciar** el carrito.
 3. El total incluye el envío: es **gratis desde $150.000**; si no, cuesta $8.900.
 4. Tocá **Confirmar compra**. Si no ingresaste, la tienda te pide que ingreses primero.
+   - Con el servidor, comprá con una cuenta que exista en él (por ejemplo, la de cliente de prueba). Una cuenta creada sólo en el navegador sirve para explorar, pero el servidor no la conoce y rechaza la compra.
 5. Vas a ver el **código de pedido** y su estado:
    - **PENDIENTE**: el pedido fue aceptado y espera ser procesado.
    - **PROCESADO**: ya se procesó. Usá **Consultar estado** para actualizar.
@@ -96,12 +97,12 @@ El carrito se guarda en tu navegador: si cerrás la pestaña, sigue ahí.
 Con la cuenta de administrador, además:
 
 - **Padrón de usuarios:** menú de cuenta → *Panel de administración* (lista de cuentas registradas).
-- **Confirmar pedidos:** un pedido sólo se confirma cuando está PROCESADO. Si alguien lo modificó mientras tanto, la tienda avisa que cambió y pide volver a consultarlo.
+- **Confirmar pedidos** (desde la API): un pedido sólo se confirma cuando está PROCESADO. Si se manda `If-Match` y el pedido cambió mientras tanto, la API responde 412 y hay que volver a consultarlo.
 - **Cancelar pedidos** de cualquier cliente (salvo los ya confirmados).
 - **Mensajes con problemas (DLQ):** `GET /api/admin/mensajeria/dlq` lista los mensajes que no se pudieron procesar después de 3 intentos, para revisarlos a mano.
 - **Forzar reenvío:** `POST /api/admin/mensajeria/reenviar` vuelve a enviar ya mismo los pedidos que quedaron en ERROR_ENVIO (normalmente se hace solo cada 15 segundos).
 
-> Confirmar pedidos y la DLQ por ahora se usan desde la API (Postman o curl). La colección de Postman está en `entrega-clase10/`.
+> Confirmar pedidos, cancelar y la DLQ por ahora se usan desde la API: la colección `entrega-3/GOMARKET-checkpoint3.postman_collection.json` trae todos los pasos en orden.
 
 ---
 
@@ -114,6 +115,7 @@ Con la cuenta de administrador, además:
 | "Pedido simulado localmente" | Estás en la versión publicada, sin servidor | Es una demo |
 | "¿Podés reformular?" | La búsqueda con IA tenía datos personales u otra moneda | Escribila en pesos y sin datos personales |
 | "Demasiados intentos" | Cuenta bloqueada temporalmente | Esperá los minutos indicados |
+| "Hiciste muchas búsquedas con IA seguidas" | Más de 30 búsquedas con IA en un minuto | Esperá los segundos indicados o usá la búsqueda común |
 | "El pedido cambió desde la última vez que lo consultaste" | Otra persona lo modificó antes | Volvé a consultarlo y repetí la acción |
 
 ---

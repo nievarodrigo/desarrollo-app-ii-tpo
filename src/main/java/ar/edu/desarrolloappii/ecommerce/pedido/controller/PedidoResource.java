@@ -9,6 +9,7 @@ import ar.edu.desarrolloappii.ecommerce.seguridad.controller.AutenticacionFilter
 import ar.edu.desarrolloappii.ecommerce.shared.dto.ProblemDetail;
 import ar.edu.desarrolloappii.ecommerce.shared.exception.PrecondicionFallidaException;
 import ar.edu.desarrolloappii.ecommerce.shared.http.Etags;
+import ar.edu.desarrolloappii.ecommerce.shared.http.Precondiciones;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -58,7 +59,10 @@ public class PedidoResource {
             var identidad = AutenticacionFilter.identidadDe(seguridad);
             IdempotenciaPedidos.Resultado resultado = idempotencia.ejecutar(
                     clave, identidad.email(), huellaDe(solicitud), () -> servicio.crear(solicitud, identidad));
-            Pedido pedido = resultado.pedido();
+            // En una repetición se relee el pedido: el cliente recibe el estado y el ETag actuales,
+            // no la foto del momento en que se creó.
+            Pedido pedido = resultado.repetido()
+                    ? servicio.obtener(resultado.pedido().getId(), identidad) : resultado.pedido();
             return Response.accepted(pedido)
                     .location(uriInfo.getAbsolutePathBuilder().path(pedido.getId()).build())
                     .tag(etag(pedido))
@@ -83,9 +87,7 @@ public class PedidoResource {
         CacheControl privado = new CacheControl();
         privado.setPrivate(true);
         privado.setNoCache(true);
-        Response.ResponseBuilder noModificado = request.evaluatePreconditions(etag);
-        if (noModificado != null) return noModificado.cacheControl(privado).build();
-        return Response.ok(pedido).tag(etag).cacheControl(privado).build();
+        return Precondiciones.evaluar(request, etag, Response.ok(pedido), privado);
     }
 
     /** El dueño (o un ADMIN) cancela. Si ya está CONFIRMADO, State lo rechaza con 409. */

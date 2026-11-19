@@ -31,6 +31,7 @@ import {
 } from '../negocio/usuario-service.js';
 import { abrirCapa, cerrarCapa } from '../../../compartido/capa-modal.js';
 import { avisar } from '../../../compartido/avisos.js';
+import { ingresarEnBackend, usarToken } from '../../../compartido/cliente-http.js';
 
 const panelCuenta = document.querySelector('[data-cuenta-panel]');
 const botonCuenta = document.querySelector('[data-cuenta-boton]');
@@ -353,6 +354,12 @@ async function enviar(formulario) {
             clave: formulario.querySelector('#registro-clave').value
           });
 
+    // Con WildFly, la misma sesión pide su JWT para las operaciones protegidas (comprar).
+    // Las cuentas creadas sólo en el navegador no existen en el backend: ahí no hay token.
+    const email = formulario.querySelector(tipo === 'ingresar' ? '#ingreso-email' : '#registro-email').value;
+    const clave = formulario.querySelector(tipo === 'ingresar' ? '#ingreso-clave' : '#registro-clave').value;
+    await ingresarEnBackend(email, clave);
+
     cerrarCapa();
     avisar(
       tipo === 'ingresar'
@@ -406,6 +413,7 @@ export function iniciarUsuarioView() {
     else if (accion === 'salir') {
       const nombre = sesionActual()?.nombre.split(' ')[0] ?? '';
       egresar();
+      usarToken(null);
       avisar(`Cerraste la sesión${nombre ? `, ${nombre}` : ''}. Tu carrito queda guardado.`, 'alerta');
     } else if (accion === 'pedidos') {
       avisar('El historial de pedidos llega con el componente Pedido.', 'alerta');

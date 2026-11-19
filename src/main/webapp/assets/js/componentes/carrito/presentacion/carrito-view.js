@@ -51,7 +51,8 @@ function vacio() {
 }
 
 function confirmado(pedido) {
-  const pendiente = pedido.estado === 'PENDIENTE';
+  // ERROR_ENVIO: el servidor aceptó la compra y la reenvía solo; para el cliente sigue "recibido".
+  const pendiente = pedido.estado === 'PENDIENTE' || pedido.estado === 'ERROR_ENVIO';
   const procesado = pedido.estado === 'PROCESADO';
   return `
     <div class="carrito__confirmado">
@@ -220,7 +221,8 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
       render(carrito.resumen());
       cerrarCarrito();
       alIrAlCatalogo?.();
-    } else if (boton.dataset.consultarPedido !== undefined && pedidoConfirmado?.estado === 'PENDIENTE') {
+    } else if (boton.dataset.consultarPedido !== undefined
+        && ['PENDIENTE', 'ERROR_ENVIO'].includes(pedidoConfirmado?.estado)) {
       boton.disabled = true;
       obtener(`pedidos/${pedidoConfirmado.codigo}`)
         .then((actual) => {
@@ -266,6 +268,19 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
    * paso 2, no. Esa es la diferencia entre un chequeo de UI y un control de
    * acceso, y es la pregunta que conviene tener contestada.
    */
+  /**
+   * UUID v4 para la Idempotency-Key. `crypto.randomUUID` sólo existe en contextos
+   * seguros (https o localhost); servido por http://IP:8080 se arma con getRandomValues.
+   */
+  function nuevaClave() {
+    if (globalThis.crypto?.randomUUID) return crypto.randomUUID();
+    const b = crypto.getRandomValues(new Uint8Array(16));
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    const h = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+    return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+  }
+
   /** Idempotency-Key de la compra en curso (y el carrito al que corresponde); se conserva entre reintentos fallidos. */
   let claveDeCompra = null;
 
@@ -291,7 +306,7 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
         // Si el carrito cambió entre intentos es otra compra: clave nueva.
         const contenido = JSON.stringify(items);
         if (claveDeCompra?.contenido !== contenido) {
-          claveDeCompra = { clave: crypto.randomUUID(), contenido };
+          claveDeCompra = { clave: nuevaClave(), contenido };
         }
         const aceptado = await publicar('pedidos', { items }, { 'Idempotency-Key': claveDeCompra.clave });
         claveDeCompra = null;
@@ -313,7 +328,12 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
       }
       pedidoConfirmado = pedido;
       render(carrito.resumen());
-      avisar(pedido.estado === 'PENDIENTE' ? 'Pedido aceptado para procesar.' : 'Pedido simulado localmente.', 'ok');
+      const mensajes = {
+        PENDIENTE: 'Pedido aceptado para procesar.',
+        PROCESADO: 'Pedido aceptado y procesado.',
+        ERROR_ENVIO: 'Pedido aceptado. Lo enviamos apenas se normalice el servicio: no hace falta comprar de nuevo.'
+      };
+      avisar(mensajes[pedido.estado] ?? 'Pedido simulado localmente.', 'ok');
       panel.querySelector('[data-cerrar-carrito]')?.focus({ preventScroll: true });
     } catch (error) {
       // Si falló REST no vaciamos el carrito ni simulamos una compra exitosa.

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class IdempotenciaPedidosTest {
+public class IdempotenciaPedidosTest {
     private static final String CLAVE = "3f0c2a8e-clave-de-prueba";
     private final IdempotenciaPedidos idempotencia = new IdempotenciaPedidos();
     private final AtomicInteger creados = new AtomicInteger();
@@ -51,6 +51,25 @@ class IdempotenciaPedidosTest {
         assertFalse(reintento.repetido());
     }
 
+    @Test void unErrorQueNoEsRuntimeExceptionTambienLiberaLaClave() {
+        assertThrows(AssertionError.class, () -> idempotencia.ejecutar(CLAVE, "ana@x.com", "h1",
+                () -> { throw new AssertionError("falla grave"); }));
+        assertFalse(idempotencia.ejecutar(CLAVE, "ana@x.com", "h1", this::crearPedido).repetido());
+    }
+
+    @Test void unaOperacionColgadaNoBloqueaLaClaveParaSiempre() {
+        var reloj = new RelojMovil(Instant.parse("2026-11-20T10:00:00Z"));
+        var conReloj = new IdempotenciaPedidos(reloj);
+        IdempotenciaPedidos.Resultado[] reintento = new IdempotenciaPedidos.Resultado[1];
+        conReloj.ejecutar(CLAVE, "ana@x.com", "h1", () -> {
+            // Mientras la primera sigue "colgada", pasan más de 5 minutos y el cliente reintenta.
+            reloj.ahora = reloj.ahora.plus(IdempotenciaPedidos.EN_CURSO_MAXIMO).plusSeconds(1);
+            reintento[0] = conReloj.ejecutar(CLAVE, "ana@x.com", "h1", this::crearPedido);
+            return crearPedido();
+        });
+        assertFalse(reintento[0].repetido(), "la entrada colgada venció: el reintento se procesa en vez de dar 409");
+    }
+
     @Test void mientrasLaPrimeraSigueEnCursoLaSegundaRecibe409() {
         assertThrows(OperacionEnCursoException.class, () -> idempotencia.ejecutar(CLAVE, "ana@x.com", "h1", () -> {
             idempotencia.ejecutar(CLAVE, "ana@x.com", "h1", this::crearPedido); // llega mientras la 1.ª procesa
@@ -74,9 +93,9 @@ class IdempotenciaPedidosTest {
                 "vencida la clave, se puede reutilizar con otro cuerpo");
     }
 
-    static final class RelojMovil extends Clock {
-        Instant ahora;
-        RelojMovil(Instant inicio) { this.ahora = inicio; }
+    public static final class RelojMovil extends Clock {
+        public Instant ahora;
+        public RelojMovil(Instant inicio) { this.ahora = inicio; }
         @Override public java.time.ZoneId getZone() { return ZoneOffset.UTC; }
         @Override public Clock withZone(java.time.ZoneId zona) { return this; }
         @Override public Instant instant() { return ahora; }

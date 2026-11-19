@@ -67,6 +67,7 @@ jobs:
           node-version: "22"
 
       - name: Tests de JavaScript con cobertura
+        shell: bash   # activa pipefail: si node --test falla, el paso falla aunque después venga tee
         run: |
           node --test --experimental-test-coverage src/test/js/*.test.mjs | tee cobertura-js.txt
           {

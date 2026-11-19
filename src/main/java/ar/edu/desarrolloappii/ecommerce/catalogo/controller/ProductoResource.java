@@ -7,6 +7,7 @@ import ar.edu.desarrolloappii.ecommerce.shared.dto.FacetasResponse;
 import ar.edu.desarrolloappii.ecommerce.shared.dto.ListadoProductosResponse;
 import ar.edu.desarrolloappii.ecommerce.shared.dto.ProductoResponse;
 import ar.edu.desarrolloappii.ecommerce.shared.http.Etags;
+import ar.edu.desarrolloappii.ecommerce.shared.http.Precondiciones;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -95,9 +96,7 @@ public class ProductoResource {
         EntityTag etag = new EntityTag(Etags.de(cuerpo));
         CacheControl revalidar = new CacheControl();
         revalidar.setNoCache(true); // puede guardarlo, pero debe revalidar con If-None-Match
-        Response.ResponseBuilder noModificado = request.evaluatePreconditions(etag);
-        if (noModificado != null) return noModificado.cacheControl(revalidar).build();
-        return Response.ok(cuerpo).tag(etag).cacheControl(revalidar).build();
+        return Precondiciones.evaluar(request, etag, Response.ok(cuerpo), revalidar);
     }
 
     /** Única responsabilidad "propia" del controller: validar el formato de entrada. */

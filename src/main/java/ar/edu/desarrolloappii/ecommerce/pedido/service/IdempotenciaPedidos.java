@@ -23,12 +23,14 @@ import java.util.regex.Pattern;
  *   <li>Misma clave + otro cuerpo → 422 (es un error del cliente, no un reintento).</li>
  *   <li>Misma clave mientras la primera sigue en proceso → 409 con Retry-After.</li>
  *   <li>Si la operación falla, la clave se libera para poder reintentar.</li>
- *   <li>Las claves vencen a las 24 h.</li>
+ *   <li>Las claves vencen a las 24 h (una "en curso" colgada, a los 5 min).</li>
+ *   <li>En una repetición, el controller relee el pedido: el cliente ve su estado ACTUAL.</li>
  * </ul>
  */
 @ApplicationScoped
 public class IdempotenciaPedidos {
     static final Duration VIGENCIA = Duration.ofHours(24);
+    static final Duration EN_CURSO_MAXIMO = Duration.ofMinutes(5);
     private static final Pattern FORMATO = Pattern.compile("[A-Za-z0-9_\\-:.]{8,100}");
 
     /** Resultado de una ejecución: el pedido y si es una repetición de una anterior. */
@@ -62,13 +64,14 @@ public class IdempotenciaPedidos {
             }
             return new Resultado(existente.pedido(), true);
         }
+        boolean exito = false;
         try {
             Pedido pedido = accion.get();
             entradas.put(id, new Entrada(huella, pedido, nueva.creada()));
+            exito = true;
             return new Resultado(pedido, false);
-        } catch (RuntimeException error) {
-            entradas.remove(id, nueva);
-            throw error;
+        } finally {
+            if (!exito) entradas.remove(id, nueva); // cualquier falla (también un Error) libera la clave
         }
     }
 
@@ -82,8 +85,12 @@ public class IdempotenciaPedidos {
     }
 
     private void limpiarVencidas() {
-        Instant limite = reloj.instant().minus(VIGENCIA);
-        entradas.entrySet().removeIf(e -> !e.getValue().enCurso() && e.getValue().creada().isBefore(limite));
+        Instant ahora = reloj.instant();
+        Instant limite = ahora.minus(VIGENCIA);
+        Instant limiteEnCurso = ahora.minus(EN_CURSO_MAXIMO);
+        entradas.entrySet().removeIf(e -> e.getValue().enCurso()
+                ? e.getValue().creada().isBefore(limiteEnCurso)   // una operación colgada no bloquea la clave para siempre
+                : e.getValue().creada().isBefore(limite));
     }
 
     int tamanio() { return entradas.size(); }

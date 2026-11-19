@@ -41,7 +41,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 
 | Nivel | Qué cubre | Herramienta | Cuándo corre |
 |---|---|---|---|
-| Unitario (backend) | Reglas de negocio, State, idempotencia, ETag, gateway de IA, mappers de error | JUnit 5 (103 tests) | Cada push (CI) y `./mvnw test` |
+| Unitario (backend) | Reglas de negocio, State, idempotencia, ETag, gateway de IA, mappers de error | JUnit 5 (107 tests) | Cada push (CI) y `./mvnw test` |
 | Unitario (front) | Carrito, catálogo local, usuario, escape de HTML | `node --test` (90 tests) | Cada push (CI) |
 | Flujo sin servidor | Login → JWT → pedido → "cola" → MDB → State, con el publicador reemplazado por una lista | JUnit (`FlujoPedidoTest`) | Cada push (CI) |
 | Integración | API REST real, Artemis real, DLQ, `kill -9` del servidor | WildFly 41 + `scripts/probar-resiliencia.sh` + curl | Antes de cada entrega (manual) |
@@ -54,7 +54,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 - JDK 17 (Temurin), Maven Wrapper, Node 22.
 - WildFly 41.0.1 con `standalone-full.xml` (Artemis embebido), configurado con `scripts/mensajeria.cli`.
 - CI: GitHub Actions (`.github/workflows/ci.yml`), Ubuntu, sin servidor.
-- IA: sin `ANTHROPIC_API_KEY` se prueba el fallback; con clave, el modelo real (`claude-haiku-5-5`).
+- IA: sin `ANTHROPIC_API_KEY` (o con una inválida) se prueba el fallback. **Pendiente en esta versión:** la prueba con el modelo real (`claude-haiku-5-5`), que requiere una clave válida.
 
 ## 6. Criterios
 
@@ -93,19 +93,23 @@ Estado al 19/11/2026: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verifica
 | CP-23 | RNF-03 | Error inesperado | 500 genérico sin detalles internos | `ProblemasTest` | ✅🔁 |
 | CP-24 | RNF-04 | Mismo mensaje entregado dos veces (mismo `idMensaje`) | El segundo se ignora | `FlujoPedidoTest`, `RegistroDeMensajesTest` | ✅🔁 |
 | CP-25 | RNF-04 | Reentrega de un pedido ya CONFIRMADO | Sigue CONFIRMADO | `FlujoPedidoTest` | ✅🔁 |
-| CP-26 | RNF-05 | Mensaje inválido en la cola | 3 intentos (1 s, 2 s) y llega a `ProcesarPedidoDLQ`; visible en `/admin/mensajeria/dlq` | WildFly + `EnviarMensajeInvalido.java` | ✅🖐️ |
+| CP-26 | RNF-05 | Mensaje inválido en la cola | 3 intentos (reentregas a 1 s y 2 s) y llega a `ProcesarPedidoDLQ`; visible en `/admin/mensajeria/dlq` | WildFly + `EnviarMensajeInvalido.java` | ✅🖐️ |
 | CP-27 | RNF-06 | Broker caído al crear el pedido | 202 con estado ERROR_ENVIO; al volver el broker se republica y se procesa | `FlujoPedidoTest` | ✅🔁 |
 | CP-28 | RNF-06 | `kill -9` del servidor con un mensaje en la cola | Al reiniciar, el pedido queda PROCESADO | WildFly (`--broker`) | ✅🖐️ |
 | CP-29 | RNF-07 | El modelo tarda más que el presupuesto | Se corta la espera; responde el fallback (`motivo: timeout`) | `GatewayIATest` | ✅🔁 |
-| CP-30 | RNF-07 | Proveedor caído / salida inventada / sin credenciales / saturado | Fallback (`error`, `salida-invalida`, `sin-proveedor`, `saturado`) | `GatewayIATest` + WildFly con clave inválida | ✅🔁🖐️ |
+| CP-30 | RNF-07 | Proveedor caído / salida inventada / sin credenciales / saturado / tareas vencidas en la cola | Fallback (`error`, `salida-invalida`, `sin-proveedor`, `saturado`) y el cupo vuelve | `GatewayIATest` + WildFly con clave inválida | ✅🔁🖐️ |
 | CP-31 | RF-09 | "auriculares baratos hasta 50 mil" | categoría audio, orden precio-asc, precioMax 50000 | `InterpreteDeReglasTest` + curl | ✅🔁🖐️ |
 | CP-32 | RF-09 | Intento de inyección o consulta con un email | `rechazada` / `aclarar`, sin llamar al modelo | `GatewayIATest` | ✅🔁 |
 | CP-33 | RF-10 | `GET /admin/mensajeria/dlq` como CLIENTE / ADMIN | 403 / lista de mensajes | curl | ✅🖐️ |
 | CP-34 | RNF-09 | Push a la rama | El CI corre tests y publica la cobertura | GitHub Actions | ⏳ pendiente del push |
+| CP-35 | RF-09 | 31 consultas de IA en un minuto desde la misma IP | La 31.ª da 429 con `Retry-After`; otra IP no se ve afectada | `LimiteDeConsultasTest` + curl | ✅🔁🖐️ |
+| CP-36 | RNF-01 | Reintento después de que el pedido se procesó | El replay devuelve el estado ACTUAL (PROCESADO) | curl | ✅🖐️ |
+| CP-37 | RNF-03 | `/productos/abc`, `?precioMax=abc`, GET con `If-Match` viejo | 400 / 400 / 412, todos en Problem Details | curl | ✅🖐️ |
+| CP-38 | RF-06 | Comprar desde la interfaz con la cuenta de demo y WildFly | Pedido aceptado (el front manda JWT e Idempotency-Key) | Navegador | ⏳ pendiente (secuencia HTTP verificada con curl) |
 
 ## 8. Cobertura (parcial)
 
-`./mvnw verify` genera `target/site/jacoco/index.html`. Al 19/11: **65 % de líneas y 62 % de ramas en Java**, **81 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
+`./mvnw verify` genera `target/site/jacoco/index.html`. Al 19/11: **66 % de líneas y 61 % de ramas en Java**, **81 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
 
 ## 9. Riesgos
 

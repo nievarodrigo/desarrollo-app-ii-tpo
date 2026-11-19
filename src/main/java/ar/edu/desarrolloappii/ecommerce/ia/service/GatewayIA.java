@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -83,14 +84,20 @@ public class GatewayIA {
         if (modelo == null || !modelo.disponible()) return fallback(consulta, "sin-proveedor", inicio);
         if (!capacidad.tryAcquire()) return fallback(consulta, "saturado", inicio);
 
+        // El cupo se libera UNA sola vez: desde la tarea cuando termina, o desde acá si la
+        // tarea se cancela antes de arrancar (si no, quedaría tomado para siempre).
+        AtomicBoolean liberado = new AtomicBoolean(false);
+        AtomicBoolean arranco = new AtomicBoolean(false);
+        Runnable liberar = () -> { if (liberado.compareAndSet(false, true)) capacidad.release(); };
         Future<SalidaModelo> llamada;
         try {
             llamada = ejecutor.submit(() -> {
+                arranco.set(true);
                 try { return modelo.interpretar(consulta); }
-                finally { capacidad.release(); } // el cupo se libera cuando el proveedor realmente termina
+                finally { liberar.run(); }
             });
         } catch (RuntimeException rechazo) {
-            capacidad.release();
+            liberar.run();
             return fallback(consulta, "error", inicio);
         }
         try {
@@ -103,7 +110,10 @@ public class GatewayIA {
             }
             return new RespuestaIA(salida.estado(), salida.criterios(), "modelo", null, ms(inicio));
         } catch (TimeoutException timeout) {
+            // Si la tarea seguía en la cola del ejecutor, cancel la descarta y su finally nunca corre.
+            // Si arrancó, conserva el cupo hasta que el proveedor realmente termine (eso es el bulkhead).
             llamada.cancel(true);
+            if (!arranco.get()) liberar.run();
             LOG.warning("El modelo superó los " + presupuestoMs + " ms: fallback por reglas.");
             return fallback(consulta, "timeout", inicio);
         } catch (InterruptedException interrupcion) {

@@ -121,4 +121,24 @@ class GatewayIATest {
         assertNotNull(GatewayIA.validar(new SalidaModelo("sugerencia", null)));
         assertNotNull(GatewayIA.validar(null));
     }
+
+    /** Bug reportado en la verificación: tareas canceladas en la cola del ejecutor no devolvían el cupo. */
+    @Test void lasTareasCanceladasAntesDeArrancarDevuelvenElCupo() throws Exception {
+        ExecutorService unHilo = Executors.newSingleThreadExecutor();
+        CountDownLatch liberar = new CountDownLatch(1);
+        try {
+            unHilo.submit(() -> { try { liberar.await(); } catch (InterruptedException e) { } }); // ocupa el único hilo
+            ModeloFalso instantaneo = new ModeloFalso();
+            GatewayIA g = new GatewayIA(instantaneo, unHilo, 30);
+            for (int i = 0; i < GatewayIA.MAX_CONCURRENTES + 2; i++) {
+                assertEquals("timeout", g.interpretar("parlante").motivo(), "la tarea queda en la cola y vence");
+            }
+            liberar.countDown(); // el hilo se libera
+            Thread.sleep(50);
+            assertEquals("modelo", new GatewayIA(instantaneo, unHilo, 1_000).interpretar("parlante").origen());
+            assertEquals("modelo", g.interpretar("parlante").origen(), "no quedó saturado para siempre");
+        } finally {
+            unHilo.shutdownNow();
+        }
+    }
 }

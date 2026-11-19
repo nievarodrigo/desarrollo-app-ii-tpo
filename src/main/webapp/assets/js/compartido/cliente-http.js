@@ -12,7 +12,7 @@
  */
 
 /**
- * Base de la API, derivada del path del documento.
+ * Base de la API, derivada del path del documento (se calcula al usarla).
  *
  * NO se fija en '/api' a propósito: el WAR se despliega bajo un context root
  * (`ecommerce.war` → `/ecommerce/`) y ahí los recursos JAX-RS viven en
@@ -21,7 +21,53 @@
  *
  * Sin secretos ni credenciales: es sólo una ruta.
  */
-const BASE_URL = new URL('api/', document.baseURI);
+const baseUrl = () => new URL('api/', document.baseURI);
+
+/* ------------------------------------------------------------------ */
+/* Token del backend                                                  */
+/* ------------------------------------------------------------------ */
+
+const CLAVE_TOKEN = 'gomarket.tokenApi';
+
+/** JWT que emite `POST api/auth/login`. Vive en sessionStorage: se borra al cerrar la pestaña. */
+let tokenApi = (() => {
+  try { return globalThis.sessionStorage?.getItem(CLAVE_TOKEN) ?? null; } catch { return null; }
+})();
+
+/** Guarda (o borra, con `null`) el token que viaja como `Authorization: Bearer`. */
+export function usarToken(token) {
+  tokenApi = token || null;
+  try {
+    if (tokenApi) globalThis.sessionStorage?.setItem(CLAVE_TOKEN, tokenApi);
+    else globalThis.sessionStorage?.removeItem(CLAVE_TOKEN);
+  } catch { /* almacenamiento bloqueado: el token queda sólo en memoria */ }
+}
+
+function autorizacion() {
+  return tokenApi ? { Authorization: `Bearer ${tokenApi}` } : {};
+}
+
+/**
+ * Pide un JWT al backend con las mismas credenciales del ingreso local. Si no hay
+ * backend o la cuenta no existe allá, no es un error: la sesión local sigue andando
+ * y las operaciones protegidas del backend responderán 401.
+ * @returns {Promise<boolean>} si se obtuvo un token
+ */
+export async function ingresarEnBackend(email, clave) {
+  if (!(await hayBackend())) return false;
+  try {
+    const respuesta = await fetch(new URL('auth/login', baseUrl()), {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, clave })
+    });
+    if (!respuesta.ok) { usarToken(null); return false; }
+    usarToken((await respuesta.json()).token);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export class ErrorDeRed extends Error {
   constructor(mensaje) {
@@ -36,14 +82,14 @@ export class ErrorDeRed extends Error {
  * @param {Record<string, unknown>} params query params; se omiten los vacíos
  */
 export async function obtener(ruta, params = {}) {
-  /* La barra inicial se quita para que `ruta` se resuelva contra BASE_URL y no
+  /* La barra inicial se quita para que `ruta` se resuelva contra la base de la API y no
      contra la raíz del host. */
-  const url = new URL(ruta.replace(/^\//, ''), BASE_URL);
+  const url = new URL(ruta.replace(/^\//, ''), baseUrl());
   Object.entries(params).forEach(([clave, valor]) => {
     if (valor !== null && valor !== undefined && valor !== '') url.searchParams.set(clave, valor);
   });
 
-  const respuesta = await fetch(url, { headers: { Accept: 'application/json' } });
+  const respuesta = await fetch(url, { headers: { Accept: 'application/json', ...autorizacion() } });
   if (!respuesta.ok) throw new ErrorDeRed(`La API respondió ${respuesta.status}`);
   return respuesta.json();
 }
@@ -54,10 +100,10 @@ export async function obtener(ruta, params = {}) {
  *   reintento no duplique la operación en el servidor.
  */
 export async function publicar(ruta, cuerpo, cabeceras = {}) {
-  const url = new URL(ruta.replace(/^\//, ''), BASE_URL);
+  const url = new URL(ruta.replace(/^\//, ''), baseUrl());
   const respuesta = await fetch(url, {
     method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...cabeceras },
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...autorizacion(), ...cabeceras },
     body: JSON.stringify(cuerpo)
   });
   if (!respuesta.ok) {
@@ -91,7 +137,7 @@ let sondeo = null;
 export function hayBackend() {
   if (sondeo) return sondeo;
 
-  sondeo = fetch(new URL('salud', BASE_URL), { headers: { Accept: 'application/json' } })
+  sondeo = fetch(new URL('salud', baseUrl()), { headers: { Accept: 'application/json' } })
     .then((r) => (r.ok ? r.json() : { disponible: false }))
     .then((estado) => estado?.disponible === true)
     .catch(() => false);
@@ -101,5 +147,5 @@ export function hayBackend() {
 
 /** Sólo para inspección manual: a qué URL resuelve un recurso de la API. */
 export function urlDeApi(ruta) {
-  return new URL(ruta.replace(/^\//, ''), BASE_URL).href;
+  return new URL(ruta.replace(/^\//, ''), baseUrl()).href;
 }
