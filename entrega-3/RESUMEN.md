@@ -14,7 +14,7 @@ Verificado contra **WildFly 41.0.1 real** el 19/11/2026 (incluido un `kill -9` c
 | Errores en Problem Details | ✅ | Mapper de red de seguridad: también 404/405/415/JSON mal formado/500 | `ProblemasTest` |
 | IA funcionando a través de su gateway | ⚠️ | Gateway, timeout, límite de uso y fallback verificados en WildFly. **El modelo real falta probarlo con una `ANTHROPIC_API_KEY` válida** (con clave inválida: 401 → fallback) | ADR-012 |
 | Pipeline de CI con cobertura parcial | ⏳ | `.github/workflows/ci.yml` + JaCoCo; corre localmente. **Falta hacer push** para que corra en GitHub | `.github/workflows/ci.yml` |
-| Plan de pruebas y matriz de trazabilidad (v1) | ✅ | 37 casos, 19 requerimientos | `PLAN_DE_PRUEBAS.md`, `MATRIZ_TRAZABILIDAD.md` |
+| Plan de pruebas y matriz de trazabilidad (v1) | ✅ | 38 casos, 19 requerimientos | `PLAN_DE_PRUEBAS.md`, `MATRIZ_TRAZABILIDAD.md` |
 | Manual de usuario (v1) | ✅ | Cliente, admin, mensajes y anexo de puesta en marcha | `MANUAL_DE_USUARIO.md` |
 
 ## Correcciones tras la verificación independiente (19/11)
