@@ -61,20 +61,16 @@ class PedidoServiceTest {
                 solicitud(), catalogo));
     }
 
-    @Test void entrega_antes_de_un_error_de_publicacion_no_provoca_un_409_ni_regresa_el_pedido() {
+    @Test void entrega_antes_de_un_error_de_publicacion_no_regresa_el_pedido_a_ERROR_ENVIO() {
         PedidoEnMemoria repositorio = new PedidoEnMemoria();
-        IllegalStateException fallaJms = new IllegalStateException("Envío con resultado ambiguo");
-        String[] idPublicado = new String[1];
         PublicadorPedidos publicador = pedido -> {
-            idPublicado[0] = pedido.getId();
             repositorio.aplicar(pedido.getId(), EventoPedido.MENSAJE_PROCESADO);
-            throw fallaJms;
+            throw new IllegalStateException("Envío con resultado ambiguo");
         };
         PedidoService servicio = new PedidoService(catalogo, repositorio, publicador);
-        assertSame(fallaJms, assertThrows(IllegalStateException.class,
-                () -> servicio.crear(solicitud(new SolicitudPedido.Item(1, 1)),
-                        new Identidad("cliente@gomarket.com.ar", Rol.CLIENTE))));
-        assertEquals("PROCESADO", repositorio.obtener(idPublicado[0]).getEstado());
-        assertEquals(1, fallaJms.getSuppressed().length);
+        var pedido = assertDoesNotThrow(() -> servicio.crear(solicitud(new SolicitudPedido.Item(1, 1)),
+                new Identidad("cliente@gomarket.com.ar", Rol.CLIENTE)));
+        assertEquals("PROCESADO", pedido.getEstado());
+        assertEquals("PROCESADO", repositorio.obtener(pedido.getId()).getEstado());
     }
 }

@@ -2,6 +2,7 @@ package ar.edu.desarrolloappii.ecommerce.pedido.repository;
 
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
+import java.util.List;
 
 /**
  * Puerto de persistencia de pedidos (D de SOLID: el service y el MDB dependen
@@ -20,4 +21,7 @@ public interface PedidoRepository {
      * @return el pedido ya transicionado, o {@code null} si no existe.
      */
     Pedido aplicar(String id, EventoPedido evento);
+
+    /** Pedidos en un estado dado (p. ej. ERROR_ENVIO, para reintentar su publicación). */
+    List<Pedido> listarPorEstado(String estado);
 }

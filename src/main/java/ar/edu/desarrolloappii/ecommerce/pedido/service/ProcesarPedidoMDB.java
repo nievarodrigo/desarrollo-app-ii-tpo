@@ -14,7 +14,16 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import java.util.logging.Logger;
 
-/** Un único consumidor lógico de la cola P2P; JMS puede reentregar mensajes. */
+/**
+ * Consumidor de la cola P2P. JMS entrega "al menos una vez", así que es IDEMPOTENTE
+ * en dos niveles:
+ * <ol>
+ *   <li>{@link RegistroDeMensajes}: un {@code idMensaje} ya procesado se ignora.</li>
+ *   <li>Patrón State: aplicar MENSAJE_PROCESADO a un pedido ya PROCESADO/CONFIRMADO no cambia nada.</li>
+ * </ol>
+ * Si el procesamiento falla, lanza una excepción: el contenedor hace rollback y Artemis
+ * reintenta. Tras 3 intentos el mensaje va a la DLQ (ver {@code scripts/mensajeria.cli}).
+ */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:/jms/queue/ProcesarPedidoQueue"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Queue")
@@ -23,38 +32,69 @@ public class ProcesarPedidoMDB implements MessageListener {
     private static final Logger LOG = Logger.getLogger(ProcesarPedidoMDB.class.getName());
 
     @Inject PedidoRepository repositorio;
+    @Inject RegistroDeMensajes registro;
 
     public ProcesarPedidoMDB() { }
 
     /** Constructor para tests, sin contenedor. */
-    public ProcesarPedidoMDB(PedidoRepository repositorio) { this.repositorio = repositorio; }
+    public ProcesarPedidoMDB(PedidoRepository repositorio) { this(repositorio, new RegistroDeMensajes()); }
+
+    public ProcesarPedidoMDB(PedidoRepository repositorio, RegistroDeMensajes registro) {
+        this.repositorio = repositorio;
+        this.registro = registro;
+    }
 
     @Override
     public void onMessage(Message mensaje) {
         try {
-            procesar(mensaje.getBody(String.class));
+            procesar(mensaje.getBody(String.class),
+                    mensaje.getStringProperty(PublicadorPedidos.PROPIEDAD_ID_MENSAJE));
         } catch (JMSException error) {
             throw new IllegalStateException("No se pudo leer el mensaje de pedido.", error);
         }
     }
 
+    void procesar(String json) { procesar(json, null); }
+
     /** Lógica del consumidor, separada del tipo Message de JMS para poder probarla. */
-    void procesar(String json) {
+    void procesar(String json, String idMensaje) {
+        if (registro.yaProcesado(idMensaje)) {
+            LOG.info("Mensaje duplicado " + idMensaje + " ignorado (consumidor idempotente).");
+            return;
+        }
         try (Jsonb jsonb = JsonbBuilder.create()) {
             Pedido pedido = jsonb.fromJson(json, Pedido.class);
-            if (pedido == null || pedido.getId() == null || repositorio.obtener(pedido.getId()) == null) {
-                throw new IllegalArgumentException("Pedido desconocido o mensaje inválido.");
+            if (pedido == null || pedido.getId() == null) {
+                throw new IllegalArgumentException("Mensaje inválido: no trae un pedido.");
             }
+            if (repositorio.obtener(pedido.getId()) == null) rehidratar(pedido);
             // State + computeIfPresent atómico: la reentrega no regresa un pedido confirmado.
             repositorio.aplicar(pedido.getId(), EventoPedido.MENSAJE_PROCESADO);
+            registro.registrar(idMensaje);
             LOG.info("Pedido " + pedido.getId() + " procesado por la cola.");
         } catch (TransicionInvalidaException error) {
             // Ej.: el cliente canceló antes de que llegue el mensaje. Reintentar no lo arregla:
             // se descarta (con aviso en el log) en vez de reentregar para siempre.
+            registro.registrar(idMensaje);
             LOG.warning("Mensaje descartado: " + error.getMessage());
         } catch (Exception error) {
-            // Al fallar el MDB, el contenedor puede reentregar; no se acusa recibo silenciosamente.
+            // Al fallar el MDB, el contenedor hace rollback y Artemis reentrega (y luego DLQ).
             throw new IllegalStateException("Falló el procesamiento del mensaje de pedido.", error);
         }
+    }
+
+    /**
+     * El repositorio de la demo vive en memoria: si el servidor se reinició, el pedido ya
+     * no está, pero el mensaje persistente sí. Como el mensaje trae el pedido completo,
+     * se lo reconstruye para no perder la compra. Un mensaje incompleto no se reconstruye:
+     * falla y termina en la DLQ.
+     */
+    private void rehidratar(Pedido pedido) {
+        boolean completo = pedido.getCliente() != null && pedido.getTotal() != null
+                && pedido.getItems() != null && !pedido.getItems().isEmpty()
+                && ("PENDIENTE".equals(pedido.getEstado()) || "ERROR_ENVIO".equals(pedido.getEstado()));
+        if (!completo) throw new IllegalArgumentException("Pedido desconocido y mensaje incompleto.");
+        repositorio.guardar(pedido);
+        LOG.warning("Pedido " + pedido.getId() + " reconstruido desde el mensaje persistente (reinicio del servidor).");
     }
 }

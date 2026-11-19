@@ -24,6 +24,8 @@ WF="${WILDFLY_HOME:-$HOME/.local/wildfly/wildfly-41.0.1.Final}"
 export GOMARKET_JWT_SECRET="${GOMARKET_JWT_SECRET:-clave-de-demo-gomarket-no-usar-en-produccion}"
 
 ( cd "$RAIZ" && ./mvnw -q -B -DskipTests package )
+# Reintentos + DLQ + persistencia de la cola de pedidos (idempotente, sin servidor corriendo)
+"$WF/bin/jboss-cli.sh" --file="$RAIZ/scripts/mensajeria.cli" >/dev/null
 rm -f "$WF"/standalone/deployments/ecommerce.war*
 cp "$RAIZ/target/ecommerce.war" "$WF/standalone/deployments/"
 exec "$WF/bin/standalone.sh" -c standalone-full.xml   # standalone-full habilita JMS/Artemis

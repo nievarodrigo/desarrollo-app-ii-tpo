@@ -3,6 +3,7 @@ package ar.edu.desarrolloappii.ecommerce.pedido.repository;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,5 +18,9 @@ public class PedidoEnMemoria implements PedidoRepository {
     /** computeIfPresent es atómico: si la transición lanza, el mapa queda intacto. */
     @Override public Pedido aplicar(String id, EventoPedido evento) {
         return pedidos.computeIfPresent(id, (clave, anterior) -> anterior.transicionar(evento));
+    }
+
+    @Override public List<Pedido> listarPorEstado(String estado) {
+        return pedidos.values().stream().filter(p -> estado.equals(p.getEstado())).toList();
     }
 }

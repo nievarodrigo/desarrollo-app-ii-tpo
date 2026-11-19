@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Valida, recalcula y publica el comando; no espera al consumidor.
@@ -25,6 +27,7 @@ import java.util.UUID;
  */
 @ApplicationScoped
 public class PedidoService {
+    private static final Logger LOG = Logger.getLogger(PedidoService.class.getName());
     private static final BigDecimal ENVIO_GRATIS_DESDE = new BigDecimal("150000");
     private static final BigDecimal COSTO_ENVIO = new BigDecimal("8900");
 
@@ -41,6 +44,11 @@ public class PedidoService {
         this.publicador = publicador;
     }
 
+    /**
+     * Crea el pedido y publica el mensaje. Si el broker no responde, NO se pierde la
+     * compra: el pedido queda en ERROR_ENVIO y {@link ReenvioDePedidos} lo vuelve a
+     * publicar cuando el broker vuelva (patrón "outbox" simplificado).
+     */
     public Pedido crear(SolicitudPedido solicitud, Identidad solicitante) {
         BigDecimal total = validarYCalcular(solicitud, catalogo);
         List<SolicitudPedido.Item> copia = solicitud.getItems().stream()
@@ -51,14 +59,16 @@ public class PedidoService {
         try {
             publicador.publicar(pedido);
         } catch (RuntimeException error) {
+            LOG.log(Level.WARNING, "No se pudo publicar el pedido " + pedido.getId()
+                    + "; queda en ERROR_ENVIO para reintentar.", error);
             try {
                 repositorio.aplicar(pedido.getId(), EventoPedido.ENVIO_FALLIDO);
             } catch (TransicionInvalidaException transicion) {
-                // JMS pudo entregar antes de informar un error ambiguo. No regresar el estado
-                // ni responder 409 por una transición interna: conservar la falla de publicación.
-                error.addSuppressed(transicion);
+                // JMS pudo entregar antes de informar un error ambiguo: el pedido ya avanzó
+                // (p. ej. PROCESADO). No se lo regresa a ERROR_ENVIO.
+                LOG.fine("Envío ambiguo: el consumidor ya había procesado " + pedido.getId());
             }
-            throw error;
+            return repositorio.obtener(pedido.getId());
         }
         return pedido;
     }

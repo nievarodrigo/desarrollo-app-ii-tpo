@@ -123,17 +123,58 @@ class FlujoPedidoTest {
         assertEquals("CANCELADO", servicio.obtener(p.getId(), ana).getEstado());
     }
 
-    @Test void un_mensaje_de_un_pedido_inexistente_falla_para_que_el_contenedor_lo_reintente() {
+    @Test void un_mensaje_incompleto_de_un_pedido_inexistente_falla_para_que_termine_en_la_DLQ() {
         assertThrows(IllegalStateException.class,
                 () -> mdb.procesar("{\"id\":\"no-existe\",\"estado\":\"PENDIENTE\"}"));
+        assertThrows(IllegalStateException.class, () -> mdb.procesar("esto no es json"));
     }
 
-    @Test void si_la_cola_esta_caida_el_pedido_queda_en_ERROR_ENVIO() {
+    @Test void tras_un_reinicio_el_mensaje_persistente_reconstruye_el_pedido_y_no_se_pierde() {
+        Identidad ana = ingresar("cliente@gomarket.com.ar", "cliente123");
+        Pedido p = servicio.crear(unItem(), ana);
+        // Se reinicia el servidor: la memoria se pierde, el journal de Artemis no.
+        PedidoEnMemoria repositorioNuevo = new PedidoEnMemoria();
+        new ProcesarPedidoMDB(repositorioNuevo).procesar(cola.mensajes.get(0), "msg-1");
+        assertEquals("PROCESADO", repositorioNuevo.obtener(p.getId()).getEstado());
+        assertEquals(ana.email(), repositorioNuevo.obtener(p.getId()).getCliente());
+    }
+
+    @Test void un_mensaje_con_idMensaje_ya_procesado_se_ignora() {
+        Identidad ana = ingresar("cliente@gomarket.com.ar", "cliente123");
+        Identidad admin = ingresar("admin@gomarket.com.ar", "admin123");
+        Pedido p = servicio.crear(unItem(), ana);
+        mdb.procesar(cola.mensajes.get(0), "msg-1");
+        servicio.aplicarEvento(p.getId(), EventoPedido.CANCELAR, admin);
+        assertDoesNotThrow(() -> mdb.procesar(cola.mensajes.get(0), "msg-1"));
+        assertEquals("CANCELADO", servicio.obtener(p.getId(), ana).getEstado());
+    }
+
+    @Test void si_el_broker_esta_caido_el_pedido_queda_en_ERROR_ENVIO_y_se_republica_al_volver() {
+        Identidad ana = ingresar("cliente@gomarket.com.ar", "cliente123");
+        ReenvioDePedidos reenvio = new ReenvioDePedidos(repositorio, cola);
+        cola.caida = true;
+        Pedido p = assertDoesNotThrow(() -> servicio.crear(unItem(), ana));
+        assertEquals("ERROR_ENVIO", p.getEstado(), "la compra se acepta aunque el broker no responda");
+
+        assertEquals(0, reenvio.reintentarPendientes(), "broker todavía caído");
+        assertEquals("ERROR_ENVIO", repositorio.obtener(p.getId()).getEstado());
+
+        cola.caida = false; // vuelve el broker
+        assertEquals(1, reenvio.reintentarPendientes());
+        assertEquals("PENDIENTE", repositorio.obtener(p.getId()).getEstado());
+        mdb.procesar(cola.mensajes.get(0));
+        assertEquals("PROCESADO", repositorio.obtener(p.getId()).getEstado());
+        assertEquals(0, reenvio.reintentarPendientes(), "nada más para reenviar");
+    }
+
+    @Test void un_pedido_cancelado_mientras_el_broker_estaba_caido_no_se_reenvia() {
         Identidad ana = ingresar("cliente@gomarket.com.ar", "cliente123");
         cola.caida = true;
-        assertThrows(IllegalStateException.class, () -> servicio.crear(unItem(), ana));
-        // el pedido se guardó antes de publicar y quedó marcado para poder reintentar
-        assertEquals("ERROR_ENVIO", repositorio.obtener(cola.ultimoId).getEstado());
+        Pedido p = servicio.crear(unItem(), ana);
+        servicio.aplicarEvento(p.getId(), EventoPedido.CANCELAR, ana);
+        cola.caida = false;
+        assertEquals(0, new ReenvioDePedidos(repositorio, cola).reintentarPendientes());
+        assertTrue(cola.mensajes.isEmpty());
     }
 
     @Test void un_cliente_no_ve_ni_cancela_pedidos_ajenos_pero_el_admin_si() {

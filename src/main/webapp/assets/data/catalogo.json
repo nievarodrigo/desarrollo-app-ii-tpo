@@ -379,6 +379,519 @@
         "oferta"
       ],
       "resenias": 57
+    },
+    {
+      "id": 17,
+      "sku": "AUD-020",
+      "nombre": "Auriculares Inalámbricos In-Ear",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 132500,
+      "precioAnterior": 158000,
+      "stock": 27,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Drivers de 10 mm, modo ambiente y estuche de carga con 24 horas extra de batería. Resistentes al sudor para entrenar.",
+      "destacados": [
+        "24 h con estuche",
+        "IPX4",
+        "Modo ambiente"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 305
+    },
+    {
+      "id": 18,
+      "sku": "AUD-023",
+      "nombre": "Barra de Sonido 2.1",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 318000,
+      "stock": 6,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Barra compacta con subwoofer inalámbrico, entrada HDMI ARC y modo diálogo para entender cada palabra de la serie.",
+      "destacados": [
+        "Subwoofer inalámbrico",
+        "HDMI ARC",
+        "Modo diálogo"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 72
+    },
+    {
+      "id": 19,
+      "sku": "AUD-026",
+      "nombre": "Parlante Bluetooth de Mesa",
+      "marca": "Bruma",
+      "categoria": "audio",
+      "precio": 74900,
+      "stock": 38,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Cuerpo de tela y madera, 12 horas de autonomía y micrófono integrado para llamadas. Cabe en cualquier estante.",
+      "destacados": [
+        "12 h de batería",
+        "Micrófono integrado",
+        "Tela y madera"
+      ],
+      "etiquetas": [],
+      "resenias": 143
+    },
+    {
+      "id": 20,
+      "sku": "AUD-030",
+      "nombre": "Micrófono Dinámico para Podcast",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 189000,
+      "stock": 0,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Cápsula dinámica cardioide que rechaza el ruido del cuarto. Salida USB y XLR, con brazo articulado incluido.",
+      "destacados": [
+        "USB + XLR",
+        "Cardioide",
+        "Brazo incluido"
+      ],
+      "etiquetas": [],
+      "resenias": 64
+    },
+    {
+      "id": 21,
+      "sku": "TEC-026",
+      "nombre": "Notebook Ligera 13\"",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 1295000,
+      "precioAnterior": 1420000,
+      "stock": 9,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "laptop",
+      "descripcion": "1,1 kg de peso, 8 GB de memoria, SSD de 256 GB y hasta 15 horas de autonomía. Para estudiar y trabajar en cualquier lado.",
+      "destacados": [
+        "1,1 kg",
+        "15 h de batería",
+        "SSD 256 GB"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 158
+    },
+    {
+      "id": 22,
+      "sku": "TEC-029",
+      "nombre": "Teclado Inalámbrico Silencioso",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 58900,
+      "stock": 45,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "keyboard",
+      "descripcion": "Teclas de perfil bajo con recorrido suave y sin clic, conexión multidispositivo y pilas que duran un año.",
+      "destacados": [
+        "Silencioso",
+        "Multidispositivo",
+        "Batería de 1 año"
+      ],
+      "etiquetas": [],
+      "resenias": 227
+    },
+    {
+      "id": 23,
+      "sku": "TEC-033",
+      "nombre": "Monitor 24\" Full HD",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 248000,
+      "precioAnterior": 279000,
+      "stock": 14,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Panel IPS de 24 pulgadas a 100 Hz con bordes mínimos, entradas HDMI y DisplayPort y soporte regulable en altura.",
+      "destacados": [
+        "Full HD 100 Hz",
+        "HDMI + DisplayPort",
+        "Soporte regulable"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 191
+    },
+    {
+      "id": 24,
+      "sku": "TEC-036",
+      "nombre": "Monitor Curvo 34\" Ultrawide",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 985000,
+      "stock": 3,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Formato 21:9 con curvatura 1500R, resolución 3440 × 1440 y modo de pantalla dividida para trabajar con dos ventanas a la vez.",
+      "destacados": [
+        "3440 × 1440",
+        "Curvo 1500R",
+        "Pantalla dividida"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 52
+    },
+    {
+      "id": 25,
+      "sku": "TEC-040",
+      "nombre": "Smartwatch Urbano AMOLED",
+      "marca": "Pampa",
+      "categoria": "tecnologia",
+      "precio": 196500,
+      "stock": 18,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "Pantalla AMOLED de 1,4 pulgadas, caja de acero y notificaciones del celular. Seguimiento de sueño y pasos todo el día.",
+      "destacados": [
+        "AMOLED 1,4\"",
+        "7 días",
+        "Caja de acero"
+      ],
+      "etiquetas": [],
+      "resenias": 174
+    },
+    {
+      "id": 26,
+      "sku": "HOG-024",
+      "nombre": "Lámpara de Pie Nórdica",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 156000,
+      "stock": 8,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Estructura de fresno y pantalla de lino, con luz cálida de bajo consumo. Un rincón de lectura en cualquier living.",
+      "destacados": [
+        "Fresno macizo",
+        "Pantalla de lino",
+        "LED cálido"
+      ],
+      "etiquetas": [],
+      "resenias": 49
+    },
+    {
+      "id": 27,
+      "sku": "HOG-027",
+      "nombre": "Cafetera Prensa Francesa 1 L",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 42500,
+      "stock": 31,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Vidrio borosilicato con filtro de acero de doble malla y estructura que aísla del calor. Para cuatro tazas.",
+      "destacados": [
+        "Vidrio borosilicato",
+        "Doble malla",
+        "1 L"
+      ],
+      "etiquetas": [],
+      "resenias": 268
+    },
+    {
+      "id": 28,
+      "sku": "HOG-031",
+      "nombre": "Cafetera Espresso Automática",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 689000,
+      "precioAnterior": 759000,
+      "stock": 4,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Molinillo cónico integrado, bomba de 15 bares y vaporizador de leche. Del grano a la taza en menos de un minuto.",
+      "destacados": [
+        "Molinillo integrado",
+        "15 bares",
+        "Vaporizador de leche"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 98
+    },
+    {
+      "id": 29,
+      "sku": "HOG-035",
+      "nombre": "Manta Polar Doble Faz",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 36900,
+      "stock": 52,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "blanket",
+      "descripcion": "Polar liviano y suave de 150 × 200 cm, con una cara lisa y otra tipo corderito. Lavable a máquina.",
+      "destacados": [
+        "150 × 200 cm",
+        "Doble faz",
+        "Lavable"
+      ],
+      "etiquetas": [],
+      "resenias": 321
+    },
+    {
+      "id": 30,
+      "sku": "HOG-038",
+      "nombre": "Velador con Carga Inalámbrica",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 69500,
+      "precioAnterior": 82000,
+      "stock": 22,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Luz táctil con tres intensidades y base que carga el celular sin cables. Cuerpo de aluminio cepillado.",
+      "destacados": [
+        "Control táctil",
+        "Carga Qi 15 W",
+        "Aluminio"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 112
+    },
+    {
+      "id": 31,
+      "sku": "OFI-021",
+      "nombre": "Silla Gamer Reclinable",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 298000,
+      "stock": 10,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Respaldo reclinable hasta 160°, almohadillas lumbar y cervical y pistón clase 4. Tapizado de cuero sintético.",
+      "destacados": [
+        "Reclina 160°",
+        "Pistón clase 4",
+        "Almohadillas"
+      ],
+      "etiquetas": [],
+      "resenias": 203
+    },
+    {
+      "id": 32,
+      "sku": "OFI-024",
+      "nombre": "Escritorio Compacto con Cajonera",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 329000,
+      "stock": 7,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Tapa melamínica de 120 × 60 cm, cajonera con llave y pasacables oculto. Ideal para ambientes chicos.",
+      "destacados": [
+        "120 × 60 cm",
+        "Cajonera con llave",
+        "Pasacables"
+      ],
+      "etiquetas": [],
+      "resenias": 85
+    },
+    {
+      "id": 33,
+      "sku": "OFI-027",
+      "nombre": "Organizador de Cables y Cargador",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 28500,
+      "stock": 60,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Caja de bambú con ranuras para cables y un soporte para dejar el celular y el cargador a mano. Sin enredos.",
+      "destacados": [
+        "Bambú",
+        "Soporte para celular",
+        "Ranuras para cables"
+      ],
+      "etiquetas": [],
+      "resenias": 137
+    },
+    {
+      "id": 34,
+      "sku": "OFI-030",
+      "nombre": "Silla de Visita Tapizada",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 118500,
+      "precioAnterior": 134000,
+      "stock": 0,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Asiento tapizado en tela gruesa, patas de acero con regatones y estructura apilable. Para reuniones y recepción.",
+      "destacados": [
+        "Apilable",
+        "Patas de acero",
+        "Tela gruesa"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 38
+    },
+    {
+      "id": 35,
+      "sku": "OFI-033",
+      "nombre": "Monitor Portátil 15,6\" USB-C",
+      "marca": "Cardinal",
+      "categoria": "oficina",
+      "precio": 224000,
+      "stock": 13,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Segunda pantalla Full HD de 1 kg que se alimenta por un solo cable USB-C. Funda con soporte incluida.",
+      "destacados": [
+        "Un solo cable",
+        "1 kg",
+        "Funda-soporte"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 79
+    },
+    {
+      "id": 36,
+      "sku": "DEP-019",
+      "nombre": "Mancuernas Hexagonales 10 kg (par)",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 112000,
+      "stock": 15,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Dos mancuernas de 5 kg recubiertas en goma, con agarre moleteado y forma hexagonal que no rueda.",
+      "destacados": [
+        "Goma antigolpes",
+        "Agarre moleteado",
+        "No rueda"
+      ],
+      "etiquetas": [],
+      "resenias": 166
+    },
+    {
+      "id": 37,
+      "sku": "DEP-022",
+      "nombre": "Botella Deportiva 1 L",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 17900,
+      "precioAnterior": 21500,
+      "stock": 80,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "bottle",
+      "descripcion": "Tritán libre de BPA, tapa con traba antiderrame y marcas de medida para llevar la cuenta de la hidratación.",
+      "destacados": [
+        "Libre de BPA",
+        "Tapa antiderrame",
+        "1 L"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 489
+    },
+    {
+      "id": 38,
+      "sku": "DEP-025",
+      "nombre": "Mochila de Trekking 45 L",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 214000,
+      "stock": 5,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Armazón interno regulable, cubre-mochila impermeable y bolsillo para hidratación. Para escapadas de varios días.",
+      "destacados": [
+        "Armazón regulable",
+        "Cubre-mochila",
+        "Hidratación"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 81
+    },
+    {
+      "id": 39,
+      "sku": "DEP-028",
+      "nombre": "Reloj Deportivo Running GPS",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 342000,
+      "precioAnterior": 389000,
+      "stock": 7,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "GPS multibanda, métricas de running y recuperación, y planes de entrenamiento. Correa de silicona liviana.",
+      "destacados": [
+        "GPS multibanda",
+        "Planes de entrenamiento",
+        "20 días de batería"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 109
+    },
+    {
+      "id": 40,
+      "sku": "DEP-031",
+      "nombre": "Mochila Urbana Antirrobo",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 86500,
+      "stock": 24,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Cierres ocultos, bolsillo trasero para documentos y puerto de carga USB externo. Tela repelente al agua.",
+      "destacados": [
+        "Cierres ocultos",
+        "Puerto USB",
+        "Repelente al agua"
+      ],
+      "etiquetas": [],
+      "resenias": 215
     }
   ]
 }

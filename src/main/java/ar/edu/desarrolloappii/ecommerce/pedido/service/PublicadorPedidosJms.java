@@ -10,8 +10,16 @@ import jakarta.jms.JMSDestinationDefinition;
 import jakarta.jms.Queue;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
+import java.util.UUID;
 
-/** Adaptador JMS: serializa el pedido a JSON y lo deja en la cola (mensaje persistente). */
+/**
+ * Adaptador JMS: serializa el pedido a JSON y lo deja en la cola.
+ *
+ * El mensaje es PERSISTENTE: Artemis lo escribe en su journal en disco antes de
+ * confirmar el envío, así que si el broker (o el servidor entero) se apaga, el
+ * mensaje sigue ahí al volver. Cada envío lleva un {@code idMensaje} único para que
+ * el consumidor descarte duplicados.
+ */
 @ApplicationScoped
 @JMSDestinationDefinition(
         name = "java:/jms/queue/ProcesarPedidoQueue",
@@ -25,7 +33,9 @@ public class PublicadorPedidosJms implements PublicadorPedidos {
     @Override
     public void publicar(Pedido pedido) {
         try (Jsonb jsonb = JsonbBuilder.create()) {
-            jms.createProducer().setDeliveryMode(DeliveryMode.PERSISTENT)
+            jms.createProducer()
+                    .setDeliveryMode(DeliveryMode.PERSISTENT)
+                    .setProperty(PROPIEDAD_ID_MENSAJE, UUID.randomUUID().toString())
                     .send(cola, jsonb.toJson(pedido));
         } catch (RuntimeException error) {
             throw error;
