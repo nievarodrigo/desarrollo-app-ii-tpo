@@ -16,12 +16,12 @@
  *
  * NO se fija en '/api' a propósito: el WAR se despliega bajo un context root
  * (`ecommerce.war` → `/ecommerce/`) y ahí los recursos JAX-RS viven en
- * `/ecommerce/api/...`. Con base relativa la misma UI funciona servida desde la
+ * `/ecommerce/api/v1/...`. Con base relativa la misma UI funciona servida desde la
  * raíz o bajo cualquier context root.
  *
  * Sin secretos ni credenciales: es sólo una ruta.
  */
-const baseUrl = () => new URL('api/', document.baseURI);
+const baseUrl = () => new URL('api/v1/', document.baseURI);
 
 /* ------------------------------------------------------------------ */
 /* Token del backend                                                  */

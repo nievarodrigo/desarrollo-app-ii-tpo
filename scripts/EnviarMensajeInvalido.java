@@ -14,7 +14,7 @@ import javax.naming.InitialContext;
  *
  * (probar-resiliencia.sh hace todo esto solo, con una clave aleatoria en .secretos/.)
  *
- * Después: GET /api/admin/mensajeria/dlq con un token de ADMIN.
+ * Después: GET /api/v1/admin/mensajeria/dlq con un token de ADMIN.
  */
 public class EnviarMensajeInvalido {
     public static void main(String[] args) throws Exception {

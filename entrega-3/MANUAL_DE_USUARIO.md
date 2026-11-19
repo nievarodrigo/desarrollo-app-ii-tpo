@@ -99,8 +99,8 @@ Con la cuenta de administrador, además:
 - **Padrón de usuarios:** menú de cuenta → *Panel de administración* (lista de cuentas registradas).
 - **Confirmar pedidos** (desde la API): un pedido sólo se confirma cuando está PROCESADO. Si se manda `If-Match` y el pedido cambió mientras tanto, la API responde 412 y hay que volver a consultarlo.
 - **Cancelar pedidos** de cualquier cliente (salvo los ya confirmados).
-- **Mensajes con problemas (DLQ):** `GET /api/admin/mensajeria/dlq` lista los mensajes que no se pudieron procesar después de 3 intentos, para revisarlos a mano.
-- **Forzar reenvío:** `POST /api/admin/mensajeria/reenviar` vuelve a enviar ya mismo los pedidos que quedaron en ERROR_ENVIO (normalmente se hace solo cada 15 segundos).
+- **Mensajes con problemas (DLQ):** `GET /api/v1/admin/mensajeria/dlq` lista los mensajes que no se pudieron procesar después de 3 intentos, para revisarlos a mano.
+- **Forzar reenvío:** `POST /api/v1/admin/mensajeria/reenviar` vuelve a enviar ya mismo los pedidos que quedaron en ERROR_ENVIO (normalmente se hace solo cada 15 segundos).
 
 > Confirmar pedidos, cancelar y la DLQ por ahora se usan desde la API: la colección `entrega-3/GOMARKET-checkpoint3.postman_collection.json` trae todos los pasos en orden.
 

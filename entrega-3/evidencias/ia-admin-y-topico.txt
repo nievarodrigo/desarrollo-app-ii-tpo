@@ -1,0 +1,33 @@
+## Gateway de IA: apagado en caliente y monitoreo (19/11/2026, WildFly 41)
+$ PUT /admin/ia/habilitada {"habilitada":false}
+habilitada: False
+$ POST /ia/interpretar "auriculares baratos hasta 50 mil"
+{"criterios":{"categoria":"audio","orden":"precio-asc","precioMax":50000.0,"q":"auricular","soloStock":false},"estado":"sugerencia","milisegundos":0,"motivo":"deshabilitada","origen":"reglas"}
+$ GET /admin/ia
+{
+    "circuito": "CERRADO",
+    "habilitada": true,
+    "metricas": {
+        "consultas": 1,
+        "costoEstimadoUsd": 0.0,
+        "latenciaP95ms": 0,
+        "porMotivoDeFallback": {
+            "deshabilitada": 1
+        },
+        "porOrigen": {
+            "reglas": 1
+        },
+        "tasaFallback": 1.0,
+        "tokensEntrada": 0,
+        "tokensSalida": 0
+    },
+    "modelo": "anthropic/claude-haiku-5-5",
+    "timeoutMs": 5000,
+    "versionPrompt": "busqueda-v2"
+}
+
+## Pub/sub: PedidoConfirmadoTopic (3 suscriptores durables)
+notificaciones: 1 | estadísticas: {'pedidosConfirmados': 1, 'facturacion': 1849000} | auditoría: 1 evento(s)
+18:09:53,983 INFO  [ar.edu.desarrolloappii.ecommerce.pedido.service.EstadisticasMDB] (Thread-4 (activemq-client-global)) [estadisticas] PedidoConfirmado a013acf9-114f-4f48-9af5-b6e8ec69b534 (evento 65
+18:09:53,983 INFO  [ar.edu.desarrolloappii.ecommerce.pedido.service.NotificacionMDB] (Thread-0 (activemq-client-global)) [notificacion] PedidoConfirmado a013acf9-114f-4f48-9af5-b6e8ec69b534 (evento 65
+18:09:53,983 INFO  [ar.edu.desarrolloappii.ecommerce.pedido.service.AuditoriaMDB] (Thread-3 (activemq-client-global)) [auditoria] PedidoConfirmado a013acf9-114f-4f48-9af5-b6e8ec69b534 (evento 659520b0

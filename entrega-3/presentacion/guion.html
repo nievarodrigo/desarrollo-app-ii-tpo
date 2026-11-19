@@ -43,13 +43,13 @@
 
 <div class="diapo">
   <div class="cab"><span class="tit">3 · Tres integraciones, una sola app</span><span class="quien">Tomás · 1:00</span></div>
-  <p class="decir">El navegador habla con una sola API REST, que vive en <span class="mono">/ecommerce/api</span>. Esa API resuelve en el momento lo que es consulta (el catálogo, el estado de un pedido) y lo que es trabajo pesado, como procesar un pedido, lo deja en una cola JMS: lo toma un consumidor, un MDB, en segundo plano. Y la tercera integración es la IA: el front nunca habla con un modelo directamente. Pasa por un gateway nuestro, que es lo que pide la consigna, y que Rodrigo va a explicar.</p>
+  <p class="decir">El navegador habla con una sola API REST, que vive en <span class="mono">/ecommerce/api/v1</span>. Esa API resuelve en el momento lo que es consulta (el catálogo, el estado de un pedido) y lo que es trabajo pesado, como procesar un pedido, lo deja en una cola JMS: lo toma un consumidor, un MDB, en segundo plano. Y la tercera integración es la IA: el front nunca habla con un modelo directamente. Pasa por un gateway nuestro, que es lo que pide la consigna, y que Rodrigo va a explicar.</p>
   <p class="nota"><b>Si preguntan por qué una cola y no todo sincrónico:</b> el cliente recibe 202 al instante y el procesamiento no lo bloquea; si el consumidor se cae, el pedido no se pierde porque queda en la cola.</p>
 </div>
 
 <div class="diapo">
   <div class="cab"><span class="tit">4 · Escribís como hablás, la tienda filtra</span><span class="quien">Tomás · 1:00</span></div>
-  <p class="decir">Así se ve la IA para el usuario. En el buscador escribe una frase, por ejemplo “auriculares baratos hasta 50 mil”, y aprieta Enter. El front manda la frase al endpoint <span class="mono">/api/ia/interpretar</span> y recibe filtros: categoría audio, orden por precio de menor a mayor y precio máximo 50.000. Esos filtros aparecen como fichas que el usuario puede quitar: la IA sugiere, pero el que decide es el usuario. El campo “origen” dice si contestó el modelo o el respaldo por reglas.</p>
+  <p class="decir">Así se ve la IA para el usuario. En el buscador escribe una frase, por ejemplo “auriculares baratos hasta 50 mil”, y aprieta Enter. El front manda la frase al endpoint <span class="mono">/api/v1/ia/interpretar</span> y recibe filtros: categoría audio, orden por precio de menor a mayor y precio máximo 50.000. Esos filtros aparecen como fichas que el usuario puede quitar: la IA sugiere, pero el que decide es el usuario. El campo “origen” dice si contestó el modelo o el respaldo por reglas.</p>
   <p class="nota"><b>Dato:</b> sólo las frases de 3 palabras o más van al gateway; una búsqueda corta es una búsqueda común por texto, sin gastar nada.</p>
   <p class="pase">Pase: “Iván, contá qué pasa cuando la red falla en el peor momento.”</p>
 </div>
@@ -73,7 +73,7 @@
 
 <div class="diapo">
   <div class="cab"><span class="tit">7 · JMS entrega “al menos una vez”: nos defendemos</span><span class="quien">Fol · 1:15</span></div>
-  <p class="decir">JMS garantiza que un mensaje llega al menos una vez; o sea, puede llegar dos. Por eso el consumidor es idempotente, en dos niveles: cada mensaje lleva un identificador y el MDB recuerda los que ya procesó; y además el patrón State del pedido ignora un “procesado” sobre un pedido que ya estaba procesado o confirmado. La otra mitad es la DLQ, la cola de mensajes muertos. Si un mensaje falla, se reintenta: hay tres intentos con espera creciente, y si sigue fallando va a <span class="mono">ProcesarPedidoDLQ</span>. Ahí lo registra otro MDB y un admin lo puede ver con <span class="mono">GET /api/admin/mensajeria/dlq</span>.</p>
+  <p class="decir">JMS garantiza que un mensaje llega al menos una vez; o sea, puede llegar dos. Por eso el consumidor es idempotente, en dos niveles: cada mensaje lleva un identificador y el MDB recuerda los que ya procesó; y además el patrón State del pedido ignora un “procesado” sobre un pedido que ya estaba procesado o confirmado. La otra mitad es la DLQ, la cola de mensajes muertos. Si un mensaje falla, se reintenta: hay tres intentos con espera creciente, y si sigue fallando va a <span class="mono">ProcesarPedidoDLQ</span>. Ahí lo registra otro MDB y un admin lo puede ver con <span class="mono">GET /api/v1/admin/mensajeria/dlq</span>.</p>
   <p class="nota"><b>Si preguntan por qué una DLQ:</b> sin ella, un mensaje roto (“mensaje veneno”) se reintentaría para siempre y trabaría la cola. La configuración (3 intentos, reentregas a 1 s y 2 s) está en <span class="mono">scripts/mensajeria.cli</span>.</p>
 </div>
 

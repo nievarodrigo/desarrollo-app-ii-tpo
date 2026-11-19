@@ -3,8 +3,8 @@
 # Recorre el flujo de la 2.ª entrega contra un WildFly ya levantado:
 # login JWT -> control de rol -> pedido -> mensajería (MDB) -> State -> 409.
 #
-#   ./scripts/probar-entrega2.sh                       # http://localhost:8080/ecommerce/api
-#   ./scripts/probar-entrega2.sh http://otro-host:8080/ecommerce/api
+#   ./scripts/probar-entrega2.sh                       # http://localhost:8080/ecommerce/api/v1
+#   ./scripts/probar-entrega2.sh http://otro-host:8080/ecommerce/api/v1
 #
 # Cómo levantar el servidor sin sudo: ver .entrega2/RESUMEN.md o el README.
 

@@ -4,6 +4,7 @@ import ar.edu.desarrolloappii.ecommerce.catalogo.domain.Producto;
 import ar.edu.desarrolloappii.ecommerce.catalogo.service.CatalogoService;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.Pedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.PedidoConfirmado;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.SolicitudPedido;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.TransicionInvalidaException;
 import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoRepository;
@@ -34,14 +35,23 @@ public class PedidoService {
     @Inject CatalogoService catalogo;
     @Inject PedidoRepository repositorio;
     @Inject PublicadorPedidos publicador;
+    @Inject PublicadorDeEventos eventos;
+    @Inject EventosPendientes pendientes;
 
     public PedidoService() { }
 
-    /** Constructor para tests unitarios, sin contenedor. */
+    /** Constructor para tests unitarios, sin contenedor (sin tópico de eventos). */
     public PedidoService(CatalogoService catalogo, PedidoRepository repositorio, PublicadorPedidos publicador) {
+        this(catalogo, repositorio, publicador, PublicadorDeEventos.NINGUNO, new EventosPendientes());
+    }
+
+    public PedidoService(CatalogoService catalogo, PedidoRepository repositorio, PublicadorPedidos publicador,
+                         PublicadorDeEventos eventos, EventosPendientes pendientes) {
         this.catalogo = catalogo;
         this.repositorio = repositorio;
         this.publicador = publicador;
+        this.eventos = eventos;
+        this.pendientes = pendientes;
     }
 
     /**
@@ -103,10 +113,26 @@ public class PedidoService {
 
     /** Aplica un evento de negocio. Si el estado actual no lo acepta, State lanza TransicionInvalidaException (409). */
     public Pedido aplicarEvento(String id, EventoPedido evento, Identidad solicitante) {
-        visiblePara(id, solicitante);
+        Pedido anterior = visiblePara(id, solicitante);
         Pedido actualizado = repositorio.aplicar(id, evento);
         if (actualizado == null) throw noExiste(id);
+        // Sólo la transición REAL a CONFIRMADO publica el evento: confirmar dos veces no lo repite.
+        if (!"CONFIRMADO".equals(anterior.getEstado()) && "CONFIRMADO".equals(actualizado.getEstado())) {
+            anunciarConfirmacion(actualizado);
+        }
         return actualizado;
+    }
+
+    /** Publica PedidoConfirmado en el tópico. Si el broker no responde, queda pendiente y se reintenta. */
+    void anunciarConfirmacion(Pedido pedido) {
+        PedidoConfirmado evento = new PedidoConfirmado(UUID.randomUUID().toString(), PedidoConfirmado.TIPO, 1,
+                java.time.OffsetDateTime.now().toString(), pedido.getId(), pedido.getId(), pedido.getTotal(), "ARS");
+        try {
+            eventos.publicar(evento);
+        } catch (RuntimeException error) {
+            LOG.log(Level.WARNING, "No se pudo publicar PedidoConfirmado de " + pedido.getId() + "; queda pendiente.", error);
+            pendientes.agregar(evento);
+        }
     }
 
     private Pedido visiblePara(String id, Identidad solicitante) {

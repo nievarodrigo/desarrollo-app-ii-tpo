@@ -7,9 +7,10 @@
 #   ./scripts/probar-resiliencia.sh --broker        # además: pedido en cola + instrucciones de kill -9
 #
 set -uo pipefail
-A="${API:-http://localhost:8080/ecommerce/api}"
+A="${API:-http://localhost:8080/ecommerce/api/v1}"
 WF="${WILDFLY_HOME:-$HOME/.local/wildfly/wildfly-41.0.1.Final}"
-JAVA="${JAVA_HOME:-$HOME/.local/jdk}/bin/java"; [ -x "$JAVA" ] || JAVA=java   # hace falta JDK 11+ para correr un .java
+export JAVA_HOME="${JAVA_HOME:-$HOME/.local/jdk}"   # lo usan add-user.sh y jboss-cli.sh
+JAVA="$JAVA_HOME/bin/java"; [ -x "$JAVA" ] || JAVA=java   # hace falta JDK 11+ para correr un .java
 paso() { printf '\n\033[1;36m== %s\033[0m\n' "$*"; }
 cabeceras() { grep -iE "^(HTTP|etag|idempotent|content-type|location|retry-after)" | tr -d '\r'; }
 token() { curl -s -X POST "$A/auth/login" -H 'Content-Type: application/json' \
@@ -57,8 +58,10 @@ paso "9. DLQ: mensaje inválido → 3 reintentos → ProcesarPedidoDLQ"
 if [ -f "$WF/bin/client/jboss-client.jar" ]; then
   # Usuario JMS de prueba con clave aleatoria guardada en .secretos/ (ignorado por git).
   SECRETOS="$(dirname "$0")/../.secretos"; mkdir -p "$SECRETOS"
-  [ -s "$SECRETOS/jms" ] || head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' > "$SECRETOS/jms"
+  [ -s "$SECRETOS/jms" ] || { head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' > "$SECRETOS/jms"; chmod 600 "$SECRETOS/jms"; }
   CLAVE_JMS="$(cat "$SECRETOS/jms")"
+  # add-user no pisa un usuario existente: se borra antes para que tome la clave actual.
+  sed -i '/^demo-jms=/d' "$WF/standalone/configuration/application-users.properties" "$WF/standalone/configuration/application-roles.properties"
   "$WF/bin/add-user.sh" -a -u demo-jms -p "$CLAVE_JMS" -g guest -s >/dev/null 2>&1 || true
   "$JAVA" -Dusuario=demo-jms -Dclave="$CLAVE_JMS" -cp "$WF/bin/client/jboss-client.jar" "$(dirname "$0")/EnviarMensajeInvalido.java" 2>/dev/null | grep Enviado
   sleep 8; curl -s "$A/admin/mensajeria/dlq" -H "Authorization: Bearer $AD"; echo

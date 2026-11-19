@@ -22,7 +22,7 @@ Verificado contra **WildFly 41.0.1 real** el 19/11/2026 (incluido un `kill -9` c
 - Bulkhead del gateway: un cupo se perdía si la tarea vencía en la cola del ejecutor.
 - Replay de Idempotency-Key: ahora devuelve el estado y el ETag actuales del pedido.
 - Un `Error` (no sólo `RuntimeException`) libera la clave; una operación colgada deja de bloquearla a los 5 min.
-- Límite de 30 consultas/min por IP en `/api/ia/interpretar` (429).
+- Límite de 30 consultas/min por IP en `/api/v1/ia/interpretar` (429).
 - `/productos/abc` y `?precioMax=abc` → 400 (antes 404); `If-Match` en un GET → 412 con Problem Details (antes sin cuerpo).
 - CI: el paso de JS usa `shell: bash` (pipefail), así un test que falla rompe el job.
 - Front: JWT del backend, `Idempotency-Key` sin depender de `crypto.randomUUID` (http sin TLS) y mensaje correcto para ERROR_ENVIO.
@@ -32,11 +32,11 @@ Verificado contra **WildFly 41.0.1 real** el 19/11/2026 (incluido un `kill -9` c
 
 | Método y ruta | Quién | Para qué |
 |---|---|---|
-| `POST /api/ia/interpretar` | público (30/min por IP) | Búsqueda en lenguaje natural (200 con modelo o fallback; 429 si se supera el límite) |
-| `GET /api/admin/mensajeria/dlq` | ADMIN | Mensajes que agotaron sus reintentos |
-| `POST /api/admin/mensajeria/reenviar` | ADMIN | Forzar el reenvío de pedidos en ERROR_ENVIO |
+| `POST /api/v1/ia/interpretar` | público (30/min por IP) | Búsqueda en lenguaje natural (200 con modelo o fallback; 429 si se supera el límite) |
+| `GET /api/v1/admin/mensajeria/dlq` | ADMIN | Mensajes que agotaron sus reintentos |
+| `POST /api/v1/admin/mensajeria/reenviar` | ADMIN | Forzar el reenvío de pedidos en ERROR_ENVIO |
 
-Cabeceras nuevas: `Idempotency-Key` (obligatoria en `POST /api/pedidos`), `Idempotent-Replayed`, `ETag`, `If-None-Match`, `If-Match`, `Location`.
+Cabeceras nuevas: `Idempotency-Key` (obligatoria en `POST /api/v1/pedidos`), `Idempotent-Replayed`, `ETag`, `If-None-Match`, `If-Match`, `Location`.
 
 ## Límites conocidos (para decirlos antes de que los pregunten)
 

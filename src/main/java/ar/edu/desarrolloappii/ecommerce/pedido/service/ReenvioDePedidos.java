@@ -22,18 +22,43 @@ public class ReenvioDePedidos {
 
     @Inject PedidoRepository repositorio;
     @Inject PublicadorPedidos publicador;
+    @Inject PublicadorDeEventos eventos;
+    @Inject EventosPendientes pendientes;
 
     public ReenvioDePedidos() { }
 
     /** Para tests, sin contenedor. */
     public ReenvioDePedidos(PedidoRepository repositorio, PublicadorPedidos publicador) {
+        this(repositorio, publicador, PublicadorDeEventos.NINGUNO, new EventosPendientes());
+    }
+
+    public ReenvioDePedidos(PedidoRepository repositorio, PublicadorPedidos publicador,
+                            PublicadorDeEventos eventos, EventosPendientes pendientes) {
         this.repositorio = repositorio;
         this.publicador = publicador;
+        this.eventos = eventos;
+        this.pendientes = pendientes;
     }
 
     @Schedule(second = "*/15", minute = "*", hour = "*", persistent = false)
     public void programado() {
         reintentarPendientes();
+        reintentarEventos();
+    }
+
+    /** Republica los PedidoConfirmado que no salieron. @return cuántos se publicaron. */
+    public int reintentarEventos() {
+        int publicados = 0;
+        for (var evento = pendientes.siguiente(); evento != null; evento = pendientes.siguiente()) {
+            try {
+                eventos.publicar(evento); // mismo idEvento: si ya había salido, los suscriptores lo descartan
+                pendientes.quitar(evento);
+                publicados++;
+            } catch (RuntimeException brokerCaido) {
+                break;
+            }
+        }
+        return publicados;
     }
 
     /** @return cuántos pedidos se pudieron publicar en esta vuelta. */

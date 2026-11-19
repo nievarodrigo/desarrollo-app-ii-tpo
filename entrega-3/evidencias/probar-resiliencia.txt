@@ -17,7 +17,8 @@ HTTP/1.1 404 Not Found
 HTTP/1.1 405 Method Not Allowed
 HTTP/1.1 415 Unsupported Media Type
 == 8. Gateway de IA (5 s de timeout; sin ANTHROPIC_API_KEY responde el fallback)
-{"criterios":{"categoria":"audio","orden":"precio-asc","precioMax":50000.0,"q":"auricular","soloStock":false},"estado":"sugerencia","milisegundos":534
+{"criterios":{"categoria":"audio","orden":"precio-asc","precioMax":50000.0,"q":"auricular","soloStock":false},
 {"estado":"rechazada","milisegundos":0,"origen":"politica"}
 == 9. DLQ: mensaje inválido → 3 reintentos → ProcesarPedidoDLQ
-[{"colaOrigen":"jms.queue.ProcesarPedidoQueue","cuerpo":"esto no es un pedido","idMensaje":"veneno-a4b2740a-1beb-45d0-a2d1-807d34ed8c8c","recibido":"2
+Enviado mensaje inválido veneno-616f4a0b-f311-4444-88ea-467bfc61a1d7
+[{"colaOrigen":"jms.queue.ProcesarPedidoQueue","cuerpo":"esto no es un pedido","idMensaje":"veneno-616f4a0b-f3

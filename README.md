@@ -87,13 +87,13 @@ La API de pedidos exige un **JWT**. Cuentas de demostración: `cliente@gomarket.
 
 | Método y ruta | Quién | Respuestas |
 |---|---|---|
-| `POST /api/auth/login` · `POST /api/auth/registro` | público | 200/201 · 401 · 429 (5 fallos) |
-| `GET /api/auth/yo` | CLIENTE, ADMIN | 200 · 401 |
-| `GET /api/auth/usuarios` | ADMIN | 200 · 401 · 403 |
-| `POST /api/pedidos` | CLIENTE | 202 · 400 · 401 · 403 |
-| `GET /api/pedidos/{id}` | dueño o ADMIN | 200 · 403 · 404 |
-| `POST /api/pedidos/{id}/cancelar` | dueño o ADMIN | 200 · **409** si ya está CONFIRMADO |
-| `POST /api/pedidos/{id}/confirmar` | ADMIN | 200 · **409** si no está PROCESADO |
+| `POST /api/v1/auth/login` · `POST /api/v1/auth/registro` | público | 200/201 · 401 · 429 (5 fallos) |
+| `GET /api/v1/auth/yo` | CLIENTE, ADMIN | 200 · 401 |
+| `GET /api/v1/auth/usuarios` | ADMIN | 200 · 401 · 403 |
+| `POST /api/v1/pedidos` | CLIENTE | 202 · 400 · 401 · 403 |
+| `GET /api/v1/pedidos/{id}` | dueño o ADMIN | 200 · 403 · 404 |
+| `POST /api/v1/pedidos/{id}/cancelar` | dueño o ADMIN | 200 · **409** si ya está CONFIRMADO |
+| `POST /api/v1/pedidos/{id}/confirmar` | ADMIN | 200 · **409** si no está PROCESADO |
 
 Decisiones en `docs/adr/` (ADR-008 JWT y roles, ADR-009 REST y no SOAP, ADR-010 puertos).
 
@@ -158,8 +158,8 @@ TPO/
     ├── main/
     │   ├── java/ar/edu/desarrolloappii/ecommerce/
     │   │   ├── config/
-    │   │   │   ├── JaxRsActivator.java       # @ApplicationPath("/api")
-    │   │   │   └── SaludResource.java        # GET /api/salud
+    │   │   │   ├── JaxRsActivator.java       # @ApplicationPath("/api/v1")
+    │   │   │   └── SaludResource.java        # GET /api/v1/salud
     │   │   ├── shared/
     │   │   │   ├── dto/                      # ProductoResponse, FacetasResponse, …
     │   │   │   └── exception/                # excepción de dominio + ExceptionMapper
@@ -195,7 +195,7 @@ entra en producción.
 
 ## API
 
-Base: `/ecommerce/api`
+Base: `/ecommerce/api/v1`
 
 | Método | Ruta | Devuelve |
 |---|---|---|
@@ -213,12 +213,12 @@ devuelven como `application/problem+json` (`type`, `title`, `status`, `detail`,
 catálogo de endpoints, OpenAPI, ejemplos y diagrama.
 
 ```bash
-curl http://localhost:8080/ecommerce/api/productos?q=cafe
-curl http://localhost:8080/ecommerce/api/productos/999   # → 404
-curl -X POST http://localhost:8080/ecommerce/api/pedidos \
+curl http://localhost:8080/ecommerce/api/v1/productos?q=cafe
+curl http://localhost:8080/ecommerce/api/v1/productos/999   # → 404
+curl -X POST http://localhost:8080/ecommerce/api/v1/pedidos \
   -H 'Content-Type: application/json' \
   -d '{"items":[{"idProducto":1,"cantidad":1}]}'
-# Luego GET /ecommerce/api/pedidos/<id devuelto>
+# Luego GET /ecommerce/api/v1/pedidos/<id devuelto>
 ```
 
 ### Avance del 09/10: alcance real
@@ -285,7 +285,7 @@ La UI se publica de dos formas y **el código fuente es exactamente el mismo**:
 
 | Destino | Implementación activa de `CatalogoService` | Origen de los datos |
 |---|---|---|
-| `ecommerce.war` en WildFly | `CatalogoServiceRemoto` (Adapter) | API JAX-RS (`GET /ecommerce/api/...`) |
+| `ecommerce.war` en WildFly | `CatalogoServiceRemoto` (Adapter) | API JAX-RS (`GET /ecommerce/api/v1/...`) |
 | Sitio estático en Vercel | `CatalogoServiceLocal` | `assets/data/catalogo.json` |
 
 Son **dos implementaciones del mismo contrato**, y una *factory*
@@ -305,7 +305,7 @@ Dos detalles que lo hacen posible:
 
 - todas las rutas del HTML son **relativas** (`assets/css/styles.css`, sin barra
   inicial), así que la página funciona bajo cualquier context root;
-- la base de la API se deriva de `document.baseURI`. Fijarla en `/api` funcionaba en
+- la base de la API se deriva de `document.baseURI`. Fijarla en `/api/v1` funcionaba en
   la raíz y daba **404 en WildFly bajo `/ecommerce`** — el clásico bug que aparece
   recién el día del despliegue.
 
@@ -351,7 +351,7 @@ accidente.
 2. Componentes **Carrito** y **Pedido** con sus recursos REST.
 3. **Checkout** como Facade, y **Pago** detrás de un Adapter.
 4. Evento `PedidoConfirmado` por **JMS** con su MDB.
-5. Llevar **Usuario** al backend: `POST /api/usuarios`, hash con Argon2 y
+5. Llevar **Usuario** al backend: `POST /api/v1/usuarios`, hash con Argon2 y
    `@RolesAllowed` real. El diseño de la autorización ya está hecho en el front
    (`autorizar([...])`); lo que cambia es quién lo hace cumplir.
 6. Automatizar las pruebas de interfaz de punta a punta con **Playwright**.
