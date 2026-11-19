@@ -33,6 +33,7 @@ import { precio, numero } from './compartido/formato.js';
 import { arteProducto } from './compartido/arte.js';
 import { abrirCapa, cerrarCapa } from './compartido/capa-modal.js';
 import { avisar } from './compartido/avisos.js';
+import { hayBackend, publicar } from './compartido/cliente-http.js';
 
 /* ------------------------------------------------------------------ */
 /* Estado de la vista de catálogo                                      */
@@ -424,6 +425,42 @@ function iniciarFiltros() {
   });
 }
 
+/**
+ * Enter en el buscador. Si la consulta parece una frase ("auriculares baratos hasta
+ * 50 mil") y hay backend, se la pasamos al GATEWAY DE IA, que devuelve filtros
+ * sugeridos. El gateway nunca falla: si el modelo tarda más de 5 s o no está,
+ * responde su fallback por reglas. Si no hay sugerencia, búsqueda común por texto.
+ */
+async function buscarConEnter(consulta) {
+  const esFrase = consulta.split(/\s+/).length >= 3;
+  if (esFrase && (await hayBackend())) {
+    try {
+      const respuesta = await publicar('ia/interpretar', { consulta });
+      if (respuesta.estado === 'sugerencia' && respuesta.criterios) {
+        const c = respuesta.criterios;
+        filtros.q = c.q ?? '';
+        filtros.categoria = c.categoria ?? 'todas';
+        filtros.orden = c.orden ?? 'relevancia';
+        filtros.soloStock = Boolean(c.soloStock);
+        filtros.precioMax = Number.isFinite(c.precioMax) ? Math.min(c.precioMax, rango.max) : rango.max;
+        sincronizarFiltros();
+        cargarCatalogo();
+        irAlCatalogo();
+        avisar(respuesta.origen === 'modelo'
+          ? 'Interpretamos tu búsqueda con IA. Podés quitar cualquier filtro.'
+          : 'Interpretamos tu búsqueda (modo básico). Podés quitar cualquier filtro.', 'ok');
+        return;
+      }
+      if (respuesta.estado === 'aclarar') avisar('¿Podés reformular? Usá precios en pesos y sin datos personales.', 'alerta');
+      if (respuesta.estado === 'rechazada') { avisar('Esa búsqueda no se puede procesar.', 'alerta'); return; }
+    } catch { /* si el gateway no responde, búsqueda común */ }
+  }
+  filtros.q = consulta;
+  sincronizarFiltros();
+  cargarCatalogo();
+  irAlCatalogo();
+}
+
 function limpiarFiltros() {
   filtros.q = '';
   filtros.categoria = 'todas';
@@ -512,10 +549,7 @@ function iniciarBuscadores() {
     entrada.addEventListener('keydown', (evento) => {
       if (evento.key === 'Enter') {
         evento.preventDefault();
-        filtros.q = entrada.value.trim();
-        sincronizarFiltros();
-        cargarCatalogo();
-        irAlCatalogo();
+        buscarConEnter(entrada.value.trim());
       }
       if (evento.key === 'Escape' && entrada.value) {
         evento.preventDefault();
