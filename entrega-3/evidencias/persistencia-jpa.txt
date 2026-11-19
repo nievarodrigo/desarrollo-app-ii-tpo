@@ -1,0 +1,15 @@
+# Evidencia: persistencia JPA + Flyway en WildFly 41 (19/11/2026)
+
+## Primer arranque: Flyway aplica las migraciones
+18:47:10,308 INFO  [org.flywaydb.core.internal.command.DbMigrate] (ServerService Thread Pool -- 88) Migrating schema "PUBLIC" to version "1 - pedidos"
+18:47:10,317 INFO  [org.flywaydb.core.internal.command.DbMigrate] (ServerService Thread Pool -- 88) Migrating schema "PUBLIC" to version "2 - idempotencia e inbox"
+18:47:10,323 INFO  [org.flywaydb.core.internal.command.DbMigrate] (ServerService Thread Pool -- 88) Migrating schema "PUBLIC" to version "3 - outbox"
+18:47:10,328 INFO  [org.flywaydb.core.internal.command.DbMigrate] (ServerService Thread Pool -- 88) Successfully applied 3 migrations to schema "PUBLIC", now at version v3 (execution time 00:00.007s)
+
+## Pedido confirmado → kill -9 del servidor → reinicio
+antes del kill: CONFIRMADO 5456f895-a9e4-4147-9ca5-cf6ac4cd366e
+después del kill -9: CONFIRMADO 5456f895-a9e4-4147-9ca5-cf6ac4cd366e  (leído de la base, no reconstruido)
+eventos de los suscriptores tras el reinicio: pedidosConfirmados=2, notificacionesEnviadas=2, auditoría=2 (persistidos)
+
+## Segundo arranque: el esquema ya está al día
+18:49:18,649 INFO  [org.flywaydb.core.internal.command.DbMigrate] (ServerService Thread Pool -- 86) Schema "PUBLIC" is up to date. No migration necessary.

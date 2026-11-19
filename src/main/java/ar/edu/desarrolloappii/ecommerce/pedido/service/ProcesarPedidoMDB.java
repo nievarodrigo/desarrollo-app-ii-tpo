@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * Consumidor de la cola P2P. JMS entrega "al menos una vez", así que es IDEMPOTENTE
  * en dos niveles:
  * <ol>
- *   <li>{@link RegistroDeMensajes}: un {@code idMensaje} ya procesado se ignora.</li>
+ *   <li>Inbox JPA en la misma transacción CMT: un {@code idMensaje} ya procesado se ignora.</li>
  *   <li>Patrón State: aplicar MENSAJE_PROCESADO a un pedido ya PROCESADO/CONFIRMADO no cambia nada.</li>
  * </ol>
  * Si el procesamiento falla, lanza una excepción: el contenedor hace rollback y Artemis
@@ -68,7 +68,7 @@ public class ProcesarPedidoMDB implements MessageListener {
                 throw new IllegalArgumentException("Mensaje inválido: no trae un pedido.");
             }
             if (repositorio.obtener(pedido.getId()) == null) rehidratar(pedido);
-            // State + computeIfPresent atómico: la reentrega no regresa un pedido confirmado.
+            // State + bloqueo JPA: la reentrega no regresa un pedido confirmado.
             repositorio.aplicar(pedido.getId(), EventoPedido.MENSAJE_PROCESADO);
             registro.registrar(idMensaje);
             LOG.info("Pedido " + pedido.getId() + " procesado por la cola.");
@@ -84,10 +84,9 @@ public class ProcesarPedidoMDB implements MessageListener {
     }
 
     /**
-     * El repositorio de la demo vive en memoria: si el servidor se reinició, el pedido ya
-     * no está, pero el mensaje persistente sí. Como el mensaje trae el pedido completo,
-     * se lo reconstruye para no perder la compra. Un mensaje incompleto no se reconstruye:
-     * falla y termina en la DLQ.
+     * Compatibilidad con mensajes anteriores a JPA y tests en memoria: si no existe el
+     * pedido, sólo se reconstruye desde un mensaje completo. Un mensaje incompleto falla
+     * y termina en la DLQ. Los pedidos JPA normales sobreviven al reinicio en la base.
      */
     private void rehidratar(Pedido pedido) {
         boolean completo = pedido.getCliente() != null && pedido.getTotal() != null

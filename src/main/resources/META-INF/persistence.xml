@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.1">
+ <persistence-unit name="gomarket" transaction-type="JTA">
+  <jta-data-source>java:jboss/datasources/GomarketDS</jta-data-source>
+  <properties>
+   <!-- Flyway ejecuta el DDL. none permite que el PU arranque antes del singleton de migración. -->
+   <property name="jakarta.persistence.schema-generation.database.action" value="none"/>
+   <property name="hibernate.hbm2ddl.auto" value="none"/>
+  </properties>
+ </persistence-unit>
+</persistence>

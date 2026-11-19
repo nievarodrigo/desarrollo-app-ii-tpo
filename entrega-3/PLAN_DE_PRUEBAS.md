@@ -11,8 +11,8 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 | Dentro | Fuera (en esta versión) |
 |---|---|
 | Catálogo, búsqueda y filtros; carrito; cuentas y roles; pedidos (REST + JMS) | Pagos reales y pasarela externa |
-| Resiliencia: Idempotency-Key, ETag, Problem Details, DLQ, broker caído, timeout de 5 s | Persistencia JPA (el repositorio sigue en memoria) |
-| Gateway de IA y su fallback | Pruebas de carga y de rendimiento |
+| Resiliencia: Idempotency-Key, ETag, Problem Details, DLQ, broker caído, timeout de 5 s | Migración de catálogo y usuarios |
+| Pedidos JPA, Flyway, outbox/inbox con H2; gateway de IA y su fallback | Pruebas de carga y de rendimiento |
 | Seguridad base: JWT, roles, dueño del pedido | Pruebas de penetración |
 
 ## 3. Requerimientos bajo prueba
@@ -42,6 +42,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 | RNF-10 | Circuit breaker y plan de apagado de la IA |
 | RNF-11 | Trazas de la IA: versión del prompt, tokens y costo |
 | RNF-12 | API versionada (`/api/v1`) con contrato OpenAPI |
+| RNF-13 | Persistencia transaccional con migraciones |
 
 ## 4. Estrategia y niveles
 
@@ -60,7 +61,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 ## 5. Entorno
 
 - JDK 17 (Temurin), Maven Wrapper, Node 22.
-- WildFly 41.0.1 con `standalone-full.xml` (Artemis embebido), configurado con `scripts/mensajeria.cli`.
+- WildFly 41.0.1 con `standalone-full.xml` (Artemis embebido), configurado con `scripts/datasource.cli` y `scripts/mensajeria.cli`.
 - CI: GitHub Actions (`.github/workflows/ci.yml`), Ubuntu, sin servidor.
 - IA: sin `ANTHROPIC_API_KEY` (o con una inválida) se prueba el fallback. **Pendiente en esta versión:** la prueba con el modelo real (`claude-haiku-5-5`), que requiere una clave válida.
 
@@ -72,7 +73,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 
 ## 7. Casos de prueba
 
-Estado al 19/11/2026: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verificado a mano contra WildFly.
+Estado histórico de CP-01 a CP-45: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verificado a mano contra WildFly. Con la capa JPA se repitieron contra WildFly la demo completa (`probar-resiliencia.sh`), el recorrido de la interfaz y el `kill -9`.
 
 | ID | Req. | Caso | Resultado esperado | Cómo | Estado |
 |---|---|---|---|---|---|
@@ -102,7 +103,7 @@ Estado al 19/11/2026: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verifica
 | CP-24 | RNF-04 | Mismo mensaje entregado dos veces (mismo `idMensaje`) | El segundo se ignora | `FlujoPedidoTest`, `RegistroDeMensajesTest` | ✅🔁 |
 | CP-25 | RNF-04 | Reentrega de un pedido ya CONFIRMADO | Sigue CONFIRMADO | `FlujoPedidoTest` | ✅🔁 |
 | CP-26 | RNF-05 | Mensaje inválido en la cola | 3 intentos (reentregas a 1 s y 2 s) y llega a `ProcesarPedidoDLQ`; visible en `/admin/mensajeria/dlq` | WildFly + `EnviarMensajeInvalido.java` | ✅🖐️ |
-| CP-27 | RNF-06 | Broker caído al crear el pedido | 202 con estado ERROR_ENVIO; al volver el broker se republica y se procesa | `FlujoPedidoTest` | ✅🔁 |
+| CP-27 | RNF-06 | Broker caído al crear el pedido | 202 PENDIENTE y outbox sin publicar; al volver el broker se publica y se procesa | `DatosJpaTest` (publicador simulado); repetir con WildFly | ✅ local · ⏳ WildFly |
 | CP-28 | RNF-06 | `kill -9` del servidor con un mensaje en la cola | Al reiniciar, el pedido queda PROCESADO | WildFly (`--broker`) | ✅🖐️ |
 | CP-29 | RNF-07 | El modelo tarda más que el presupuesto | Se corta la espera; responde el fallback (`motivo: timeout`) | `GatewayIATest` | ✅🔁 |
 | CP-30 | RNF-07 | Proveedor caído / salida inventada / sin credenciales / saturado / tareas vencidas en la cola | Fallback (`error`, `salida-invalida`, `sin-proveedor`, `saturado`) y el cupo vuelve | `GatewayIATest` + WildFly con clave inválida | ✅🔁🖐️ |
@@ -122,7 +123,21 @@ Estado al 19/11/2026: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verifica
 | CP-44 | RNF-09, BR04 | Eval set de IA en el pipeline | Exactitud ≥ 85 %, adversariales 100 %, formato 100 % (si no, falla el build) | `EvalSetIATest` | ✅🔁 (capa determinista) · ⏳ modelo real |
 | CP-45 | RNF-12 | Llamar a la ruta sin versión | `/api/productos` → 404; `/api/v1/productos` → 200 | curl | ✅🖐️ |
 
+| CP-46 | RNF-13 (D3) | Migrar una base vacía y volver a ejecutar Flyway | Aplica V1–V3 una sola vez; Hibernate valida el esquema sin generar DDL | `DatosJpaTest` | ✅ local H2 |
+| CP-47 | RNF-13 (D4) | Guardar/leer ítems y aplicar State válido e inválido | Mapper conserva los datos; transición inválida no cambia el pedido | `DatosJpaTest` | ✅ local H2 |
+| CP-48 | RNF-01, RNF-13 | Repetir clave; variar huella; vencer 24 h / 5 min; duplicar UNIQUE | Replay persistente, 422/409, reutilización tras vencer; UNIQUE rechaza duplicados | `DatosJpaTest`, `IdempotenciaPedidosTest` | ✅ local H2 |
+| CP-49 | RNF-13 (D4) | Fallar después de escribir pedido, clave y outbox; repetir al confirmar | Rollback elimina todas las escrituras de esa operación; se puede reintentar | `DatosJpaTest` | ✅ RESOURCE_LOCAL · ⏳ JTA |
+| CP-50 | RNF-06, RNF-13 (D5) | Falla el publicador del relay y luego funciona | Persiste intentos, conserva idMensaje/idEvento y marca publicado; no reenvía lo marcado | `DatosJpaTest` | ✅ H2 con publicador simulado |
+| CP-51 | RNF-04, RNF-13 | Duplicar idMensaje; fallar entre efecto e inbox | Descarta duplicado; rollback revierte estado e inbox juntos | `DatosJpaTest` | ✅ local H2 |
+| CP-52 | RNF-04, RF-11 | Repetir evento en los tres suscriptores y recrear el servicio | Un efecto persistido por suscriptor; auditoría y estadísticas se conservan | `DatosJpaTest` | ✅ local H2 |
+| CP-53 | RNF-13 | Ejecutar CLI dos veces, desplegar WAR, crear/confirmar, reiniciar y cortar broker | Datasource idempotente; CMT y migraciones al arrancar; outbox/inbox sobreviven y se reintenta | `scripts/levantar-wildfly.sh`, requests HTTP y logs | ✅🖐️ WildFly 41: CLI aplicado dos veces sin error, migraciones al arrancar, demo completa, pedido CONFIRMADO tras `kill -9` (`evidencias/persistencia-jpa.txt`) |
+| CP-54 | RNF-13 | Cambiar datasource a PostgreSQL con driver y módulo Flyway correspondiente | Mismos mappers y scripts SQL; migraciones y transacciones correctas | Entorno PostgreSQL (ADR-014) | ⏳ no ejecutado |
+
 ## 8. Cobertura (parcial)
+
+Verificación local del eje Datos: `export JAVA_HOME=$HOME/.local/jdk; ./mvnw -o -q -B verify` terminó con **137 tests, 0 fallas, 0 errores y 0 omitidos** (122 existentes + 15 de integración JPA). Surefire deja los XML en `target/surefire-reports`; JaCoCo, el reporte actualizado en `target/site/jacoco`. El WAR incluye Flyway; H2, Hibernate de tests y Expressly no se empaquetan. También pasó `bash -n scripts/levantar-wildfly.sh`. No se levantó WildFly porque su instalación disponible está fuera de la carpeta autorizada y el script modifica configuración y deployments allí. CP-53 y CP-54 siguen pendientes.
+
+Las cifras siguientes pertenecen al relevamiento anterior, no a una medición de cobertura de este cambio:
 
 `./mvnw verify` genera `target/site/jacoco/index.html` y el eval set deja `target/eval-ia.md`. Al 19/11: **68 % de líneas y 63 % de ramas en Java**, **80 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
 
@@ -130,6 +145,7 @@ Estado al 19/11/2026: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verifica
 
 | Riesgo | Mitigación |
 |---|---|
-| El repositorio en memoria pierde datos en un reinicio | Rehidratación desde el mensaje persistente (CP-28); JPA en la próxima iteración |
+| Flyway 10.20.1 advierte que la H2 2.4 de WildFly es más nueva que la que probó | Las migraciones corren sin errores; actualizar Flyway al pasar a producción |
+| Flyway core no incluye el adaptador PostgreSQL | Proveer el módulo antes de migrar de motor (ADR-014, CP-54) |
 | Las pruebas de integración son manuales | Script `probar-resiliencia.sh` repetible; evidencias en `entrega-3/evidencias/` |
 | Costo y disponibilidad del proveedor de IA | Gateway con fallback gratuito; modelo más barato (ADR-012) |

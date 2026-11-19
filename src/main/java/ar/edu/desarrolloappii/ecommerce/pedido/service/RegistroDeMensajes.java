@@ -14,7 +14,7 @@ import java.util.Set;
  * el efecto. Guarda los últimos 10.000 (LRU) para no crecer sin límite; para los
  * más viejos, la máquina de estados del pedido sigue absorbiendo el duplicado.
  */
-@ApplicationScoped
+@jakarta.enterprise.inject.Vetoed
 public class RegistroDeMensajes {
     static final int CAPACIDAD = 10_000;
 

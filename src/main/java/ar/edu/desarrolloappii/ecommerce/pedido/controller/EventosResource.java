@@ -1,7 +1,7 @@
 package ar.edu.desarrolloappii.ecommerce.pedido.controller;
 
 import ar.edu.desarrolloappii.ecommerce.pedido.service.ConsumosDeEventos;
-import ar.edu.desarrolloappii.ecommerce.pedido.service.EventosPendientes;
+import ar.edu.desarrolloappii.ecommerce.pedido.service.RelayOutbox;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -16,13 +16,13 @@ import java.util.TreeMap;
 @Produces(MediaType.APPLICATION_JSON)
 public class EventosResource {
     @Inject ConsumosDeEventos consumos;
-    @Inject EventosPendientes pendientes;
+    @Inject RelayOutbox pendientes;
 
     @GET
     @RolesAllowed("ADMIN")
     public Map<String, Object> resumen() {
         Map<String, Object> r = new TreeMap<>(consumos.resumen());
-        r.put("pendientesDePublicar", pendientes.listar().size());
+        r.put("pendientesDePublicar", pendientes.contarPendientes());
         return r;
     }
 }

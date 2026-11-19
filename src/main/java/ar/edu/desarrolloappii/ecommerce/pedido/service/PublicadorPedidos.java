@@ -9,4 +9,7 @@ public interface PublicadorPedidos {
 
     /** Publica el comando "procesar pedido". Lanza una excepción si no se pudo enviar. */
     void publicar(Pedido pedido);
+
+    /** El relay conserva el identificador en todas las reentregas. */
+    default void publicar(Pedido pedido, String idMensaje) { publicar(pedido); }
 }

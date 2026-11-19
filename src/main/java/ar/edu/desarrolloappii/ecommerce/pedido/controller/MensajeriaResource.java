@@ -1,7 +1,7 @@
 package ar.edu.desarrolloappii.ecommerce.pedido.controller;
 
 import ar.edu.desarrolloappii.ecommerce.pedido.service.BuzonMensajesMuertos;
-import ar.edu.desarrolloappii.ecommerce.pedido.service.ReenvioDePedidos;
+import ar.edu.desarrolloappii.ecommerce.pedido.service.RelayOutbox;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -17,7 +17,7 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 public class MensajeriaResource {
     @Inject BuzonMensajesMuertos buzon;
-    @Inject ReenvioDePedidos reenvio;
+    @Inject RelayOutbox reenvio;
 
     @GET
     @Path("/dlq")
@@ -26,11 +26,11 @@ public class MensajeriaResource {
         return buzon.listar();
     }
 
-    /** No espera al timer de 15 s: útil en la demo de "se apagó el broker y volvió". */
+    /** No espera al timer de 5 s: útil en la demo de "se apagó el broker y volvió". */
     @POST
     @Path("/reenviar")
     @RolesAllowed("ADMIN")
     public Map<String, Integer> reenviar() {
-        return Map.of("republicados", reenvio.reintentarPendientes());
+        return Map.of("republicados", reenvio.publicarPendientes());
     }
 }

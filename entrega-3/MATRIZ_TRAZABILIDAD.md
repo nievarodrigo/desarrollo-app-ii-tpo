@@ -92,6 +92,8 @@ Escenario: Plan de apagado
   Entonces la búsqueda sigue funcionando con origen "reglas" y motivo "deshabilitada"
 ```
 
+Actualización del eje Datos: las evidencias WildFly anteriores corresponden a la implementación en memoria. El flujo JPA/outbox tiene pruebas locales H2; falta repetir la integración en WildFly. Ver ADR-014 y CP-46 a CP-54.
+
 ## 3. Matriz BR → HU → CA → CP → componente
 
 | BR | HU | Criterio (CA) | Casos de prueba | Componente | Patrón | Evidencia | Estado |
@@ -103,7 +105,7 @@ Escenario: Plan de apagado
 | BR05 | HU05 | Misma clave → mismo pedido | CP-14 a CP-18, CP-36 | `IdempotenciaPedidos`, `carrito-view.js` | Idempotency-Key | `IdempotenciaPedidosTest`, `probar-resiliencia.txt` | ✅ |
 | BR03, BR05 | HU06 | If-Match viejo → 412; un evento por confirmación | CP-20, CP-39 a CP-41 | `PedidoResource.aplicar`, `PedidoService.anunciarConfirmacion`, `PublicadorDeEventosJms`, 3 MDB suscriptores | Optimistic Locking, Pub/Sub (Observer), Idempotent Receiver | `EventosPedidoTest`, `ia-admin-y-topico.txt` | ✅ |
 | BR04, BR05 | HU07 | Veneno → DLQ; apagado en caliente | CP-26, CP-33, CP-43 | `MensajesMuertosMDB`, `MensajeriaResource`, `IAAdminResource` | Dead Letter Channel, Feature Flag | `broker-caido-y-dlq.txt`, `ia-admin-y-topico.txt` | ✅ |
-| BR05 | — | Broker caído o kill -9 sin pérdida | CP-27, CP-28 | `PedidoService.crear`, `ReenvioDePedidos`, mensajes `PERSISTENT`, `ProcesarPedidoMDB.rehidratar` | Outbox simplificado, Guaranteed Delivery | `FlujoPedidoTest`, `broker-caido-y-dlq.txt` | ✅ |
+| BR05 | — | Pedido y envío persistidos juntos; reentrega deduplicada | CP-27, CP-28, CP-46 a CP-53 | `PedidoJpa`, `OutboxPedidos`, `RelayOutbox`, `RegistroDeMensajesJpa` | Repository, Data Mapper, Unit of Work, Transactional Outbox, Idempotent Receiver | `DatosJpaTest`; integración WildFly pendiente | ✅ H2 · ⏳ WildFly |
 
 ## 4. Detalle por requerimiento funcional y no funcional
 
@@ -125,13 +127,15 @@ Escenario: Plan de apagado
 | RNF-03 | Problem Details | `shared/exception/Problemas`, `ErrorInesperadoMapper`, `ErrorDeNegocioMapper`, `CuerpoInvalidoMapper`; `WEB-INF/web.xml` (JSON-B) | `application/problem+json` en todo error | CP-05, CP-21 a CP-23, CP-37 | `ProblemasTest`, `CuerpoInvalidoMapperTest`, `probar-resiliencia.txt` | ✅ |
 | RNF-04 | Consumidor idempotente | `RegistroDeMensajes`, `ProcesarPedidoMDB`, `EstadosPedido`, `ConsumosDeEventos` | Propiedad JMS `idMensaje`; `idEvento` | CP-24, CP-25, CP-40 | `FlujoPedidoTest`, `RegistroDeMensajesTest`, `EventosPedidoTest` | ✅ |
 | RNF-05 | DLQ | `scripts/mensajeria.cli` (3 intentos, reentregas a 1 s y 2 s; cola y tópico), `MensajesMuertosMDB` | `ProcesarPedidoDLQ` | CP-26 | `evidencias/broker-caido-y-dlq.txt` | ✅ |
-| RNF-06 | Broker caído sin pérdida | `PedidoService.crear` (ERROR_ENVIO), `ReenvioDePedidos` (timer 15 s, pedidos y eventos), mensajes `PERSISTENT`, suscriptores durables, `ProcesarPedidoMDB.rehidratar` | `POST /api/v1/admin/mensajeria/reenviar` (forzar) | CP-27, CP-28, CP-41 | `FlujoPedidoTest`, `EventosPedidoTest`, `evidencias/broker-caido-y-dlq.txt` | ✅ |
+| RNF-06 | Broker caído sin pérdida | `OutboxPedidos`, `RelayOutbox` (timer 5 s), mensajes `PERSISTENT`, inbox persistente y suscriptores durables | `POST /api/v1/admin/mensajeria/reenviar` (forzar) | CP-27, CP-28, CP-41 | `FlujoPedidoTest`, `EventosPedidoTest`, `evidencias/broker-caido-y-dlq.txt` | ✅ |
 | RNF-07 | Timeout de 5 s + fallback | `GatewayIA` (`PRESUPUESTO_MS = 5000`, bulkhead), `ModeloClaude` (HTTP 4,5 s, sin reintentos) | `POST /api/v1/ia/interpretar` (`origen`, `motivo`) | CP-29, CP-30 | `GatewayIATest`, WildFly con clave inválida | ✅ (fallback) · ⚠️ (modelo) |
 | RNF-08 | Seguridad base | `AutenticacionFilter`, `AutorizadorDeAcceso`, `LimiteDeIntentos`, `PedidoService.visiblePara`; sin secretos en el repo (`.secretos/`) | JWT Bearer, `@RolesAllowed` | CP-07 a CP-09 | `AutorizadorDeAccesoTest`, `FlujoPedidoTest` | ✅ |
 | RNF-09 | CI con cobertura y eval set | `.github/workflows/ci.yml`, JaCoCo en `pom.xml`, `scripts/ci/resumen_cobertura.py`, `EvalSetIATest` | GitHub Actions | CP-34, CP-44 | Artefactos `cobertura-java`, `cobertura-js`, `eval-ia` | ⏳ falta el push |
 | RNF-10 | Circuit breaker y apagado de la IA | `CircuitoIA` (10 llamadas, 50 %, 30 s), `InterruptorIA`, `IAAdminResource` | `GET /api/v1/admin/ia`, `PUT /api/v1/admin/ia/habilitada` | CP-42, CP-43 | `CircuitoIATest`, `GatewayIATest`, `ia-admin-y-topico.txt` | ✅ |
 | RNF-11 | Trazas y costo de la IA | `GatewayIA.interpretar` (log por consulta), `MetricasIA` | Log `ia prompt=… tokens… costoUsd…`; `GET /api/v1/admin/ia` | CP-43 | `GatewayIATest › cadaConsultaSumaTokensYCostoALasMetricas` | ✅ |
 | RNF-12 | Versionado y contrato | `config/JaxRsActivator` (`/api/v1`), `docs/openapi.yaml` (OpenAPI 3.1) | Todas las rutas | CP-45 | `probar-resiliencia.txt`, contrato validado | ✅ |
+
+| RNF-13 | Persistencia transaccional con migraciones | `repository/jpa`, `IdempotenciaPedidosJpa`, outbox/inbox, `db/migration`, `scripts/datasource.cli` | JPA/JTA, datasource JNDI externo | CP-46 a CP-54 | `DatosJpaTest`, ADR-014 | ✅ H2 · ⏳ WildFly/PostgreSQL |
 
 ## 5. Decisiones de diseño relacionadas
 
@@ -143,3 +147,5 @@ Escenario: Plan de apagado
 | ADR-011 | Resiliencia de REST y mensajería | RNF-01 a RNF-06 |
 | ADR-012 | Gateway de IA y elección del modelo | RF-09, RNF-07, RNF-10, RNF-11 |
 | ADR-013 | Pub/sub del pedido confirmado, versionado y por qué no hay SOAP | RF-11, RNF-12 |
+
+| ADR-014 | JPA, Flyway, transacciones locales y outbox/inbox | RNF-01, RNF-04, RNF-06, RNF-13 (D3, D4, D5) |
