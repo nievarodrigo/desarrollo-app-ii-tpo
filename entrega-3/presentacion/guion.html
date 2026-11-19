@@ -13,17 +13,17 @@
 </div>
 
 <h2>Cómo usar este guion</h2>
-<p>El texto entre comillas es una guía para decir en voz alta, no para leer: cada uno lo pasa a sus palabras. Lo que está en gris son datos de apoyo por si preguntan. El tiempo total previsto es de <b>15 minutos de presentación</b> y <b>8 a 10 minutos de demo</b> (el detalle de la demo está en el otro PDF, <i>Plan de presentación y demo</i>). Si la cátedra da otro tiempo, se recorta primero lo marcado como “opcional”.</p>
+<p>El texto entre comillas es una guía para decir en voz alta, no para leer: cada uno lo pasa a sus palabras. Lo que está en gris son datos de apoyo por si preguntan. El tiempo total previsto es de <b>16 minutos de presentación</b> y <b>8 a 10 minutos de demo</b> (el detalle de la demo está en el otro PDF, <i>Plan de presentación y demo</i>). Si la cátedra da otro tiempo, se recorta primero lo marcado como “opcional”.</p>
 
 <table>
   <tr><th>Bloque</th><th>Quién</th><th>Diapositivas</th><th>Tiempo</th></tr>
   <tr><td>Apertura y reparto</td><td>Rodrigo</td><td>1–2</td><td>0:45</td></tr>
   <tr><td>Integraciones de punta a punta</td><td>Tomás</td><td>3–4</td><td>2:00</td></tr>
   <tr><td>Resiliencia del contrato REST</td><td>Iván</td><td>5–6</td><td>2:30</td></tr>
-  <tr><td>Resiliencia de la mensajería</td><td>Fol</td><td>7–8</td><td>2:30</td></tr>
-  <tr><td>IA: gateway, opciones y costos a escala</td><td>Rodrigo</td><td>9–14</td><td>5:00</td></tr>
-  <tr><td>Calidad, pruebas y cierre</td><td>Nicolás</td><td>15–17</td><td>2:15</td></tr>
-  <tr><td colspan="3"><b>Total</b></td><td><b>15:00</b></td></tr>
+  <tr><td>Resiliencia de la mensajería</td><td>Fol</td><td>7–9</td><td>3:15</td></tr>
+  <tr><td>IA: gateway, evaluación, opciones y costos a escala</td><td>Rodrigo</td><td>10–16</td><td>5:40</td></tr>
+  <tr><td>Calidad, pruebas y cierre</td><td>Nicolás</td><td>17–19</td><td>2:15</td></tr>
+  <tr><td colspan="3"><b>Total</b></td><td><b>16:25</b></td></tr>
 </table>
 
 <h2>Bloque 1 · Apertura</h2>
@@ -43,7 +43,7 @@
 
 <div class="diapo">
   <div class="cab"><span class="tit">3 · Tres integraciones, una sola app</span><span class="quien">Tomás · 1:00</span></div>
-  <p class="decir">El navegador habla con una sola API REST, que vive en <span class="mono">/ecommerce/api/v1</span>. Esa API resuelve en el momento lo que es consulta (el catálogo, el estado de un pedido) y lo que es trabajo pesado, como procesar un pedido, lo deja en una cola JMS: lo toma un consumidor, un MDB, en segundo plano. Y la tercera integración es la IA: el front nunca habla con un modelo directamente. Pasa por un gateway nuestro, que es lo que pide la consigna, y que Rodrigo va a explicar.</p>
+  <p class="decir">El navegador habla con una sola API REST, que vive en <span class="mono">/ecommerce/api/v1</span>. Esa API resuelve en el momento lo que es consulta (el catálogo, el estado de un pedido) y lo que es trabajo pesado, como procesar un pedido, lo deja en una cola JMS: lo toma un consumidor, un MDB, en segundo plano. Y cuando un pedido se confirma, lo anuncia en un tópico para que varias áreas reaccionen. Y la tercera integración es la IA: el front nunca habla con un modelo directamente. Pasa por un gateway nuestro, que es lo que pide la consigna, y que Rodrigo va a explicar.</p>
   <p class="nota"><b>Si preguntan por qué una cola y no todo sincrónico:</b> el cliente recibe 202 al instante y el procesamiento no lo bloquea; si el consumidor se cae, el pedido no se pierde porque queda en la cola.</p>
 </div>
 
@@ -81,42 +81,54 @@
   <div class="cab"><span class="tit">8 · Se apaga el broker: no se pierde nada</span><span class="quien">Fol · 1:15</span></div>
   <p class="decir">La consigna pide que si se apaga el broker no se pierdan mensajes. Hay dos casos. Primero: el broker está caído en el momento de comprar. Guardamos el pedido antes de publicarlo; si publicar falla, queda en ERROR_ENVIO y el cliente igual recibe 202. Un timer lo reintenta cada 15 segundos y, cuando el broker vuelve, el pedido sigue su camino. Segundo caso: se cae todo con mensajes en la cola. Los mensajes son persistentes, Artemis los escribe en disco antes de confirmar. Lo probamos en serio: frenamos el consumidor, creamos un pedido, matamos WildFly con <span class="mono">kill -9</span> y lo levantamos. El pedido terminó procesado.</p>
   <p class="nota"><b>Límite honesto (decirlo si preguntan):</b> el repositorio todavía es en memoria; por eso, al reiniciar, el MDB reconstruye el pedido desde el mensaje. Con JPA eso pasa a la base. El primer caso está probado con tests, porque el broker está embebido en WildFly y no se puede apagar sin bajar el servidor.</p>
+  </div>
+
+<div class="diapo">
+  <div class="cab"><span class="tit">9 · Un pedido confirmado, tres reacciones</span><span class="quien">Fol · 0:45</span></div>
+  <p class="decir">Además de la cola, el alcance pide un tópico. Cuando un admin confirma un pedido, publicamos el evento PedidoConfirmado en PedidoConfirmadoTopic. Ahí está suscripto quien manda la notificación, quien registra la auditoría y quien lleva las estadísticas: cada uno recibe su copia y no se conocen entre sí. Las suscripciones son durables, así que si uno está caído el broker le guarda los eventos, y cada uno descarta un evento repetido. La regla que usamos: cola para lo que tiene un solo responsable, tópico para lo que le interesa a varios.</p>
+  <p class="nota"><b>Si preguntan:</b> confirmar dos veces no publica dos eventos; si el broker está caído la confirmación no falla y el evento se reenvía solo. Se ve en <span class="mono">GET /api/v1/admin/eventos</span>. Tests: <span class="mono">EventosPedidoTest</span>.</p>
   <p class="pase">Pase: “Rodrigo, la IA.”</p>
 </div>
 
 <h2>Bloque 5 · IA: gateway, opciones y costos (Rodrigo)</h2>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">9 · La IA nunca se llama directo: pasa por un gateway</span><span class="quien">Rodrigo · 0:50</span></div>
-  <p class="decir">Un gateway de IA es una sola puerta, nuestra, entre la aplicación y el modelo. Nadie en el sistema llama al proveedor directamente. Esa puerta hace cinco cosas, en orden. Uno, política: frena datos personales e intentos de inyección antes de gastar un token. Dos, bulkhead: como máximo cuatro llamadas simultáneas, y el resto va directo al respaldo. Tres, el timeout de cinco segundos que pide la consigna. Cuatro, valida cada campo de la respuesta, porque un modelo puede inventar. Y cinco, el fallback: si algo de lo anterior falla, responden reglas locales, gratis e instantáneas. El usuario nunca ve un error por culpa de la IA.</p>
+  <div class="cab"><span class="tit">10 · La IA nunca se llama directo: pasa por un gateway</span><span class="quien">Rodrigo · 0:50</span></div>
+  <p class="decir">Un gateway de IA es una sola puerta, nuestra, entre la aplicación y el modelo. Nadie en el sistema llama al proveedor directamente. Esa puerta hace cinco cosas, en orden. Uno, política: frena datos personales e intentos de inyección antes de gastar un token. Dos, bulkhead y circuit breaker: como máximo cuatro llamadas simultáneas, y si el proveedor viene fallando, deja de llamarlo treinta segundos. Tres, el timeout de cinco segundos que pide la consigna. Cuatro, valida cada campo de la respuesta, porque un modelo puede inventar. Y cinco, el fallback: si algo de lo anterior falla, responden reglas locales, gratis e instantáneas. El usuario nunca ve un error por culpa de la IA.</p>
   <p class="nota"><b>Patrones:</b> Facade (<span class="mono">GatewayIA</span>) y Adapter (<span class="mono">ModeloIA → ModeloClaude</span>). El cliente HTTP tiene 4,5 s y cero reintentos: un reintento haría pasar la llamada de los 5 s. Además hay un límite de 30 consultas por minuto por IP, para que nadie gaste tokens en un loop.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">10 · Las opciones que pusimos sobre la mesa</span><span class="quien">Rodrigo · 0:50</span></div>
+  <div class="cab"><span class="tit">11 · Si la IA no tiene tests, no está terminada</span><span class="quien">Rodrigo · 0:40</span></div>
+  <p class="decir">La clase 14 lo dijo claro: si la IA no tiene tests, no está terminada. Tenemos un eval set de 24 casos, 8 de ellos adversariales, con umbrales: exactitud de al menos 85 %, y el 100 % de los ataques resistidos y de las respuestas con formato válido. Corre en el CI y, si no cumple, el build falla. Cada consulta deja una traza con la versión del prompt, los tokens y el costo, y un administrador puede apagar la IA en caliente sin romper nada.</p>
+  <p class="nota"><b>Honestidad:</b> hoy el eval set corre sobre la capa determinista (política + reglas), que es la que responde sin API key; con clave se corre contra el modelo real con el mismo dataset. El prompt está versionado en el repo (busqueda-v2), con la consulta delimitada y ejemplos de rechazo.</p>
+</div>
+
+<div class="diapo">
+  <div class="cab"><span class="tit">12 · Las opciones que pusimos sobre la mesa</span><span class="quien">Rodrigo · 0:50</span></div>
   <p class="decir">Después, qué modelo poner detrás. Comparamos tres familias: Claude, de Anthropic; los modelos baratos de DeepSeek y MiniMax; y lo que ofrece OpenCode, que es un gateway de muchos proveedores, incluso con modelos gratis. Los precios son por millón de tokens y hay dos: entrada, lo que le mandamos, y salida, lo que nos contesta. Fíjense que la salida cuesta entre cuatro y ocho veces más: por eso le pedimos respuestas cortas.</p>
   <p class="nota"><b>Datos:</b> precios oficiales consultados el 19/11. DeepSeek cobra la mitad fuera de su horario pico. MiniMax publica hoy M3 y M3.1 Flash; las M2.x siguen en OpenCode a 0,30 / 1,20. Los gratis de OpenCode son promocionales y por tiempo limitado: sirven para probar, no para producción.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">11 · ¿Cuánto cuesta UNA búsqueda?</span><span class="quien">Rodrigo · 0:45</span></div>
+  <div class="cab"><span class="tit">13 · ¿Cuánto cuesta UNA búsqueda?</span><span class="quien">Rodrigo · 0:45</span></div>
   <p class="decir">Una búsqueda usa unos 500 tokens de entrada (las reglas del intérprete, el esquema de la respuesta y la frase) y unos 150 de salida. Con Claude Haiku 5.5 eso da 0,000125 dólares: una centésima de centavo. Con cualquier modelo barato, una búsqueda es tranqui. La pregunta interesante es qué pasa cuando la multiplicamos.</p>
   <p class="nota"><b>Si preguntan de dónde salen los 500/150:</b> son estimaciones; el número real se mide con el conteo de tokens de la API. Los 150 incluyen un razonamiento breve, que también se cobra como salida.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">12 · Ahora multiplicalo por 100.000 personas</span><span class="quien">Rodrigo · 0:50</span></div>
+  <div class="cab"><span class="tit">14 · Ahora multiplicalo por 100.000 personas</span><span class="quien">Rodrigo · 0:50</span></div>
   <p class="decir">Supongamos algo modesto: 10 búsquedas con IA por usuario por mes. Con 1.000 usuarios, Haiku 5.5 cuesta un dólar con 25. Con 100.000 usuarios es un millón de búsquedas: 125 dólares por mes, 1.500 por año. Lo mismo con Haiku 4.5, la generación anterior, son 15.000 por año: diez veces más por la misma tarea. Y con un modelo grande como Sonnet, veinte veces. Lo que en una consulta es irrelevante, a escala decide el presupuesto.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">13 · Las variables que mueven el número</span><span class="quien">Rodrigo · 0:55</span></div>
+  <div class="cab"><span class="tit">15 · Las variables que mueven el número</span><span class="quien">Rodrigo · 0:55</span></div>
   <p class="decir">El costo es búsquedas por tokens por precio, y cada término es una palanca. Si los usuarios buscan 30 veces en vez de 10, se triplica: es lineal. Si metiéramos el catálogo en el prompt, la entrada pasa de 500 a 3.000 tokens. La salida es el token más caro. Hay descuentos: leer el prompt de caché, o usar DeepSeek fuera de hora pico. Lo que no llega al modelo no cuesta nada: frases cortas, inyecciones y datos personales los resuelve el gateway. Y dos variables que se olvidan: pagamos en dólares, y con 100.000 usuarios la concurrencia importa. En un escenario pesado, Haiku 5.5 sale 1.350 dólares por mes y Sonnet, 27.000.</p>
   <p class="nota"><b>Precisión:</b> el caché sólo aplica si el prompt supera el tamaño mínimo cacheable del modelo; el nuestro es corto, así que hoy probablemente no aplica.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">14 · Elegimos Claude Haiku 5.5. ¿Por qué no el más barato?</span><span class="quien">Rodrigo · 0:50</span></div>
+  <div class="cab"><span class="tit">16 · Elegimos Claude Haiku 5.5. ¿Por qué no el más barato?</span><span class="quien">Rodrigo · 0:50</span></div>
   <p class="decir">El más barato de la tabla es GPT 5 Nano, pero con 100.000 usuarios la diferencia con Haiku 5.5 son 40 dólares por mes. A ese nivel deciden otras cosas: Haiku 5.5 tiene salida estructurada y SDK oficial para Java; la política de datos del proveedor importa, porque las consultas de los usuarios viajan hasta él; y entra cómodo en los cinco segundos. Descartamos Sonnet porque sobra capacidad para extraer cinco campos, y los gratis porque no tienen garantía. Y lo más importante: no quedamos atados. Con el Adapter, cambiar de proveedor es una clase nueva y una variable de entorno.</p>
   <p class="nota"><b>Honestidad (decirlo si preguntan):</b> el gateway y el fallback están verificados en WildFly; el camino con el modelo real requiere una API key válida (ver el plan de demo: probarlo antes).</p>
   <p class="pase">Pase: “Nicolás, ¿cómo sabemos que todo esto anda?”</p>
@@ -125,18 +137,18 @@
 <h2>Bloque 6 · Calidad y cierre (Nicolás)</h2>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">15 · Cada push corre todo solo</span><span class="quien">Nicolás · 0:45</span></div>
-  <p class="decir">Cada push dispara el pipeline de GitHub Actions: compila, corre los 107 tests de Java y los 90 de JavaScript, publica el WAR y un reporte de cobertura. Es cobertura parcial, como pide la consigna: 66 % de líneas en Java y 81 % en JavaScript. Los controllers aparecen más bajos porque esos los probamos contra WildFly con un script; es lo próximo a mejorar.</p>
+  <div class="cab"><span class="tit">17 · Cada push corre todo solo</span><span class="quien">Nicolás · 0:45</span></div>
+  <p class="decir">Cada push dispara el pipeline de GitHub Actions: compila, corre los 122 tests de Java, los 90 de JavaScript y el eval set de IA, y publica el WAR y los reportes. Es cobertura parcial, como pide la consigna: 68 % de líneas en Java y 80 % en JavaScript. Los controllers aparecen más bajos porque esos los probamos contra WildFly con un script; es lo próximo a mejorar.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">16 · Del requerimiento al test, y del test a la evidencia</span><span class="quien">Nicolás · 0:45</span></div>
-  <p class="decir">El plan de pruebas tiene 38 casos: valores límite, transiciones de estado e inyección de fallas, como el broker caído o la IA lenta. La matriz de trazabilidad sigue cada uno de los 19 requerimientos hasta la clase que lo implementa, el endpoint, los casos, los tests y la evidencia. Por ejemplo, la Idempotency-Key: la implementa IdempotenciaPedidos, la cubren los casos 14 a 18 y la evidencia es la salida del script. Y una verificación independiente nos encontró problemas reales antes de entregar, que corregimos.</p>
+  <div class="cab"><span class="tit">18 · Del requerimiento al test, y del test a la evidencia</span><span class="quien">Nicolás · 0:45</span></div>
+  <p class="decir">El plan de pruebas tiene 45 casos: valores límite, transiciones de estado e inyección de fallas, como el broker caído o la IA lenta. La matriz sigue cada requisito de negocio hasta su historia de usuario en Gherkin, su caso de prueba, el componente, el patrón y la evidencia. Por ejemplo: BR05, que ninguna compra se duplique, va a la historia HU05, al caso 15, a IdempotenciaPedidos, a su test y a la salida del script. El manual tiene un tutorial con capturas reales de la app. Y una verificación independiente nos encontró problemas reales antes de entregar, que corregimos.</p>
 </div>
 
 <div class="diapo">
-  <div class="cab"><span class="tit">17 · Lo que sigue</span><span class="quien">Nicolás · 0:45</span></div>
-  <p class="decir">En resumen: REST y mensajería integrados, la API resiliente, la DLQ, el kill -9 sin pérdida, el gateway de IA con timeout y fallback, el CI con cobertura, y el plan, la matriz y el manual. Lo próximo: probar la IA con una clave real en producción, pasar de memoria a JPA, tests de los controllers y la prueba visual de la compra. Ahora les mostramos todo funcionando.</p>
+  <div class="cab"><span class="tit">19 · Lo que sigue</span><span class="quien">Nicolás · 0:45</span></div>
+  <p class="decir">En resumen: REST versionado y mensajería con cola y tópico, la API resiliente, la DLQ, el kill -9 sin pérdida, el gateway de IA con timeout, circuito, eval set y apagado, el CI con cobertura, y el plan, la matriz y el manual. Lo próximo: correr el eval set contra el modelo real, pasar de memoria a JPA con outbox y sumar tests de los controllers. Ahora les mostramos todo funcionando.</p>
   <p class="pase">Pase a la demo (ver el plan de demo).</p>
 </div>
 
@@ -157,7 +169,11 @@
   <dt>¿Por qué SOAP no aplica? (Rodrigo)</dt>
   <dd>Ninguno de nuestros consumidores necesita contratos WSDL: el front y las integraciones hablan JSON. Agregar SOAP sería complejidad sin un consumidor real.</dd>
   <dt>¿Por qué la cobertura no es más alta? (Nicolás)</dt>
-  <dd>La consigna pide un reporte parcial. La lógica de negocio está alta (servicios de pedido y seguridad, más del 80 %); los controllers se prueban contra WildFly y no con tests unitarios.</dd>
+  <dd>La consigna pide un reporte parcial. La lógica de negocio está alta (servicios de pedido, IA y seguridad, alrededor del 80 % o más); los controllers se prueban contra WildFly y no con tests unitarios.</dd>
+  <dt>¿Por qué un tópico además de la cola? (Fol)</dt>
+  <dd>Procesar el pedido tiene un único responsable (cola). Que se confirmó le interesa a varios módulos que no se conocen entre sí (tópico, pub/sub, suscriptores durables).</dd>
+  <dt>¿Cómo saben que la IA funciona bien? (Rodrigo)</dt>
+  <dd>Con el eval set y sus umbrales en el CI, más las métricas en uso (tasa de fallback, latencia p95, costo). Contra el modelo real se corre con <span class="mono">-Dia.eval.real=true</span> y una API key.</dd>
 </dl>
 
 </body>
