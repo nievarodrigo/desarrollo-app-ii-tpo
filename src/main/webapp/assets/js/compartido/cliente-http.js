@@ -48,12 +48,16 @@ export async function obtener(ruta, params = {}) {
   return respuesta.json();
 }
 
-/** POST JSON hacia la API. Una respuesta 202 indica aceptación, no procesamiento final. */
-export async function publicar(ruta, cuerpo) {
+/**
+ * POST JSON hacia la API. Una respuesta 202 indica aceptación, no procesamiento final.
+ * @param {Record<string, string>} cabeceras extra, p. ej. `Idempotency-Key` para que un
+ *   reintento no duplique la operación en el servidor.
+ */
+export async function publicar(ruta, cuerpo, cabeceras = {}) {
   const url = new URL(ruta.replace(/^\//, ''), BASE_URL);
   const respuesta = await fetch(url, {
     method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...cabeceras },
     body: JSON.stringify(cuerpo)
   });
   if (!respuesta.ok) {

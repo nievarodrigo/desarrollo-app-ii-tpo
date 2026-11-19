@@ -266,6 +266,9 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
    * paso 2, no. Esa es la diferencia entre un chequeo de UI y un control de
    * acceso, y es la pregunta que conviene tener contestada.
    */
+  /** Idempotency-Key de la compra en curso (y el carrito al que corresponde); se conserva entre reintentos fallidos. */
+  let claveDeCompra = null;
+
   document.querySelector('[data-checkout]')?.addEventListener('click', async (evento) => {
     const boton = evento.currentTarget;
     if (carrito.resumen().unidades === 0) return;
@@ -283,7 +286,15 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
         const items = carrito.obtenerItems().map((item) => ({
           idProducto: item.id, cantidad: item.cantidad
         }));
-        const aceptado = await publicar('pedidos', { items });
+        // Una clave por compra: si la red falla y el usuario reintenta, el servidor
+        // reconoce la misma clave y devuelve el pedido ya creado en vez de duplicarlo.
+        // Si el carrito cambió entre intentos es otra compra: clave nueva.
+        const contenido = JSON.stringify(items);
+        if (claveDeCompra?.contenido !== contenido) {
+          claveDeCompra = { clave: crypto.randomUUID(), contenido };
+        }
+        const aceptado = await publicar('pedidos', { items }, { 'Idempotency-Key': claveDeCompra.clave });
+        claveDeCompra = null;
         pedido = {
           codigo: aceptado.id,
           total: Number(aceptado.total),
