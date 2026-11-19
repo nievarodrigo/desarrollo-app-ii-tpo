@@ -33,6 +33,7 @@
     <version.yasson>3.0.3</version.yasson>
     <version.war.plugin>3.4.0</version.war.plugin>
     <version.surefire>3.2.5</version.surefire>
+    <version.anthropic>3.3.0</version.anthropic>
   </properties>
 
   <dependencies>
@@ -47,6 +48,17 @@
       <artifactId>jakarta.jakartaee-api</artifactId>
       <version>${version.jakartaee}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <!--
+      SDK oficial de Anthropic para el gateway de IA. Va DENTRO del WAR (scope
+      compile) porque WildFly no lo trae. Sólo lo usa ModeloClaude: el resto del
+      sistema habla con la interfaz ModeloIA y no sabe qué proveedor hay detrás.
+    -->
+    <dependency>
+      <groupId>com.anthropic</groupId>
+      <artifactId>anthropic-java</artifactId>
+      <version>${version.anthropic}</version>
     </dependency>
 
     <dependency>
