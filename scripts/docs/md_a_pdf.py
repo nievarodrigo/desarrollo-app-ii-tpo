@@ -22,7 +22,7 @@ DOCUMENTOS = [
     ("entrega-3/MANUAL_DE_USUARIO.md", "04_Manual_de_Usuario_GOMARKET", "Manual de usuario"),
     ("entrega-3/DECLARACION_USO_IA.md", "05_Declaracion_Uso_IA_GOMARKET", "Declaración de uso de IA"),
     ("docs/ia/FICHA_IA.md", "06_Ficha_IA_GOMARKET", "Ficha de la feature de IA"),
-    (["docs/adr/adr-011.md", "docs/adr/adr-012.md", "docs/adr/adr-013.md"], "07_ADR_011-013_GOMARKET", "ADR del checkpoint"),
+    (["docs/adr/adr-011.md", "docs/adr/adr-012.md", "docs/adr/adr-013.md", "docs/adr/adr-014.md"], "07_ADR_011-014_GOMARKET", "ADR del checkpoint"),
 ]
 
 
