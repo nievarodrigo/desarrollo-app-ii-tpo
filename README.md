@@ -21,6 +21,7 @@ Java 17 · Jakarta EE 10 · WildFly 41 · JAX-RS · CDI + EJB · JMS (Artemis) �
 | 🛒 **Carrito y compra** | El total lo recalcula el servidor. La compra es **idempotente**: reintentar no la duplica |
 | 📨 **Pedidos asíncronos** | REST responde 202 y el pedido se procesa por una **cola JMS**. Al confirmarlo se avisa por un **tópico** a notificaciones, auditoría y estadísticas |
 | 🛡️ **Resiliencia** | Idempotency-Key, ETag (304/412), Problem Details, DLQ, consumidores idempotentes y broker caído sin pérdida |
+| 💾 **Persistencia** | JPA/Hibernate sobre un datasource de WildFly, migraciones versionadas con Flyway y **Transactional Outbox**: el pedido y su mensaje se guardan en la misma transacción |
 | 👤 **Seguridad** | JWT HS256, roles CLIENTE/ADMIN, contraseñas con PBKDF2 y sal, bloqueo por intentos, cada cliente ve sólo sus pedidos |
 | ♿ **Interfaz** | Responsive de 320 a 1440 px, 3 temas, contraste AA y navegación por teclado |
 
@@ -35,7 +36,7 @@ Java 17 · Jakarta EE 10 · WildFly 41 · JAX-RS · CDI + EJB · JMS (Artemis) �
 ./mvnw verify
 node --test src/test/js/*.test.mjs
 
-# 2. Levantar todo: compila, configura la mensajería y arranca WildFly con JMS
+# 2. Levantar todo: compila, crea el datasource, configura la mensajería y arranca WildFly con JMS
 #    (WILDFLY_HOME por defecto: ~/.local/wildfly/wildfly-41.0.1.Final)
 ./scripts/levantar-wildfly.sh
 #    → http://localhost:8080/ecommerce/
@@ -73,7 +74,8 @@ Tres capas por componente (las dependencias apuntan hacia adentro) e integracion
  │ NEGOCIO        CatalogoService (EJB) · PedidoService (State) ·
  │                AuthService · GatewayIA (Facade) · IdempotenciaPedidos
  ├───────────────────────────────────────────────────────────────────┤
- │ DATOS          PedidoRepository, ProductoRepository, UsuarioRepository (puertos)
+ │ DATOS          PedidoRepository → PedidoJpa (JPA + Flyway, GomarketDS) · outbox / inbox
+ │                ProductoRepository, UsuarioRepository (catálogo JSON y usuarios en memoria)
  └──────┬──────────────────────────┬─────────────────────────┬────────┘
         │ JMS punto a punto        │ JMS pub/sub             │ HTTPS (SDK)
  ProcesarPedidoQueue        PedidoConfirmadoTopic      Proveedor de IA
@@ -93,9 +95,11 @@ Tres capas por componente (las dependencias apuntan hacia adentro) e integracion
 | **Observer / Pub-Sub** | `PedidoConfirmadoTopic` | Varios módulos reaccionan al mismo evento sin conocerse |
 | **Idempotent Receiver** | `ProcesarPedidoMDB`, suscriptores, `IdempotenciaPedidos` | JMS entrega "al menos una vez" y el cliente puede reintentar |
 | **Resiliencia** | Timeout 5 s, circuit breaker, bulkhead, fallback, DLQ, reenvío | Ningún fallo externo deja al usuario sin respuesta ni pierde una compra |
+| **Repository / Data Mapper / Unit of Work** | `PedidoJpa`, `PedidoMapper`, `EntityManager` | La base se cambia sin tocar el negocio; la API expone DTOs, nunca entidades |
+| **Transactional Outbox** | `OutboxPedidos`, `PublicacionInmediata`, `RelayOutbox` | Guardar y publicar en la misma transacción: nunca "guardé pero no publiqué" |
 | **Puertos (DIP)** | `PedidoRepository`, `PublicadorPedidos`, `PublicadorDeEventos` | El negocio no depende de la base ni de JMS |
 
-Cada decisión está registrada en [`docs/adr/`](docs/adr/) (ADR-001 a ADR-013).
+Cada decisión está registrada en [`docs/adr/`](docs/adr/) (ADR-001 a ADR-014).
 
 ### Estructura
 
@@ -108,9 +112,10 @@ src/main/java/ar/edu/desarrolloappii/ecommerce/
 ├── ia/              GatewayIA, CircuitoIA, ModeloClaude, InterpreteDeReglas, métricas, apagado
 └── shared/          DTO, Problem Details, ETag
 src/main/resources/ia/      prompts versionados (busqueda-v1, busqueda-v2)
+src/main/resources/db/      migraciones Flyway (V1 pedidos, V2 idempotencia e inbox, V3 outbox)
 src/main/webapp/            la tienda (componentes catalogo, carrito, usuario en capas)
 src/test/                   JUnit 5 (+ eval set de IA) y node --test
-scripts/                    levantar-wildfly.sh, mensajeria.cli, probar-resiliencia.sh, recorrido-ui.mjs
+scripts/                    levantar-wildfly.sh, datasource.cli, mensajeria.cli, probar-resiliencia.sh, recorrido-ui.mjs
 docs/                       adr/, openapi.yaml, ia/FICHA_IA.md
 entrega-3/                  documentos, evidencias, capturas, PDF y presentación del 3.er checkpoint
 ```
@@ -142,12 +147,12 @@ Base: **`/ecommerce/api/v1`** · contrato completo en [`docs/openapi.yaml`](docs
 
 | | |
 |---|---|
-| **Tests** | 122 JUnit (negocio, State, idempotencia, ETag, gateway de IA, circuit breaker, pub/sub, errores) + 90 del front con `node --test` |
+| **Tests** | 137 JUnit (negocio, State, idempotencia, ETag, gateway de IA, circuit breaker, pub/sub, JPA con H2 y las mismas migraciones, errores) + 90 del front con `node --test` |
 | **Eval set de IA** | 24 casos (8 adversariales) con umbrales; si no se cumplen, el build falla |
 | **Cobertura (parcial)** | 68 % de líneas en Java (JaCoCo) y 80 % en JS |
 | **CI** | [`.github/workflows/ci.yml`](.github/workflows/ci.yml): tests, cobertura, eval set y WAR como artefactos en cada push y PR |
 | **Integración real** | `scripts/probar-resiliencia.sh` contra WildFly; `scripts/recorrido-ui.mjs` recorre la tienda en Chrome y saca capturas |
-| **Evidencias** | [`entrega-3/evidencias/`](entrega-3/evidencias/): kill -9 sin pérdida, DLQ, pub/sub, apagado de la IA |
+| **Evidencias** | [`entrega-3/evidencias/`](entrega-3/evidencias/): kill -9 sin pérdida (también con el pedido en la base), DLQ, pub/sub, migraciones, apagado de la IA |
 
 Plan de pruebas (45 casos), matriz de trazabilidad BR → HU → CP y manual de usuario: [`entrega-3/`](entrega-3/).
 
@@ -155,7 +160,7 @@ Plan de pruebas (45 casos), matriz de trazabilidad BR → HU → CP y manual de 
 
 ## Límites conocidos
 
-- **Persistencia en memoria:** pedidos, idempotencia y registros de mensajes no sobreviven a un reinicio. El pedido sí se rehidrata desde el mensaje JMS persistente. La capa JPA con migraciones y outbox está en curso.
+- **Base local:** la demo usa H2 en archivo dentro de WildFly. Pasar a PostgreSQL requiere su driver y el módulo `flyway-database-postgresql` (ADR-014). El catálogo sigue en JSON y los usuarios en memoria.
 - **IA:** el gateway y su fallback están verificados; falta correr el eval set contra el modelo real (requiere `ANTHROPIC_API_KEY`).
 - Las cuentas creadas sólo en el navegador no existen en el backend; para comprar contra WildFly hay que usar una cuenta del servidor.
 
