@@ -1,51 +1,56 @@
 # GOMARKET · 3.er Checkpoint (20/11) · Integración completa y resiliencia
 
-Rama: `entrega-3` (sale de `entrega-2`). SOAP no aplica: somos un e-commerce, todo en REST/JSON + JMS.
-**Tests: 107 de Java + 90 de JavaScript, todos pasan.** Cobertura parcial: 66 % de líneas en Java, 81 % en JS.
-Verificado contra **WildFly 41.0.1 real** el 19/11/2026 (incluido un `kill -9` con mensajes en la cola).
+**Grupo 5** — Rodrigo Nieva, Folco Suarez, Iván Karkoszka, Tomás Ruzak y Nicolás Massimino · Desarrollo de Aplicaciones II · Comisión Viernes TM.
+
+Rama: `entrega-3`. SOAP no aplica: somos un e-commerce, todo en REST/JSON más JMS (cola y tópico); ver ADR-013.
+**Tests: 122 de Java + 90 de JavaScript, todos pasan.** Cobertura parcial: 68 % de líneas en Java y 80 % en JS. Eval set de IA: 24 casos con umbrales, en el CI.
+Verificado contra **WildFly 41.0.1 real** el 19/11/2026: `kill -9` con mensajes en la cola, DLQ, pub/sub, apagado de la IA y el recorrido completo de la interfaz en Chrome.
+
+## La consigna, punto por punto
 
 | Punto de la consigna | Estado | Qué hay | Dónde mirar |
 |---|---|---|---|
-| Integraciones funcionando: REST y mensajería | ✅ | REST (JAX-RS) + JMS (cola → MDB) + DLQ con su MDB + gateway de IA. El front ahora pide el JWT al ingresar y compra contra el backend | `scripts/probar-resiliencia.sh`, colección Postman |
-| Timeout de 5 s con fallback | ✅ | `GatewayIA`: presupuesto de 5 s, bulkhead de 4, fallback por reglas | ADR-012, `GatewayIATest` |
-| Consumidores idempotentes y DLQ | ✅ | `idMensaje` + registro LRU + State; 3 reintentos con backoff → `ProcesarPedidoDLQ` | ADR-011, `scripts/mensajeria.cli` |
-| Si se apaga el broker no se pierden mensajes | ✅ | Mensajes persistentes y rehidratación tras reinicio (probado en vivo con `kill -9`); ERROR_ENVIO + reenvío cada 15 s (probado con tests: el broker está embebido en WildFly) | `evidencias/broker-caido-y-dlq.txt` |
-| Idempotency-Key y ETag | ✅ | `POST /pedidos` (400/422/409, replay); ETag + 304 + 412 en productos y pedidos | `evidencias/probar-resiliencia.txt` |
-| Errores en Problem Details | ✅ | Mapper de red de seguridad: también 404/405/415/JSON mal formado/500 | `ProblemasTest` |
-| IA funcionando a través de su gateway | ⚠️ | Gateway, timeout, límite de uso y fallback verificados en WildFly. **El modelo real falta probarlo con una `ANTHROPIC_API_KEY` válida** (con clave inválida: 401 → fallback) | ADR-012 |
-| Pipeline de CI con cobertura parcial | ⏳ | `.github/workflows/ci.yml` + JaCoCo; corre localmente. **Falta hacer push** para que corra en GitHub | `.github/workflows/ci.yml` |
-| Plan de pruebas y matriz de trazabilidad (v1) | ✅ | 38 casos, 19 requerimientos | `PLAN_DE_PRUEBAS.md`, `MATRIZ_TRAZABILIDAD.md` |
-| Manual de usuario (v1) | ✅ | Cliente, admin, mensajes y anexo de puesta en marcha | `MANUAL_DE_USUARIO.md` |
+| Integraciones funcionando: REST y mensajería | ✅ | REST (JAX-RS, `/api/v1`) + JMS punto a punto (`ProcesarPedidoQueue` → MDB) + JMS pub/sub (`PedidoConfirmadoTopic` → 3 suscriptores durables) + gateway de IA. Compra de punta a punta desde la interfaz | `scripts/probar-resiliencia.sh`, `scripts/recorrido-ui.mjs`, `capturas/` |
+| Timeout de 5 s con fallback | ✅ | `GatewayIA`: presupuesto de 5 s, bulkhead de 4, circuit breaker y fallback por reglas | ADR-012, `GatewayIATest`, `CircuitoIATest` |
+| Consumidores idempotentes y DLQ | ✅ | `idMensaje`/`idEvento` + registro + State; 3 intentos (reentregas a 1 s y 2 s) → `ProcesarPedidoDLQ`, también para el tópico | ADR-011, `scripts/mensajeria.cli` |
+| Si se apaga el broker no se pierden mensajes | ✅ | Mensajes persistentes y suscriptores durables; ERROR_ENVIO y eventos pendientes con reenvío cada 15 s; rehidratación tras reinicio (probado con `kill -9`) | `evidencias/broker-caido-y-dlq.txt` |
+| Idempotency-Key y ETag | ✅ | `POST /pedidos` (400/422/409, replay con estado actual); ETag + 304 + 412 en productos y pedidos | `evidencias/probar-resiliencia.txt` |
+| Errores en Problem Details | ✅ | Red de seguridad para todo error: 400/401/403/404/405/412/415/422/429/500 | `ProblemasTest`, `docs/openapi.yaml` |
+| IA funcionando a través de su gateway | ✅ gateway · ⚠️ modelo | Facade + Adapter, prompt v2 versionado y delimitado, salida validada, circuit breaker, trazas de tokens y costo, feature flag de apagado, límite de uso y eval set en el CI. **El modelo real falta probarlo con una `ANTHROPIC_API_KEY` válida**: sin clave responde el fallback | ADR-012, `docs/ia/FICHA_IA.md`, `evidencias/ia-admin-y-topico.txt` |
+| Pipeline de CI con cobertura parcial | ✅ local · ⏳ GitHub | `.github/workflows/ci.yml`: tests de Java y JS, JaCoCo, eval set y WAR como artefactos. **Falta el push** para verlo correr en GitHub | `.github/workflows/ci.yml` |
+| Plan de pruebas y matriz de trazabilidad (v1) | ✅ (v2) | 45 casos de prueba; matriz BR → HU (Gherkin) → CP → componente → patrón → evidencia | `PLAN_DE_PRUEBAS.md`, `MATRIZ_TRAZABILIDAD.md` |
+| Manual de usuario (v1) | ✅ (v2) | Tutorial con capturas reales, guías por rol, referencia y explicación (Diátaxis) | `MANUAL_DE_USUARIO.md` |
 
-## Correcciones tras la verificación independiente (19/11)
+## Eliminatorias (rúbrica de la cátedra)
 
-- Bulkhead del gateway: un cupo se perdía si la tarea vencía en la cola del ejecutor.
-- Replay de Idempotency-Key: ahora devuelve el estado y el ETag actuales del pedido.
-- Un `Error` (no sólo `RuntimeException`) libera la clave; una operación colgada deja de bloquearla a los 5 min.
-- Límite de 30 consultas/min por IP en `/api/v1/ia/interpretar` (429).
-- `/productos/abc` y `?precioMax=abc` → 400 (antes 404); `If-Match` en un GET → 412 con Problem Details (antes sin cuerpo).
-- CI: el paso de JS usa `shell: bash` (pipefail), así un test que falla rompe el job.
-- Front: JWT del backend, `Idempotency-Key` sin depender de `crypto.randomUUID` (http sin TLS) y mensaje correcto para ERROR_ENVIO.
-- La evidencia del `kill -9` estaba ignorada por `.gitignore` (`*.log`): ahora es `.txt`.
+| | Estado | Cómo |
+|---|---|---|
+| E1 App en vivo | ✅ | `scripts/levantar-wildfly.sh` + demo |
+| E2 Repo compartido con commits de todos | ⚠️ equipo | Push de `entrega-3` y acceso para el corrector. **Cada integrante debe tener commits propios** |
+| E3 Integración síncrona y asíncrona de punta a punta | ✅ | REST + cola + tópico |
+| E4 Sin secretos en el repo | ✅ | Clave JWT y usuario JMS generados en `.secretos/` (ignorado por git); API key sólo por variable de entorno |
+| E5 Jira al día | ⚠️ equipo | Tarjetas del checkpoint |
+| E6 Documentación y presentación antes del horario | ⚠️ equipo | PDF en `entrega-3/` y `entrega-3/presentacion/` |
+| E7 Declaración de uso de IA | ✅ | `DECLARACION_USO_IA.md` |
+| E8 Defensa individual | ⚠️ equipo | `presentacion/Guia_Defensa_Individual_GOMARKET.pdf` |
 
-## Endpoints nuevos
+## Endpoints nuevos (todos bajo `/ecommerce/api/v1`)
 
 | Método y ruta | Quién | Para qué |
 |---|---|---|
-| `POST /api/v1/ia/interpretar` | público (30/min por IP) | Búsqueda en lenguaje natural (200 con modelo o fallback; 429 si se supera el límite) |
-| `GET /api/v1/admin/mensajeria/dlq` | ADMIN | Mensajes que agotaron sus reintentos |
-| `POST /api/v1/admin/mensajeria/reenviar` | ADMIN | Forzar el reenvío de pedidos en ERROR_ENVIO |
+| `POST /ia/interpretar` | público (30/min por IP) | Búsqueda en lenguaje natural (200 con modelo o fallback; 429 al superar el límite) |
+| `GET /admin/ia` · `PUT /admin/ia/habilitada` | ADMIN | Estado, métricas y apagado de la IA |
+| `GET /admin/mensajeria/dlq` · `POST /admin/mensajeria/reenviar` | ADMIN | DLQ y reenvío forzado |
+| `GET /admin/eventos` | ADMIN | Qué recibió cada suscriptor del tópico |
 
-Cabeceras nuevas: `Idempotency-Key` (obligatoria en `POST /api/v1/pedidos`), `Idempotent-Replayed`, `ETag`, `If-None-Match`, `If-Match`, `Location`.
+Contrato completo: `docs/openapi.yaml` (OpenAPI 3.1). Colección Postman: `GOMARKET-checkpoint3.postman_collection.json`.
 
-## Límites conocidos (para decirlos antes de que los pregunten)
+## Límites conocidos (decirlos antes de que los pregunten)
 
-- **Compra desde la UI:** al ingresar, el front pide el JWT al backend y lo manda en cada compra. Funciona con las cuentas que existen en el servidor (las de demo); una cuenta creada sólo en el navegador no existe en el backend y no puede comprar contra él. La secuencia HTTP está verificada con curl; falta la prueba visual en el navegador.
-- **Sin `ANTHROPIC_API_KEY`** la búsqueda con IA responde con reglas (`origen: "reglas"`). Con clave responde el modelo; no lo pudimos probar con una clave real en esta máquina (sí con una clave inválida: el SDK carga, la API responde 401 y el fallback actúa).
-- La idempotencia y el registro de mensajes viven en memoria (como los pedidos): resisten reintentos, no un reinicio. Con JPA pasan a tablas.
+- **El modelo de IA real no se probó** (no hay API key en el entorno). Sí se verificó con una clave inválida: el SDK carga, la API responde 401 y el gateway cae al fallback.
+- **Persistencia en memoria:** pedidos, idempotencia, registro de mensajes y eventos pendientes no sobreviven a un reinicio. El pedido sí se rehidrata desde el mensaje persistente. JPA con outbox transaccional es lo próximo.
+- Una cuenta creada sólo en el navegador no existe en el backend: para comprar contra WildFly hay que usar una cuenta del servidor, como las de prueba.
 
-## Commits de esta entrega
+## Documentos de esta entrega
 
-```
-git log --oneline entrega-2..entrega-3
-```
+`RESUMEN.md` · `PLAN_DE_PRUEBAS.md` · `MATRIZ_TRAZABILIDAD.md` · `MANUAL_DE_USUARIO.md` · `DECLARACION_USO_IA.md` · `docs/openapi.yaml` · `docs/ia/FICHA_IA.md` · `docs/adr/adr-011.md` a `adr-013.md` · `presentacion/` (guion, plan de demo y guía de defensa).

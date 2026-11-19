@@ -1,4 +1,6 @@
-# GOMARKET · Plan de pruebas (v1, 3.er checkpoint — 20/11/2026)
+# GOMARKET · Plan de pruebas (v2, 3.er checkpoint — 20/11/2026)
+
+Grupo 5 · Desarrollo de Aplicaciones II · Comisión Viernes TM. Estructura basada en ISO/IEC/IEEE 29119-3 (plan, casos e informe).
 
 ## 1. Objetivo
 
@@ -27,6 +29,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 | RF-08 | Consultar, cancelar (dueño o ADMIN) y confirmar (ADMIN) un pedido según su estado (State, 409) |
 | RF-09 | Buscar en lenguaje natural a través del gateway de IA |
 | RF-10 | Un ADMIN puede ver los mensajes que llegaron a la DLQ |
+| RF-11 | Al confirmar un pedido se avisa por pub/sub a notificaciones, auditoría y estadísticas |
 | RNF-01 | Idempotency-Key en la creación de pedidos |
 | RNF-02 | ETag con 304 (If-None-Match) y 412 (If-Match) |
 | RNF-03 | Todo error de la API en formato Problem Details (RFC 9457) |
@@ -35,17 +38,22 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 | RNF-06 | Si se apaga el broker no se pierden mensajes ni pedidos |
 | RNF-07 | Timeout de 5 s con fallback en la integración con IA |
 | RNF-08 | Seguridad: JWT, 401/403, cada cliente ve sólo sus pedidos, contraseñas con hash y sal, bloqueo por intentos |
-| RNF-09 | Pipeline de CI con reporte de cobertura |
+| RNF-09 | Pipeline de CI con reporte de cobertura y eval set de IA |
+| RNF-10 | Circuit breaker y plan de apagado de la IA |
+| RNF-11 | Trazas de la IA: versión del prompt, tokens y costo |
+| RNF-12 | API versionada (`/api/v1`) con contrato OpenAPI |
 
 ## 4. Estrategia y niveles
 
 | Nivel | Qué cubre | Herramienta | Cuándo corre |
 |---|---|---|---|
-| Unitario (backend) | Reglas de negocio, State, idempotencia, ETag, gateway de IA, mappers de error | JUnit 5 (107 tests) | Cada push (CI) y `./mvnw test` |
+| Unitario (backend) | Reglas de negocio, State, idempotencia, ETag, gateway de IA, circuit breaker, pub/sub, mappers de error | JUnit 5 (122 tests) |
+| Eval set de IA | 24 casos (8 adversariales) con umbrales; capa determinista en el CI, modelo real a pedido | JUnit (`EvalSetIATest`) | Cada push (CI) | Cada push (CI) y `./mvnw test` |
 | Unitario (front) | Carrito, catálogo local, usuario, escape de HTML | `node --test` (90 tests) | Cada push (CI) |
 | Flujo sin servidor | Login → JWT → pedido → "cola" → MDB → State, con el publicador reemplazado por una lista | JUnit (`FlujoPedidoTest`) | Cada push (CI) |
 | Integración | API REST real, Artemis real, DLQ, `kill -9` del servidor | WildFly 41 + `scripts/probar-resiliencia.sh` + curl | Antes de cada entrega (manual) |
-| Exploratorio | Interfaz en el navegador, accesibilidad por teclado | Navegador | Antes de cada demo |
+| End-to-end de UI | Recorrido completo del cliente en el navegador real, con capturas | `scripts/recorrido-ui.mjs` (Chrome por protocolo DevTools) | Antes de cada entrega |
+| Exploratorio | Accesibilidad por teclado y temas | Navegador | Antes de cada demo |
 
 **Técnicas de diseño de casos:** particiones de equivalencia (clave válida, ausente o mal formada), valores límite (1 y 50 ítems, stock exacto, 500 caracteres de consulta, 5 s), transiciones de estado (todas las del State, válidas e inválidas) e inyección de fallas (broker caído, proveedor de IA lento, roto o con salida inventada).
 
@@ -105,11 +113,18 @@ Estado al 19/11/2026: ✅ pasa · 🔁 automatizado en el CI · 🖐️ verifica
 | CP-35 | RF-09 | 31 consultas de IA en un minuto desde la misma IP | La 31.ª da 429 con `Retry-After`; otra IP no se ve afectada | `LimiteDeConsultasTest` + curl | ✅🔁🖐️ |
 | CP-36 | RNF-01 | Reintento después de que el pedido se procesó | El replay devuelve el estado ACTUAL (PROCESADO) | curl | ✅🖐️ |
 | CP-37 | RNF-03 | `/productos/abc`, `?precioMax=abc`, GET con `If-Match` viejo | 400 / 400 / 412, todos en Problem Details | curl | ✅🖐️ |
-| CP-38 | RF-06 | Comprar desde la interfaz con la cuenta de demo y WildFly | Pedido aceptado (el front manda JWT e Idempotency-Key) | Navegador | ⏳ pendiente (secuencia HTTP verificada con curl) |
+| CP-38 | RF-06, RF-09 | Recorrido de la interfaz: búsqueda en lenguaje natural, ingreso, compra y consulta del estado contra WildFly | Fichas de filtros con resultados; JWT guardado; *Pedido recibido*; *Pedido procesado* | `scripts/recorrido-ui.mjs` (Chrome sin interfaz) + capturas en `entrega-3/capturas/` | ✅🖐️ |
+| CP-39 | RF-11 | Confirmar un pedido dos veces | Se publica un único PedidoConfirmado con el contrato del diseño | `EventosPedidoTest` + WildFly | ✅🔁🖐️ |
+| CP-40 | RNF-04 | El mismo evento llega dos veces a cada suscriptor | Cada suscriptor lo procesa una vez | `EventosPedidoTest` | ✅🔁 |
+| CP-41 | RNF-06 | Confirmar con el broker caído | 200 CONFIRMADO; el evento queda pendiente y se publica al volver | `EventosPedidoTest` | ✅🔁 |
+| CP-42 | RNF-10 | 10 fallas seguidas del proveedor de IA | El circuito abre: no se llama 30 s (`circuito-abierto`); semiabierto deja una prueba | `CircuitoIATest`, `GatewayIATest` | ✅🔁 |
+| CP-43 | RNF-10, RNF-11 | Apagar la IA en caliente y consultar el estado | `motivo: deshabilitada` y la búsqueda sigue; `/admin/ia` muestra métricas, tokens y costo | `GatewayIATest` + curl | ✅🔁🖐️ |
+| CP-44 | RNF-09, BR04 | Eval set de IA en el pipeline | Exactitud ≥ 85 %, adversariales 100 %, formato 100 % (si no, falla el build) | `EvalSetIATest` | ✅🔁 (capa determinista) · ⏳ modelo real |
+| CP-45 | RNF-12 | Llamar a la ruta sin versión | `/api/productos` → 404; `/api/v1/productos` → 200 | curl | ✅🖐️ |
 
 ## 8. Cobertura (parcial)
 
-`./mvnw verify` genera `target/site/jacoco/index.html`. Al 19/11: **66 % de líneas y 61 % de ramas en Java**, **81 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
+`./mvnw verify` genera `target/site/jacoco/index.html` y el eval set deja `target/eval-ia.md`. Al 19/11: **68 % de líneas y 63 % de ramas en Java**, **80 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
 
 ## 9. Riesgos
 

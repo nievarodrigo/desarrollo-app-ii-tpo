@@ -1,4 +1,6 @@
-# GOMARKET · Manual de usuario (v1, 3.er checkpoint — 20/11/2026)
+# GOMARKET · Manual de usuario (v2, 3.er checkpoint — 20/11/2026)
+
+Grupo 5 · Desarrollo de Aplicaciones II. Público: clientes y administradores de la tienda. Estructura según ISO/IEC/IEEE 26514 y el marco Diátaxis: **tutorial** (aprender), **guías** (resolver una tarea), **referencia** (consultar) y **explicación** (entender).
 
 GOMARKET es una tienda online de tecnología, audio, hogar, oficina y deportes. Este manual explica cómo usarla como **cliente** y como **administrador**, y al final cómo ponerla en marcha.
 
@@ -21,6 +23,38 @@ Abrí **http://localhost:8080/ecommerce/** (con el servidor levantado) o la vers
 
 ---
 
+## Tutorial · Tu primera compra en 5 minutos
+
+Las capturas son de la tienda real corriendo en WildFly (19/11/2026).
+
+**1. Abrí la tienda.** Vas a ver el catálogo con los productos destacados.
+
+![Catálogo](capturas/01-catalogo.png)
+
+**2. Buscá como hablás.** Escribí *auriculares baratos hasta 300 mil* en el buscador y apretá Enter. La tienda arma los filtros sola: categoría Audio, más baratos primero y precio máximo $300.000. Cada filtro es una ficha que podés quitar.
+
+![Búsqueda en lenguaje natural](capturas/02-busqueda-lenguaje-natural.png)
+
+**3. Ingresá.** Menú *Cuenta* › *Ingresar*, con `cliente@gomarket.com.ar` / `cliente123`.
+
+![Ingreso](capturas/03-ingreso.png)
+
+**4. Agregá un producto y abrí el carrito.** Revisá cantidades, envío y total.
+
+![Carrito](capturas/04-carrito.png)
+
+**5. Confirmá la compra.** Vas a ver *Pedido recibido* con su código.
+
+![Pedido recibido](capturas/05-pedido-recibido.png)
+
+**6. Consultá el estado.** Tocá *Consultar estado*: el pedido ya está *procesado*.
+
+![Pedido procesado](capturas/06-pedido-procesado.png)
+
+---
+
+# Guías prácticas
+
 ## 2. Buscar productos
 
 ### 2.1 Búsqueda común
@@ -35,7 +69,7 @@ Escribí en el buscador de la cabecera. Los resultados se actualizan mientras es
 
 Escribí lo que buscás como se lo dirías a un vendedor y apretá **Enter**:
 
-> *auriculares baratos hasta 50 mil*
+> *auriculares baratos hasta 300 mil*
 > *los mejor valorados de deportes en stock*
 > *silla de oficina hasta $120.000*
 
@@ -100,11 +134,15 @@ Con la cuenta de administrador, además:
 - **Confirmar pedidos** (desde la API): un pedido sólo se confirma cuando está PROCESADO. Si se manda `If-Match` y el pedido cambió mientras tanto, la API responde 412 y hay que volver a consultarlo.
 - **Cancelar pedidos** de cualquier cliente (salvo los ya confirmados).
 - **Mensajes con problemas (DLQ):** `GET /api/v1/admin/mensajeria/dlq` lista los mensajes que no se pudieron procesar después de 3 intentos, para revisarlos a mano.
+- **Estado y apagado de la IA:** `GET /api/v1/admin/ia` muestra si está habilitada, el modelo, la versión del prompt, el estado del circuito y las métricas (consultas, fallback, latencia, tokens, costo). `PUT /api/v1/admin/ia/habilitada` con `{"habilitada": false}` la apaga sin reiniciar: la búsqueda sigue en modo básico.
+- **Avisos de pedidos confirmados:** `GET /api/v1/admin/eventos` muestra qué recibieron notificaciones, auditoría y estadísticas.
 - **Forzar reenvío:** `POST /api/v1/admin/mensajeria/reenviar` vuelve a enviar ya mismo los pedidos que quedaron en ERROR_ENVIO (normalmente se hace solo cada 15 segundos).
 
 > Confirmar pedidos, cancelar y la DLQ por ahora se usan desde la API: la colección `entrega-3/GOMARKET-checkpoint3.postman_collection.json` trae todos los pasos en orden.
 
 ---
+
+# Referencia
 
 ## 6. Mensajes que podés ver
 
@@ -119,6 +157,22 @@ Con la cuenta de administrador, además:
 | "El pedido cambió desde la última vez que lo consultaste" | Otra persona lo modificó antes | Volvé a consultarlo y repetí la acción |
 
 ---
+
+## Estados de un pedido
+
+| Estado | Qué significa |
+|---|---|
+| PENDIENTE | La tienda aceptó el pedido y lo está procesando |
+| ERROR_ENVIO | Hubo un problema momentáneo; se reintenta solo, no hay que comprar de nuevo |
+| PROCESADO | El pedido fue procesado y espera la confirmación |
+| CONFIRMADO | Un administrador lo confirmó (se avisa a notificaciones, auditoría y estadísticas) |
+| CANCELADO | Lo canceló el cliente o un administrador |
+
+# Explicación
+
+## ¿Cómo funciona la búsqueda con IA?
+
+Tu frase pasa por un intermediario de la tienda (el *gateway de IA*) antes de llegar al modelo. Si contiene datos personales o un intento de manipulación, no se envía. Si el modelo tarda más de 5 segundos o no está disponible, la tienda usa reglas simples y te avisa con "modo básico". La IA sólo **sugiere** filtros: nunca compra ni cambia nada por vos.
 
 ## 7. Anexo: puesta en marcha (para el equipo y los docentes)
 

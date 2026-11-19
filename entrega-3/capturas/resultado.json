@@ -1,0 +1,32 @@
+[
+  {
+    "paso": "Catálogo",
+    "ok": true,
+    "detalle": "productos listados"
+  },
+  {
+    "paso": "Búsqueda con IA",
+    "ok": true,
+    "detalle": "fichas: “auricular” Quitar filtro · Quitar filtro · Audio Quitar filtro · Quitar filtro · Hasta $ 300.000 Quitar filtro · Quitar"
+  },
+  {
+    "paso": "Resultados de la búsqueda",
+    "ok": true,
+    "detalle": "2 producto(s)"
+  },
+  {
+    "paso": "Ingreso",
+    "ok": true,
+    "detalle": "JWT del backend guardado en sessionStorage"
+  },
+  {
+    "paso": "Compra",
+    "ok": true,
+    "detalle": "Pedido recibido El servidor aceptó el pedido y lo procesa en segundo plano. Aún no se cobró ni confirmó el pago. Pedido ac3ac77b-b3de-4d64-9"
+  },
+  {
+    "paso": "Estado del pedido",
+    "ok": true,
+    "detalle": "Pedido procesado"
+  }
+]

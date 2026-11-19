@@ -1,0 +1,647 @@
+openapi: 3.1.0
+info:
+  title: GOMARKET API
+  version: 1.0.0
+  summary: API REST del e-commerce GOMARKET (Grupo 5 · Desarrollo de Aplicaciones II)
+  description: |
+    Contrato de la API desplegada en WildFly como `ecommerce.war`.
+
+    - **Versionado en la URI** (`/api/v1`): un cambio incompatible se publica como `/api/v2`.
+    - **Errores en Problem Details** (RFC 9457, `application/problem+json`) para TODA respuesta 4xx/5xx.
+    - **Idempotency-Key** obligatoria en `POST /pedidos`.
+    - **ETag** en las respuestas de lectura: `If-None-Match` → 304; `If-Match` desactualizado → 412.
+    - Autenticación con **JWT** (HS256, 30 min) en `Authorization: Bearer`.
+servers:
+  - url: http://localhost:8080/ecommerce/api/v1
+    description: WildFly local (./scripts/levantar-wildfly.sh)
+tags:
+  - name: Sistema
+  - name: Autenticación
+  - name: Catálogo
+  - name: Pedidos
+  - name: IA
+  - name: Administración
+
+paths:
+  /salud:
+    get:
+      tags: [Sistema]
+      summary: Health check (lo usa el front para saber si hay backend)
+      responses:
+        '200':
+          description: Backend disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  disponible: { type: boolean, examples: [true] }
+                  origen: { type: string, examples: [jakarta-ee] }
+                  version: { type: string, examples: ['1.0.0'] }
+
+  /auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Ingresar y obtener un JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Credenciales' }
+      responses:
+        '200':
+          description: Token emitido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Token' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+
+  /auth/registro:
+    post:
+      tags: [Autenticación]
+      summary: Crear una cuenta (siempre rol CLIENTE)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DatosRegistro' }
+      responses:
+        '201':
+          description: Cuenta creada (después se ingresa con /auth/login)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cuenta' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /auth/yo:
+    get:
+      tags: [Autenticación]
+      summary: Identidad del token actual
+      security: [{ bearer: [] }]
+      responses:
+        '200':
+          description: Identidad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email: { type: string, format: email }
+                  rol: { $ref: '#/components/schemas/Rol' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /auth/usuarios:
+    get:
+      tags: [Administración]
+      summary: Padrón de cuentas (ADMIN)
+      security: [{ bearer: [] }]
+      responses:
+        '200':
+          description: Cuentas registradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Cuenta' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+
+  /categorias:
+    get:
+      tags: [Catálogo]
+      summary: Categorías del catálogo
+      responses:
+        '200':
+          description: Categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Categoria' }
+
+  /productos:
+    get:
+      tags: [Catálogo]
+      summary: Buscar y filtrar productos
+      parameters:
+        - { name: q, in: query, schema: { type: string }, description: 'Texto; sin acentos y exigiendo todas las palabras' }
+        - { name: categoria, in: query, schema: { type: string, default: todas } }
+        - { name: orden, in: query, schema: { $ref: '#/components/schemas/Orden' } }
+        - { name: soloStock, in: query, schema: { type: boolean, default: false } }
+        - { name: precioMax, in: query, schema: { type: number, exclusiveMinimum: 0 } }
+        - { $ref: '#/components/parameters/IfNoneMatch' }
+      responses:
+        '200':
+          description: Listado
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Producto' } }
+                  total: { type: integer }
+        '304': { $ref: '#/components/responses/NoModificado' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+
+  /productos/facetas:
+    get:
+      tags: [Catálogo]
+      summary: Conteo por categoría y rango de precios
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: categoria, in: query, schema: { type: string } }
+        - { name: soloStock, in: query, schema: { type: boolean } }
+        - { name: precioMax, in: query, schema: { type: number } }
+      responses:
+        '200':
+          description: Facetas
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  porCategoria: { type: object, additionalProperties: { type: integer } }
+                  precioMin: { type: number }
+                  precioMax: { type: number }
+        '304': { $ref: '#/components/responses/NoModificado' }
+
+  /productos/{id}:
+    get:
+      tags: [Catálogo]
+      summary: Detalle de un producto
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+        - { $ref: '#/components/parameters/IfNoneMatch' }
+      responses:
+        '200':
+          description: Producto
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Producto' }
+        '304': { $ref: '#/components/responses/NoModificado' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /pedidos:
+    post:
+      tags: [Pedidos]
+      summary: Crear un pedido (se procesa por cola JMS)
+      description: |
+        Responde **202**: el pedido queda PENDIENTE y lo procesa `ProcesarPedidoMDB`. Si el broker
+        está caído responde igual 202 con estado ERROR_ENVIO y se reenvía solo. El total lo calcula
+        el servidor: nunca se acepta un precio del cliente.
+      security: [{ bearer: [] }]
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: UUID por compra. Reintentar con la misma clave y el mismo cuerpo devuelve el mismo pedido.
+          schema: { type: string, minLength: 8, maxLength: 100, pattern: '^[A-Za-z0-9_\-:.]+$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitudPedido' }
+      responses:
+        '202':
+          description: Pedido aceptado (o repetición de uno ya aceptado)
+          headers:
+            Location: { schema: { type: string, format: uri } }
+            ETag: { $ref: '#/components/headers/ETag' }
+            Idempotency-Key: { schema: { type: string } }
+            Idempotent-Replayed: { schema: { type: boolean }, description: 'true si es una repetición' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pedido' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '415': { $ref: '#/components/responses/Problema' }
+        '422': { $ref: '#/components/responses/ContenidoNoProcesable' }
+
+  /pedidos/{id}:
+    get:
+      tags: [Pedidos]
+      summary: Consultar un pedido (dueño o ADMIN)
+      security: [{ bearer: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/IdPedido' }
+        - { $ref: '#/components/parameters/IfNoneMatch' }
+      responses:
+        '200':
+          description: Pedido
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pedido' }
+        '304': { $ref: '#/components/responses/NoModificado' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '412': { $ref: '#/components/responses/PrecondicionFallida' }
+
+  /pedidos/{id}/cancelar:
+    post:
+      tags: [Pedidos]
+      summary: Cancelar (dueño o ADMIN)
+      security: [{ bearer: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/IdPedido' }
+        - { $ref: '#/components/parameters/IfMatch' }
+      responses:
+        '200': { $ref: '#/components/responses/PedidoActualizado' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '412': { $ref: '#/components/responses/PrecondicionFallida' }
+
+  /pedidos/{id}/confirmar:
+    post:
+      tags: [Pedidos]
+      summary: Confirmar (ADMIN). Publica PedidoConfirmado en el tópico
+      security: [{ bearer: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/IdPedido' }
+        - { $ref: '#/components/parameters/IfMatch' }
+      responses:
+        '200': { $ref: '#/components/responses/PedidoActualizado' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '412': { $ref: '#/components/responses/PrecondicionFallida' }
+
+  /ia/interpretar:
+    post:
+      tags: [IA]
+      summary: Búsqueda en lenguaje natural (a través del gateway de IA)
+      description: |
+        Siempre devuelve un resultado útil: si el modelo tarda más de 5 s, falla, está apagado o el
+        circuito está abierto, responde el intérprete de reglas (`origen: reglas`, con `motivo`).
+        Límite: 30 consultas por minuto por IP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [consulta]
+              properties:
+                consulta: { type: string, minLength: 1, maxLength: 500, examples: ['auriculares baratos hasta 50 mil'] }
+      responses:
+        '200':
+          description: Filtros sugeridos (o el motivo por el que no se sugieren)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RespuestaIA' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+
+  /admin/ia:
+    get:
+      tags: [Administración]
+      summary: Estado del gateway de IA y métricas (ADMIN)
+      security: [{ bearer: [] }]
+      responses:
+        '200':
+          description: Estado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoIA' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+
+  /admin/ia/habilitada:
+    put:
+      tags: [Administración]
+      summary: Prender o apagar la IA en caliente (plan de apagado)
+      security: [{ bearer: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [habilitada]
+              properties:
+                habilitada: { type: boolean }
+      responses:
+        '200':
+          description: Estado actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoIA' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+
+  /admin/mensajeria/dlq:
+    get:
+      tags: [Administración]
+      summary: Mensajes que agotaron sus reintentos (DLQ)
+      security: [{ bearer: [] }]
+      responses:
+        '200':
+          description: Mensajes muertos, el más reciente primero
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    idMensaje: { type: string }
+                    colaOrigen: { type: string, examples: [jms.queue.ProcesarPedidoQueue] }
+                    recibido: { type: string, format: date-time }
+                    cuerpo: { type: string, description: 'Recortado a 500 caracteres' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+
+  /admin/mensajeria/reenviar:
+    post:
+      tags: [Administración]
+      summary: Forzar el reenvío de pedidos en ERROR_ENVIO (sin esperar al timer de 15 s)
+      security: [{ bearer: [] }]
+      responses:
+        '200':
+          description: Cantidad republicada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  republicados: { type: integer }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+
+  /admin/eventos:
+    get:
+      tags: [Administración]
+      summary: Qué hizo cada suscriptor de PedidoConfirmadoTopic
+      security: [{ bearer: [] }]
+      responses:
+        '200':
+          description: Resumen de notificaciones, auditoría y estadísticas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notificacionesEnviadas: { type: integer }
+                  estadisticas:
+                    type: object
+                    properties:
+                      pedidosConfirmados: { type: integer }
+                      facturacion: { type: number }
+                  auditoria: { type: array, items: { $ref: '#/components/schemas/PedidoConfirmado' } }
+                  pendientesDePublicar: { type: integer }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/AccesoDenegado' }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  headers:
+    ETag:
+      description: Versión de la representación (SHA-256). Usala en If-None-Match o If-Match.
+      schema: { type: string, examples: ['"40e468df5f1350c61e8c8f303f659787"'] }
+
+  parameters:
+    IdPedido:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Si coincide con el ETag actual, la respuesta es 304 sin cuerpo.
+      schema: { type: string }
+    IfMatch:
+      name: If-Match
+      in: header
+      required: false
+      description: Concurrencia optimista. Si el pedido cambió desde ese ETag, responde 412.
+      schema: { type: string }
+
+  responses:
+    NoModificado:
+      description: La copia del cliente sigue vigente (sin cuerpo)
+    PedidoActualizado:
+      description: Pedido con su nuevo estado
+      headers:
+        ETag: { $ref: '#/components/headers/ETag' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Pedido' }
+    Problema:
+      description: Error en formato Problem Details
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+    SolicitudInvalida:
+      description: Datos inválidos, JSON mal formado, parámetro con formato incorrecto o falta la Idempotency-Key
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+          example: { type: about:blank, title: Datos inválidos, status: 400, detail: Falta la cabecera Idempotency-Key (por ejemplo, un UUID por compra)., instance: /ecommerce/api/v1/pedidos }
+    NoAutenticado:
+      description: Falta el token, venció o está alterado
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+    AccesoDenegado:
+      description: Rol insuficiente o el recurso pertenece a otro cliente
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+    NoEncontrado:
+      description: El recurso o la ruta no existen
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+    Conflicto:
+      description: Transición de estado inválida (patrón State) o misma Idempotency-Key todavía en curso (con Retry-After)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+          example: { type: about:blank, title: Conflicto de estado, status: 409, detail: No se puede aplicar CONFIRMAR a un pedido en estado PENDIENTE., instance: /ecommerce/api/v1/pedidos/0b6.../confirmar }
+    PrecondicionFallida:
+      description: El If-Match no coincide con la versión actual
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+    ContenidoNoProcesable:
+      description: Misma Idempotency-Key con otro cuerpo
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+    DemasiadasSolicitudes:
+      description: Límite superado (ingresos fallidos o consultas de IA); trae Retry-After
+      headers:
+        Retry-After: { schema: { type: integer } }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemDetail' }
+
+  schemas:
+    ProblemDetail:
+      type: object
+      description: RFC 9457
+      required: [type, title, status]
+      properties:
+        type: { type: string, examples: [about:blank] }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+    Rol:
+      type: string
+      enum: [CLIENTE, ADMIN]
+    Credenciales:
+      type: object
+      required: [email, clave]
+      properties:
+        email: { type: string, format: email }
+        clave: { type: string, format: password }
+    DatosRegistro:
+      type: object
+      required: [nombre, email, clave]
+      properties:
+        nombre: { type: string }
+        email: { type: string, format: email }
+        clave: { type: string, format: password, minLength: 8 }
+    Cuenta:
+      type: object
+      properties:
+        nombre: { type: string }
+        email: { type: string, format: email }
+        rol: { $ref: '#/components/schemas/Rol' }
+        creadoEn: { type: string, format: date-time }
+    Token:
+      type: object
+      properties:
+        token: { type: string }
+        tipo: { type: string, examples: [Bearer] }
+        expiraEnSegundos: { type: integer, examples: [1800] }
+        usuario: { $ref: '#/components/schemas/Cuenta' }
+    Categoria:
+      type: object
+      properties:
+        id: { type: integer }
+        slug: { type: string, examples: [audio] }
+        nombre: { type: string }
+        bajada: { type: string }
+        icono: { type: string }
+    Orden:
+      type: string
+      enum: [relevancia, precio-asc, precio-desc, rating, nombre]
+    Producto:
+      type: object
+      properties:
+        id: { type: integer }
+        sku: { type: string }
+        nombre: { type: string }
+        marca: { type: string }
+        categoria: { type: string }
+        precio: { type: number }
+        precioAnterior: { type: [number, 'null'] }
+        stock: { type: integer }
+        rating: { type: number }
+        resenias: { type: integer }
+        activo: { type: boolean }
+        arte: { type: string }
+        descripcion: { type: string }
+        destacados: { type: array, items: { type: string } }
+        etiquetas: { type: array, items: { type: string } }
+    SolicitudPedido:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: object
+            required: [idProducto, cantidad]
+            properties:
+              idProducto: { type: integer, minimum: 1 }
+              cantidad: { type: integer, minimum: 1 }
+    EstadoPedido:
+      type: string
+      enum: [PENDIENTE_VALIDACION, PENDIENTE, ERROR_ENVIO, PROCESADO, CONFIRMADO, RECHAZADO, CANCELADO]
+    Pedido:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        estado: { $ref: '#/components/schemas/EstadoPedido' }
+        cliente: { type: string, format: email }
+        total: { type: number, description: 'Calculado en el servidor; incluye envío salvo compras desde $150.000' }
+        items: { $ref: '#/components/schemas/SolicitudPedido/properties/items' }
+    PedidoConfirmado:
+      type: object
+      description: Evento publicado en PedidoConfirmadoTopic (JMS, pub/sub, suscriptores durables)
+      properties:
+        idEvento: { type: string, format: uuid }
+        tipoEvento: { type: string, const: PedidoConfirmado }
+        version: { type: integer, const: 1 }
+        fecha: { type: string, format: date-time }
+        idPedido: { type: string, format: uuid }
+        correlationId: { type: string }
+        total: { type: number }
+        moneda: { type: string, const: ARS }
+    CriteriosSugeridos:
+      type: object
+      properties:
+        q: { type: string, maxLength: 100 }
+        categoria: { type: string, enum: [todas, tecnologia, audio, hogar, oficina, deportes] }
+        orden: { $ref: '#/components/schemas/Orden' }
+        soloStock: { type: boolean }
+        precioMax: { type: [number, 'null'] }
+    RespuestaIA:
+      type: object
+      properties:
+        estado: { type: string, enum: [sugerencia, aclarar, rechazada, manual, invalida] }
+        criterios: { $ref: '#/components/schemas/CriteriosSugeridos' }
+        origen: { type: string, enum: [modelo, reglas, politica] }
+        motivo:
+          type: [string, 'null']
+          enum: [timeout, error, salida-invalida, sin-proveedor, saturado, circuito-abierto, deshabilitada, null]
+        milisegundos: { type: integer }
+    EstadoIA:
+      type: object
+      properties:
+        habilitada: { type: boolean }
+        modelo: { type: string, examples: [anthropic/claude-haiku-5-5] }
+        versionPrompt: { type: string, examples: [busqueda-v2] }
+        circuito: { type: string, enum: [CERRADO, ABIERTO, SEMIABIERTO] }
+        timeoutMs: { type: integer, examples: [5000] }
+        metricas:
+          type: object
+          properties:
+            consultas: { type: integer }
+            porOrigen: { type: object, additionalProperties: { type: integer } }
+            porMotivoDeFallback: { type: object, additionalProperties: { type: integer } }
+            tasaFallback: { type: number }
+            latenciaP95ms: { type: integer }
+            tokensEntrada: { type: integer }
+            tokensSalida: { type: integer }
+            costoEstimadoUsd: { type: number }
