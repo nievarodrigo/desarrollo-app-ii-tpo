@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * REINTENTAR_ENVIO → PENDIENTE y lo publica. Si el broker sigue caído, vuelve a
  * ERROR_ENVIO y se intenta en la próxima vuelta. Así ningún pedido aceptado se pierde.
  */
-@Singleton
+@jakarta.enterprise.inject.Vetoed
 public class ReenvioDePedidos {
     private static final Logger LOG = Logger.getLogger(ReenvioDePedidos.class.getName());
 
@@ -40,7 +40,6 @@ public class ReenvioDePedidos {
         this.pendientes = pendientes;
     }
 
-    @Schedule(second = "*/15", minute = "*", hour = "*", persistent = false)
     public void programado() {
         reintentarPendientes();
         reintentarEventos();

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Estado visible de la demo; NO sustituye una base transaccional. */
-@ApplicationScoped
+@jakarta.enterprise.inject.Vetoed
 public class PedidoEnMemoria implements PedidoRepository {
     private final Map<String, Pedido> pedidos = new ConcurrentHashMap<>();
 

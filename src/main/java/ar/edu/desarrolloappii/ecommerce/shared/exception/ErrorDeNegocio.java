@@ -9,6 +9,7 @@ import java.util.Map;
  * {@link ErrorDeNegocioMapper} la traduce a la respuesta. Así hay un solo lugar
  * donde se decide "esto es un 401, esto un 403, esto un 409".
  */
+@jakarta.ejb.ApplicationException(inherited = true, rollback = false)
 public abstract class ErrorDeNegocio extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

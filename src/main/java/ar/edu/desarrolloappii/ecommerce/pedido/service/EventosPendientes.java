@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Eventos que no se pudieron publicar (broker caído). {@link ReenvioDePedidos} los reintenta
  * cada 15 s, igual que a los pedidos en ERROR_ENVIO: confirmar un pedido nunca falla por el broker.
  */
-@ApplicationScoped
+@jakarta.enterprise.inject.Vetoed
 public class EventosPendientes {
     private final ConcurrentLinkedQueue<PedidoConfirmado> pendientes = new ConcurrentLinkedQueue<>();
 

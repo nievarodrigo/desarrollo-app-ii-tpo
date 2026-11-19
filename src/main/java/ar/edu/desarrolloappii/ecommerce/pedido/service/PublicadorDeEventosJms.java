@@ -16,6 +16,7 @@ import jakarta.json.bind.JsonbBuilder;
  * que un suscriptor caído recibe el evento cuando vuelve.
  */
 @ApplicationScoped
+@jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.NOT_SUPPORTED)
 @JMSDestinationDefinition(
         name = "java:/jms/topic/PedidoConfirmadoTopic",
         interfaceName = "jakarta.jms.Topic",

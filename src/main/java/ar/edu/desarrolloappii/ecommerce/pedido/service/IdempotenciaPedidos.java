@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  *   <li>En una repetición, el controller relee el pedido: el cliente ve su estado ACTUAL.</li>
  * </ul>
  */
-@ApplicationScoped
+@jakarta.enterprise.inject.Vetoed
 public class IdempotenciaPedidos {
     static final Duration VIGENCIA = Duration.ofHours(24);
     static final Duration EN_CURSO_MAXIMO = Duration.ofMinutes(5);

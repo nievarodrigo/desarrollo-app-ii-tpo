@@ -19,7 +19,7 @@ import java.util.TreeMap;
  * propia copia (pub/sub) y es IDEMPOTENTE por {@code idEvento}: una reentrega no duplica el efecto.
  * Separado de los MDB para poder probarlo sin servidor.
  */
-@ApplicationScoped
+@jakarta.enterprise.inject.Vetoed
 public class ConsumosDeEventos {
     public static final String NOTIFICACIONES = "notificaciones";
     public static final String AUDITORIA = "auditoria";

@@ -23,10 +23,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Valida, recalcula y publica el comando; no espera al consumidor.
- * Depende de dos puertos (repositorio y publicador), no de la base ni de JMS.
+ * Valida, recalcula y registra el comando en el outbox dentro de la transacción.
+ * Los constructores de tests conservan el adaptador de publicación en memoria.
  */
 @ApplicationScoped
+@jakarta.transaction.Transactional
 public class PedidoService {
     private static final Logger LOG = Logger.getLogger(PedidoService.class.getName());
     private static final BigDecimal ENVIO_GRATIS_DESDE = new BigDecimal("150000");
@@ -36,7 +37,8 @@ public class PedidoService {
     @Inject PedidoRepository repositorio;
     @Inject PublicadorPedidos publicador;
     @Inject PublicadorDeEventos eventos;
-    @Inject EventosPendientes pendientes;
+    EventosPendientes pendientes;
+    @Inject OutboxPedidos outbox;
 
     public PedidoService() { }
 
@@ -55,9 +57,8 @@ public class PedidoService {
     }
 
     /**
-     * Crea el pedido y publica el mensaje. Si el broker no responde, NO se pierde la
-     * compra: el pedido queda en ERROR_ENVIO y {@link ReenvioDePedidos} lo vuelve a
-     * publicar cuando el broker vuelva (patrón "outbox" simplificado).
+     * En el contenedor guarda pedido y outbox en la misma transacción JTA.
+     * El relay publica después. Por constructor conserva el flujo anterior de los tests.
      */
     public Pedido crear(SolicitudPedido solicitud, Identidad solicitante) {
         BigDecimal total = validarYCalcular(solicitud, catalogo);
@@ -66,6 +67,7 @@ public class PedidoService {
         Pedido pedido = new Pedido(UUID.randomUUID().toString(), "PENDIENTE", copia, total,
                 solicitante.email());
         repositorio.guardar(pedido);
+        if (outbox != null) { outbox.agregar(pedido); return pedido; }
         try {
             publicador.publicar(pedido);
         } catch (RuntimeException error) {
@@ -123,10 +125,11 @@ public class PedidoService {
         return actualizado;
     }
 
-    /** Publica PedidoConfirmado en el tópico. Si el broker no responde, queda pendiente y se reintenta. */
+    /** Registra PedidoConfirmado en el outbox; los tests por constructor usan el publicador. */
     void anunciarConfirmacion(Pedido pedido) {
         PedidoConfirmado evento = new PedidoConfirmado(UUID.randomUUID().toString(), PedidoConfirmado.TIPO, 1,
                 java.time.OffsetDateTime.now().toString(), pedido.getId(), pedido.getId(), pedido.getTotal(), "ARS");
+        if (outbox != null) { outbox.agregar(evento); return; }
         try {
             eventos.publicar(evento);
         } catch (RuntimeException error) {

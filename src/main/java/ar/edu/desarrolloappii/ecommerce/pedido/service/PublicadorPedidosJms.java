@@ -21,6 +21,7 @@ import java.util.UUID;
  * el consumidor descarte duplicados.
  */
 @ApplicationScoped
+@jakarta.transaction.Transactional(jakarta.transaction.Transactional.TxType.NOT_SUPPORTED)
 @JMSDestinationDefinition(
         name = "java:/jms/queue/ProcesarPedidoQueue",
         interfaceName = "jakarta.jms.Queue",
@@ -31,11 +32,13 @@ public class PublicadorPedidosJms implements PublicadorPedidos {
     @Resource(lookup = "java:/jms/queue/ProcesarPedidoQueue") Queue cola;
 
     @Override
-    public void publicar(Pedido pedido) {
+    public void publicar(Pedido pedido) { publicar(pedido, UUID.randomUUID().toString()); }
+
+    @Override public void publicar(Pedido pedido, String idMensaje) {
         try (Jsonb jsonb = JsonbBuilder.create()) {
             jms.createProducer()
                     .setDeliveryMode(DeliveryMode.PERSISTENT)
-                    .setProperty(PROPIEDAD_ID_MENSAJE, UUID.randomUUID().toString())
+                    .setProperty(PROPIEDAD_ID_MENSAJE, idMensaje)
                     .send(cola, jsonb.toJson(pedido));
         } catch (RuntimeException error) {
             throw error;

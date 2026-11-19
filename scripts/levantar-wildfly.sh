@@ -29,8 +29,9 @@ if [ -z "${GOMARKET_JWT_SECRET:-}" ]; then
 fi
 export GOMARKET_JWT_SECRET
 
-( cd "$RAIZ" && ./mvnw -q -B -DskipTests package )
+( cd "$RAIZ" && ./mvnw -o -q -B -DskipTests package )
 # Reintentos + DLQ + persistencia de la cola de pedidos (idempotente, sin servidor corriendo)
+"$WF/bin/jboss-cli.sh" --file="$RAIZ/scripts/datasource.cli" >/dev/null
 "$WF/bin/jboss-cli.sh" --file="$RAIZ/scripts/mensajeria.cli" >/dev/null
 rm -f "$WF"/standalone/deployments/ecommerce.war*
 cp "$RAIZ/target/ecommerce.war" "$WF/standalone/deployments/"
