@@ -36,12 +36,24 @@ jobs:
             python3 scripts/ci/resumen_cobertura.py >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Resultado del eval set de IA
+        if: always()
+        run: |
+          if [ -f target/eval-ia.md ]; then cat target/eval-ia.md >> "$GITHUB_STEP_SUMMARY"; fi
+
       - name: Publicar reporte de cobertura
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cobertura-java
           path: target/site/jacoco/
+
+      - name: Publicar eval set de IA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-ia
+          path: target/eval-ia.md
 
       - name: Publicar resultados de tests
         if: always()

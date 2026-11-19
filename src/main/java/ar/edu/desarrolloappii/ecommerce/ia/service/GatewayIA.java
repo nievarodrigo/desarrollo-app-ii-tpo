@@ -22,7 +22,9 @@ import java.util.regex.Pattern;
  *
  * Encapsula, en este orden:
  * <ol>
+ *   <li><b>Interruptor</b> (plan de apagado): con la IA deshabilitada responde el fallback.</li>
  *   <li><b>Política de entrada</b>: tamaño, datos personales, intentos de inyección.</li>
+ *   <li><b>Circuit breaker</b>: si el proveedor viene fallando, ni lo intenta durante 30 s.</li>
  *   <li><b>Bulkhead</b>: como máximo 4 llamadas simultáneas al proveedor; si está saturado,
  *       fallback inmediato en vez de encolar usuarios.</li>
  *   <li><b>Timeout de 5 s</b>: si el modelo no responde a tiempo, se corta la espera.</li>
@@ -30,6 +32,8 @@ import java.util.regex.Pattern;
  *   <li><b>Fallback</b>: ante timeout, error, salida inválida o falta de proveedor, responde
  *       {@link InterpreteDeReglas}. El usuario nunca ve un error por culpa de la IA.</li>
  * </ol>
+ * Cada consulta deja una traza en el log (versión del prompt, modelo, origen, motivo, latencia,
+ * tokens y costo estimado) y suma a {@link MetricasIA}.
  */
 @ApplicationScoped
 public class GatewayIA {
@@ -51,16 +55,32 @@ public class GatewayIA {
     private ExecutorService ejecutor;
     private long presupuestoMs = PRESUPUESTO_MS;
     private final InterpreteDeReglas reglas = new InterpreteDeReglas();
+    private CircuitoIA circuito = new CircuitoIA();
+    private InterruptorIA interruptor = new InterruptorIA();
+    private final MetricasIA metricas = new MetricasIA();
     private final Semaphore capacidad = new Semaphore(MAX_CONCURRENTES);
 
     public GatewayIA() { }
 
     /** Para tests: modelo falso, ejecutor propio y presupuesto configurable. */
     public GatewayIA(ModeloIA modelo, ExecutorService ejecutor, long presupuestoMs) {
+        this(modelo, ejecutor, presupuestoMs, new CircuitoIA(), new InterruptorIA(true));
+    }
+
+    public GatewayIA(ModeloIA modelo, ExecutorService ejecutor, long presupuestoMs,
+                     CircuitoIA circuito, InterruptorIA interruptor) {
         this.modelo = modelo;
         this.ejecutor = ejecutor;
         this.presupuestoMs = presupuestoMs;
+        this.circuito = circuito;
+        this.interruptor = interruptor;
     }
+
+    public CircuitoIA circuito() { return circuito; }
+    public InterruptorIA interruptor() { return interruptor; }
+    public MetricasIA metricas() { return metricas; }
+    public String nombreModelo() { return modelo == null ? "-" : modelo.nombre(); }
+    public String versionPrompt() { return modelo == null ? "-" : modelo.versionPrompt(); }
 
     @PostConstruct
     void iniciar() {
@@ -70,6 +90,19 @@ public class GatewayIA {
     }
 
     public RespuestaIA interpretar(String consulta) {
+        long[] tokens = new long[2];
+        RespuestaIA respuesta = resolver(consulta, tokens);
+        double costo = modelo == null ? 0 : (tokens[0] * modelo.precioEntradaPorMillon()
+                + tokens[1] * modelo.precioSalidaPorMillon()) / 1_000_000;
+        metricas.registrar(respuesta.origen(), respuesta.motivo(), respuesta.milisegundos(), tokens[0], tokens[1], costo);
+        LOG.info(String.format(java.util.Locale.ROOT,
+                "ia prompt=%s modelo=%s estado=%s origen=%s motivo=%s ms=%d tokensEntrada=%d tokensSalida=%d costoUsd=%.6f circuito=%s",
+                versionPrompt(), nombreModelo(), respuesta.estado(), respuesta.origen(), respuesta.motivo(),
+                respuesta.milisegundos(), tokens[0], tokens[1], costo, circuito.estado()));
+        return respuesta;
+    }
+
+    private RespuestaIA resolver(String consulta, long[] tokens) {
         long inicio = System.nanoTime();
         if (consulta == null || consulta.isBlank() || consulta.length() > 500) {
             return new RespuestaIA("invalida", null, "politica", null, ms(inicio));
@@ -81,15 +114,22 @@ public class GatewayIA {
         if (INYECCION.matcher(normalizada).find()) {
             return new RespuestaIA("rechazada", null, "politica", null, ms(inicio));
         }
+        if (!interruptor.habilitada()) return fallback(consulta, "deshabilitada", inicio);
         if (modelo == null || !modelo.disponible()) return fallback(consulta, "sin-proveedor", inicio);
         if (!capacidad.tryAcquire()) return fallback(consulta, "saturado", inicio);
+        // El circuito se consulta con el cupo ya tomado: así la llamada de prueba del estado
+        // SEMIABIERTO siempre llega al proveedor y el circuito no queda trabado.
+        if (!circuito.permiteLlamar()) {
+            capacidad.release();
+            return fallback(consulta, "circuito-abierto", inicio);
+        }
 
         // El cupo se libera UNA sola vez: desde la tarea cuando termina, o desde acá si la
         // tarea se cancela antes de arrancar (si no, quedaría tomado para siempre).
         AtomicBoolean liberado = new AtomicBoolean(false);
         AtomicBoolean arranco = new AtomicBoolean(false);
         Runnable liberar = () -> { if (liberado.compareAndSet(false, true)) capacidad.release(); };
-        Future<SalidaModelo> llamada;
+        Future<ResultadoModelo> llamada;
         try {
             llamada = ejecutor.submit(() -> {
                 arranco.set(true);
@@ -98,28 +138,35 @@ public class GatewayIA {
             });
         } catch (RuntimeException rechazo) {
             liberar.run();
+            circuito.registrarFalla();
             return fallback(consulta, "error", inicio);
         }
         try {
             long restante = presupuestoMs - ms(inicio);
-            SalidaModelo salida = llamada.get(Math.max(0, restante), TimeUnit.MILLISECONDS);
+            ResultadoModelo resultado = llamada.get(Math.max(0, restante), TimeUnit.MILLISECONDS);
+            if (resultado != null) { tokens[0] = resultado.tokensEntrada(); tokens[1] = resultado.tokensSalida(); }
+            SalidaModelo salida = resultado == null ? null : resultado.salida();
             String problema = validar(salida);
             if (problema != null) {
+                circuito.registrarFalla();
                 LOG.warning("Salida del modelo descartada: " + problema);
                 return fallback(consulta, "salida-invalida", inicio);
             }
+            circuito.registrarExito();
             return new RespuestaIA(salida.estado(), salida.criterios(), "modelo", null, ms(inicio));
         } catch (TimeoutException timeout) {
             // Si la tarea seguía en la cola del ejecutor, cancel la descarta y su finally nunca corre.
             // Si arrancó, conserva el cupo hasta que el proveedor realmente termine (eso es el bulkhead).
             llamada.cancel(true);
             if (!arranco.get()) liberar.run();
+            circuito.registrarFalla();
             LOG.warning("El modelo superó los " + presupuestoMs + " ms: fallback por reglas.");
             return fallback(consulta, "timeout", inicio);
         } catch (InterruptedException interrupcion) {
             Thread.currentThread().interrupt();
             return fallback(consulta, "error", inicio);
         } catch (Exception error) {
+            circuito.registrarFalla();
             LOG.warning("Falló el proveedor de IA: " + error.getMessage());
             return fallback(consulta, "error", inicio);
         }

@@ -9,15 +9,21 @@ import javax.naming.InitialContext;
  * Demo de la DLQ: manda a ProcesarPedidoQueue un mensaje que el consumidor no puede procesar.
  * El MDB falla, Artemis reintenta 3 veces y el mensaje termina en ProcesarPedidoDLQ.
  *
- *   $WF/bin/add-user.sh -a -u demo-jms -p demo-jms-123 -g guest     (una sola vez)
- *   java -cp $WF/bin/client/jboss-client.jar scripts/EnviarMensajeInvalido.java
+ *   $WF/bin/add-user.sh -a -u demo-jms -p "$CLAVE" -g guest      (una sola vez, clave a elección)
+ *   java -Dusuario=demo-jms -Dclave="$CLAVE" -cp $WF/bin/client/jboss-client.jar scripts/EnviarMensajeInvalido.java
+ *
+ * (probar-resiliencia.sh hace todo esto solo, con una clave aleatoria en .secretos/.)
  *
  * Después: GET /api/admin/mensajeria/dlq con un token de ADMIN.
  */
 public class EnviarMensajeInvalido {
     public static void main(String[] args) throws Exception {
         String usuario = System.getProperty("usuario", "demo-jms");
-        String clave = System.getProperty("clave", "demo-jms-123");
+        String clave = System.getProperty("clave");
+        if (clave == null || clave.isBlank()) {
+            System.err.println("Falta -Dclave=<clave del usuario JMS>. No hay clave por defecto: ningún secreto en el repo.");
+            System.exit(2);
+        }
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory");
         env.put(Context.PROVIDER_URL, System.getProperty("url", "http-remoting://localhost:8080"));

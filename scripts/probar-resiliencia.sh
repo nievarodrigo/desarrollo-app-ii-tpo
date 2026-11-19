@@ -55,8 +55,12 @@ done
 
 paso "9. DLQ: mensaje inválido → 3 reintentos → ProcesarPedidoDLQ"
 if [ -f "$WF/bin/client/jboss-client.jar" ]; then
-  "$WF/bin/add-user.sh" -a -u demo-jms -p demo-jms-123 -g guest -s >/dev/null 2>&1 || true
-  "$JAVA" -cp "$WF/bin/client/jboss-client.jar" "$(dirname "$0")/EnviarMensajeInvalido.java" 2>/dev/null | grep Enviado
+  # Usuario JMS de prueba con clave aleatoria guardada en .secretos/ (ignorado por git).
+  SECRETOS="$(dirname "$0")/../.secretos"; mkdir -p "$SECRETOS"
+  [ -s "$SECRETOS/jms" ] || head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' > "$SECRETOS/jms"
+  CLAVE_JMS="$(cat "$SECRETOS/jms")"
+  "$WF/bin/add-user.sh" -a -u demo-jms -p "$CLAVE_JMS" -g guest -s >/dev/null 2>&1 || true
+  "$JAVA" -Dusuario=demo-jms -Dclave="$CLAVE_JMS" -cp "$WF/bin/client/jboss-client.jar" "$(dirname "$0")/EnviarMensajeInvalido.java" 2>/dev/null | grep Enviado
   sleep 8; curl -s "$A/admin/mensajeria/dlq" -H "Authorization: Bearer $AD"; echo
 else
   echo "(sin jboss-client.jar: saltado)"

@@ -31,8 +31,9 @@ public class InterpreteDeReglas {
             Map.entry("deporte", "deportes"), Map.entry("deportes", "deportes"), Map.entry("bici", "deportes"),
             Map.entry("pelota", "deportes"), Map.entry("correr", "deportes"));
     private static final Set<String> BARATO = Set.of("barato", "barata", "baratos", "baratas", "economico", "economica", "economicos");
-    private static final Set<String> CARO = Set.of("caro", "cara", "premium", "gama alta");
-    private static final Set<String> VALORADO = Set.of("mejor", "valorado", "valorados", "puntuado", "recomendado", "recomendados");
+    private static final Set<String> CARO = Set.of("caro", "cara", "caros", "caras", "premium");
+    private static final Set<String> VALORADO = Set.of("mejor", "mejores", "valorado", "valorados", "valoradas",
+            "puntuado", "puntuados", "puntuadas", "recomendado", "recomendados");
     private static final Set<String> STOCK = Set.of("stock", "disponible", "disponibles", "ya", "hoy");
     private static final Set<String> RELLENO = Set.of("quiero", "busco", "necesito", "un", "una", "unos", "unas", "el", "la",
             "los", "las", "de", "del", "para", "con", "que", "y", "o", "en", "mi", "me", "algo", "hasta", "menos", "max",

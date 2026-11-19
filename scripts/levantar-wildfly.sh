@@ -7,7 +7,7 @@
 # Variables:
 #   JAVA_HOME             JDK 17+ (por defecto ~/.local/jdk si existe)
 #   WILDFLY_HOME          carpeta de WildFly 41 (por defecto ~/.local/wildfly/wildfly-41.0.1.Final)
-#   GOMARKET_JWT_SECRET   clave para firmar los JWT (32+ caracteres). Si falta, se usa una de DEMO.
+#   GOMARKET_JWT_SECRET   clave para firmar los JWT (32+ caracteres). Si falta, se genera una al azar en .secretos/jwt.
 #
 # Se baja con Ctrl+C. Si WildFly no está instalado:
 #   curl -L -o wf.tar.gz https://github.com/wildfly/wildfly/releases/download/41.0.1.Final/wildfly-41.0.1.Final.tar.gz
@@ -20,8 +20,14 @@ export PATH="$JAVA_HOME/bin:$PATH"
 WF="${WILDFLY_HOME:-$HOME/.local/wildfly/wildfly-41.0.1.Final}"
 [ -x "$WF/bin/standalone.sh" ] || { echo "No encuentro WildFly en $WF (definí WILDFLY_HOME)"; exit 1; }
 
-# Clave SOLO de demo: en un despliegue real va por variable de entorno y no se commitea.
-export GOMARKET_JWT_SECRET="${GOMARKET_JWT_SECRET:-clave-de-demo-gomarket-no-usar-en-produccion}"
+# Sin secretos en el repo: si GOMARKET_JWT_SECRET no viene del entorno, se genera una clave
+# aleatoria UNA vez y se guarda en .secretos/ (ignorado por git), así sobrevive a reinicios.
+SECRETOS="$RAIZ/.secretos"; mkdir -p "$SECRETOS"; chmod 700 "$SECRETOS"
+if [ -z "${GOMARKET_JWT_SECRET:-}" ]; then
+  [ -s "$SECRETOS/jwt" ] || { head -c 48 /dev/urandom | base64 | tr -d '\n' > "$SECRETOS/jwt"; chmod 600 "$SECRETOS/jwt"; }
+  GOMARKET_JWT_SECRET="$(cat "$SECRETOS/jwt")"
+fi
+export GOMARKET_JWT_SECRET
 
 ( cd "$RAIZ" && ./mvnw -q -B -DskipTests package )
 # Reintentos + DLQ + persistencia de la cola de pedidos (idempotente, sin servidor corriendo)
