@@ -11,10 +11,10 @@ class ModeloClaudeTest {
         assertFalse(d.contains("<system>"));
     }
 
-    @Test void sinClaveNoEstaDisponibleYUsaElPromptV2ConPreciosDelModelo() {
+    @Test void sinClaveNoEstaDisponibleYUsaElPromptV3ConPreciosDelModelo() {
         ModeloClaude m = new ModeloClaude(null, null);
         assertFalse(m.disponible());
-        assertEquals("busqueda-v2", m.versionPrompt());
+        assertEquals("busqueda-v3", m.versionPrompt());
         assertEquals("anthropic/claude-haiku-5-5", m.nombre());
         assertEquals(0.10, m.precioEntradaPorMillon(), 1e-9);
         assertEquals(0.50, m.precioSalidaPorMillon(), 1e-9);

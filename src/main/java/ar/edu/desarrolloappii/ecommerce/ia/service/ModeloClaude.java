@@ -30,7 +30,9 @@ import java.time.Duration;
  */
 public class ModeloClaude implements ModeloIA {
     static final String MODELO_POR_DEFECTO = "claude-haiku-5-5";
-    static final String VERSION_PROMPT = "busqueda-v2";
+    static final String VERSION_PROMPT = "busqueda-v3";
+    /** v3 agrega qué hay en cada categoría y que una sola palabra es una búsqueda (v1 y v2 quedan como historial). */
+    static final String ARCHIVO_PROMPT = "/ia/prompt-" + VERSION_PROMPT + ".txt";
     /** Precios publicados (US$ por millón de tokens, entrada / salida) al 19/11/2026. */
     private static final java.util.Map<String, double[]> PRECIOS = java.util.Map.of(
             "claude-haiku-5-5", new double[] {0.10, 0.50},
@@ -101,9 +103,9 @@ public class ModeloClaude implements ModeloIA {
         return new ResultadoModelo(estructurada, entrada, salida);
     }
 
-    private static String cargarPrompt() {
-        try (InputStream in = ModeloClaude.class.getResourceAsStream("/ia/prompt-busqueda-v2.txt")) {
-            if (in == null) throw new IllegalStateException("Falta el prompt /ia/prompt-busqueda-v2.txt");
+    static String cargarPrompt() {
+        try (InputStream in = ModeloClaude.class.getResourceAsStream(ARCHIVO_PROMPT)) {
+            if (in == null) throw new IllegalStateException("Falta el prompt /ia/prompt-busqueda-" + VERSION_PROMPT.substring("busqueda-".length()) + ".txt");
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException error) {
             throw new IllegalStateException("No se pudo leer el prompt del gateway.", error);

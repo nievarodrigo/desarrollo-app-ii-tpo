@@ -19,6 +19,17 @@ public interface ModeloIA {
     /** ¿Hay credenciales y configuración para usarlo? Si no, el gateway va directo al fallback. */
     boolean disponible();
 
+    /** Precarga el modelo (p. ej. un modelo local en la GPU). Se llama en segundo plano al arrancar; por defecto no hace nada. */
+    default void calentar() { }
+
+    /**
+     * Elige el proveedor según {@code GOMARKET_IA_PROVEEDOR}: {@code local} (Ollama) o, por defecto,
+     * {@code anthropic} (Claude Haiku). Cambiar de proveedor es una variable de entorno.
+     */
+    static ModeloIA desdeEntorno(String proveedor) {
+        return "local".equalsIgnoreCase(proveedor == null ? "" : proveedor.trim()) ? new ModeloLocal() : new ModeloClaude();
+    }
+
     /** Interpreta la consulta. Puede tardar, fallar o devolver basura: el gateway se defiende de todo eso. */
     ResultadoModelo interpretar(String consulta) throws Exception;
 }

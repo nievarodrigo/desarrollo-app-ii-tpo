@@ -26,8 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * reglas), que es lo que responde sin API key, y exige los umbrales del dataset: si no se
  * cumplen, el build falla y no se mergea. Deja el detalle en target/eval-ia.md.
  *
- * Con {@code -Dia.eval.real=true} y ANTHROPIC_API_KEY, evalúa el MODELO real con el mismo
- * dataset y los mismos umbrales (cuesta centavos; no corre en el CI por defecto).
+ * Con {@code -Dia.eval.real=true} evalúa un MODELO real con el mismo dataset y los mismos umbrales
+ * (no corre en el CI por defecto): Claude con ANTHROPIC_API_KEY (cuesta centavos) o, con
+ * GOMARKET_IA_PROVEEDOR=local, el modelo local de Ollama (gratis).
  */
 class EvalSetIATest {
 
@@ -36,10 +37,12 @@ class EvalSetIATest {
 
     @Test void elGatewayCumpleLosUmbralesDelEvalSet() throws Exception {
         JsonObject dataset = cargar();
-        boolean real = Boolean.getBoolean("ia.eval.real") && System.getenv("ANTHROPIC_API_KEY") != null;
+        boolean local = "local".equalsIgnoreCase(String.valueOf(System.getenv("GOMARKET_IA_PROVEEDOR")).trim());
+        boolean real = Boolean.getBoolean("ia.eval.real") && (local || System.getenv("ANTHROPIC_API_KEY") != null);
         ExecutorService ejecutor = Executors.newFixedThreadPool(4);
         try {
-            ModeloIA modelo = real ? new ModeloClaude() : new SinProveedor();
+            ModeloIA modelo = real ? ModeloIA.desdeEntorno(System.getenv("GOMARKET_IA_PROVEEDOR")) : new SinProveedor();
+            if (real) modelo.calentar(); // la primera llamada carga el modelo: que no cuente como timeout
             GatewayIA gateway = new GatewayIA(modelo, ejecutor, GatewayIA.PRESUPUESTO_MS);
             List<Resultado> resultados = new ArrayList<>();
             for (JsonValue v : dataset.getJsonArray("casos")) {

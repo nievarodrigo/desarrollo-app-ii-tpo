@@ -84,8 +84,12 @@ public class GatewayIA {
 
     @PostConstruct
     void iniciar() {
-        if (modelo == null) modelo = new ModeloClaude();
+        if (modelo == null) modelo = ModeloIA.desdeEntorno(System.getenv("GOMARKET_IA_PROVEEDOR"));
         if (ejecutor == null) ejecutor = ejecutorDelContenedor;
+        if (modelo.disponible() && ejecutor != null) {
+            ModeloIA aCalentar = modelo;
+            ejecutor.submit(aCalentar::calentar); // no bloquea el arranque
+        }
         LOG.info("Gateway de IA con " + modelo.nombre() + (modelo.disponible() ? "" : " (sin credenciales: sólo fallback)"));
     }
 
