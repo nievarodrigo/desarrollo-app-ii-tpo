@@ -598,7 +598,9 @@ html[data-tema='oscuro'] .anuncio { color: #cfe6da; }
   box-shadow: var(--sombra-1);
   font-size: var(--t-sm);
 }
-.buscador--cabecera:focus-within .buscador__ayuda { display: block; }
+.buscador--cabecera:focus-within:not(:has(.buscador__progreso:not(:empty))) #ayuda-buscador-ia,
+.buscador__progreso { display: block; }
+.buscador__progreso:empty { width: 0; padding: 0; border: 0; box-shadow: none; }
 .buscador__ia[aria-busy='true'] { cursor: progress; }
 .buscador__ia[aria-busy='true'] svg { animation: varita 0.9s linear infinite; }
 @keyframes varita { to { transform: rotate(360deg); } }

@@ -25,6 +25,7 @@
 import * as catalogo from './componentes/catalogo/negocio/catalogo-service.js';
 import * as carrito from './componentes/carrito/negocio/carrito-service.js';
 import { tarjetaProducto, detalleProducto } from './componentes/catalogo/presentacion/catalogo-view.js';
+import { crearProgresoBusquedaIA } from './componentes/catalogo/presentacion/progreso-busqueda-ia.js';
 import { iniciarCarritoView } from './componentes/carrito/presentacion/carrito-view.js';
 import { exigirSesion, iniciarUsuarioView } from './componentes/usuario/presentacion/usuario-view.js';
 import * as usuario from './componentes/usuario/negocio/usuario-service.js';
@@ -90,6 +91,17 @@ function filtrosEfectivos() {
     ? { ...resto, precioMax }
     : resto;
 }
+
+const busquedaIA = crearProgresoBusquedaIA(
+  (consulta) => publicar('ia/interpretar', { consulta }),
+  (ocupado) => {
+    const varita = $('[data-buscador-ia]');
+    if (ocupado) varita?.setAttribute('aria-busy', 'true');
+    else varita?.removeAttribute('aria-busy');
+    const progreso = $('[data-progreso-ia]');
+    if (progreso) progreso.textContent = ocupado ? 'Interpretando tu búsqueda…' : '';
+  }
+);
 
 function irAlCatalogo() {
   $('#catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -425,8 +437,9 @@ function iniciarFiltros() {
 async function buscarConEnter(consulta, { forzarIA = false } = {}) {
   const esFrase = forzarIA || consulta.split(/\s+/).length >= 3;
   if (esFrase && (await hayBackend())) {
+    if (busquedaIA.ocupado) return;
     try {
-      const respuesta = await publicar('ia/interpretar', { consulta });
+      const respuesta = await busquedaIA.interpretar(consulta);
       if (respuesta.estado === 'sugerencia' && respuesta.criterios) {
         const c = respuesta.criterios;
         filtros.q = c.q ?? '';
@@ -582,7 +595,7 @@ function iniciarBuscadores() {
 
   /* Varita: búsqueda con IA explícita. Ocupada mientras espera para no disparar dos veces. */
   $$('[data-buscador-ia]').forEach((varita) => {
-    varita.addEventListener('click', async () => {
+    varita.addEventListener('click', () => {
       const entrada = varita.parentElement?.querySelector('[data-buscador-input]');
       const consulta = entrada?.value.trim() ?? '';
       if (!consulta) {
@@ -590,14 +603,8 @@ function iniciarBuscadores() {
         entrada?.focus();
         return;
       }
-      if (varita.getAttribute('aria-busy') === 'true') return;
       buscarConDemora.cancelar();
-      varita.setAttribute('aria-busy', 'true');
-      try {
-        await buscarConEnter(consulta, { forzarIA: true });
-      } finally {
-        varita.removeAttribute('aria-busy');
-      }
+      buscarConEnter(consulta, { forzarIA: true });
     });
   });
 
