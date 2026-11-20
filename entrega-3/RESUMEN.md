@@ -42,7 +42,7 @@ Datasource `java:jboss/datasources/GomarketDS` (H2 en archivo) creado por `scrip
 | E5 Tablero al día | ✅ | Trello del equipo (https://trello.com/b/CJeNfB8i) con las tarjetas del checkpoint, responsables y Definition of Done |
 | E6 Documentación y presentación antes del horario | ⚠️ equipo | PDF en `entrega-3/` y `entrega-3/presentacion/` |
 | E7 Declaración de uso de IA | ✅ | `DECLARACION_USO_IA.md` |
-| E8 Defensa individual | ⚠️ equipo | `presentacion/Guia_Defensa_Individual_GOMARKET.pdf` |
+| E8 Defensa individual | ⚠️ equipo | Cada integrante expone su parte y responde preguntas individuales |
 
 ## Endpoints nuevos (todos bajo `/ecommerce/api/v1`)
 
@@ -63,4 +63,4 @@ Contrato completo: `docs/openapi.yaml` (OpenAPI 3.1). Colección Postman: `GOMAR
 
 ## Documentos de esta entrega
 
-`RESUMEN.md` · `PLAN_DE_PRUEBAS.md` · `MATRIZ_TRAZABILIDAD.md` · `MANUAL_DE_USUARIO.md` · `DECLARACION_USO_IA.md` · `docs/openapi.yaml` · `docs/ia/FICHA_IA.md` · `docs/adr/adr-011.md` a `adr-014.md` · `presentacion/` (guion, plan de demo y guía de defensa).
+`RESUMEN.md` · `PLAN_DE_PRUEBAS.md` · `MATRIZ_TRAZABILIDAD.md` · `MANUAL_DE_USUARIO.md` · `DECLARACION_USO_IA.md` · `docs/openapi.yaml` · `docs/ia/FICHA_IA.md` · `docs/adr/adr-011.md` a `adr-014.md` · `presentacion/Presentacion_Checkpoint3_GOMARKET.pdf` (diapositivas).

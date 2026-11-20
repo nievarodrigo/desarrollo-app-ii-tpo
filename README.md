@@ -182,7 +182,7 @@ Nadie commitea directo a `main`. Commits con [Conventional Commits](https://www.
 
 ## Documentación y entregas
 
-- **3.er checkpoint (20/11):** [resumen](entrega-3/RESUMEN.md) · [plan de pruebas](entrega-3/PLAN_DE_PRUEBAS.md) · [matriz de trazabilidad](entrega-3/MATRIZ_TRAZABILIDAD.md) · [manual de usuario](entrega-3/MANUAL_DE_USUARIO.md) · [declaración de uso de IA](entrega-3/DECLARACION_USO_IA.md) · [PDF](entrega-3/pdf/) · [guion, plan de demo y guía de defensa](entrega-3/presentacion/)
+- **3.er checkpoint (20/11):** [resumen](entrega-3/RESUMEN.md) · [plan de pruebas](entrega-3/PLAN_DE_PRUEBAS.md) · [matriz de trazabilidad](entrega-3/MATRIZ_TRAZABILIDAD.md) · [manual de usuario](entrega-3/MANUAL_DE_USUARIO.md) · [declaración de uso de IA](entrega-3/DECLARACION_USO_IA.md) · [PDF](entrega-3/pdf/) · [presentación](entrega-3/presentacion/Presentacion_Checkpoint3_GOMARKET.pdf)
 - **IA:** [ficha de gobernanza](docs/ia/FICHA_IA.md) · [ADR-012](docs/adr/adr-012.md)
 - **Diseño (06/11):** [`entrega-diseno/`](entrega-diseno/) — BRD, historias de usuario, contratos y diagramas
 - **Entregas anteriores:** [Checkpoint 1](ENTREGA_CHECKPOINT_1.md) · [clase 10 (REST)](entrega-clase10/LEEME.md) · [arquitectura del front](docs/ARQUITECTURA_FRONT.md) · [prototipo Figma](figma-checkpoint-1/README.md)

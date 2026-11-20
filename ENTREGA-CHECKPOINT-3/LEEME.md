@@ -8,7 +8,7 @@ Todo lo que se entrega, en un solo lugar. Los PDF son copias de los que se gener
 | Carpeta | Qué hay |
 |---|---|
 | `1-documentacion/` | Informe de entrega (empezar por acá), plan de pruebas, matriz de trazabilidad, manual de usuario, declaración de uso de IA, ficha de la IA y ADR 011–014 |
-| `2-presentacion/` | Diapositivas, guion por integrante, plan de la demo, frases para la demo de IA y guía de defensa individual |
+| `2-presentacion/` | Diapositivas de la presentación |
 | `3-pruebas/` | Informe de pruebas exploratorias (41 pruebas con capturas) y evidencias de las corridas contra WildFly (resiliencia, `kill -9`, DLQ, persistencia, eval set de IA) |
 
 **Enlaces**

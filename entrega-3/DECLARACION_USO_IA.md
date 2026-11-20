@@ -9,7 +9,7 @@ Esta declaración cumple la eliminatoria E7 y la regla de la Clase 14: *usar IA 
 
 | Herramienta | Modelo | Para qué se usó en este checkpoint | Qué hizo el equipo |
 |---|---|---|---|
-| Claude Code (Anthropic) | Claude Opus 5.5 | Implementación de la resiliencia REST (Idempotency-Key, ETag, Problem Details), de la mensajería (DLQ, consumidor idempotente, reenvío, tópico), del gateway de IA, del pipeline de CI, de los tests y de los scripts de demo; redacción del plan de pruebas, la matriz, el manual, los ADR 011–012, el guion y el plan de demo; armado de la presentación | Definió el alcance y las prioridades, decidió que SOAP no aplica, revisó los cambios, ejecutó las pruebas contra WildFly, ajusta el código en commits propios y defiende cada parte |
+| Claude Code (Anthropic) | Claude Opus 5.5 | Implementación de la resiliencia REST (Idempotency-Key, ETag, Problem Details), de la mensajería (DLQ, consumidor idempotente, reenvío, tópico), del gateway de IA, del pipeline de CI, de los tests y de los scripts de demo; redacción del plan de pruebas, la matriz, el manual, los ADR 011–012 y el material de preparación de la exposición; armado de la presentación | Definió el alcance y las prioridades, decidió que SOAP no aplica, revisó los cambios, ejecutó las pruebas contra WildFly, ajusta el código en commits propios y defiende cada parte |
 | Claude Code (agente verificador) | Claude Opus 5.5 | Revisión independiente del checkpoint: encontró 7 problemas (fuga de un cupo del bulkhead, replay con estado viejo, CI que no fallaba con tests de JS, evidencia ignorada por `.gitignore`, afirmaciones exageradas en los documentos) | Se corrigieron todos y se sumaron tests de regresión |
 | Codex (OpenAI) | (el que asigna la CLI) | Propuesta de logo en HTML/CSS con la paleta de la marca (una G con un punto; finalmente no se usó) | Revisión visual y decisión de no usarlo |
 | Codex (OpenAI) | (el que asigna la CLI) | Datos de 115 productos de ejemplo del catálogo (nombres, descripciones, precios, stock), con reglas fijadas por el equipo: marcas inventadas, rangos de precio, categorías y dibujos permitidos | Validación automática (ids, SKU, campos, marcas reales, rangos) y revisión de muestras antes de incorporarlos |
@@ -22,7 +22,7 @@ Esta declaración cumple la eliminatoria E7 y la regla de la Clase 14: *usar IA 
 - No se aceptaron dependencias desconocidas: la única nueva es el SDK oficial de Anthropic para Java (`com.anthropic:anthropic-java`).
 - Nada se declara como "probado" sin ejecución: lo que no se pudo verificar (el modelo de producción, Claude Haiku, sin API key) figura como pendiente en el RESUMEN y en el plan de pruebas.
 
-**Responsabilidad:** el código entregado es del equipo. Cada integrante debe poder explicar la parte que expone y responder sobre código que no escribió (eliminatoria E8). Para eso se armó una guía de defensa por integrante.
+**Responsabilidad:** el código entregado es del equipo. Cada integrante debe poder explicar la parte que expone y responder sobre código que no escribió (eliminatoria E8).
 
 > Completar por el equipo: herramientas de IA usadas en las entregas anteriores (diseño del 06/11, 2.ª entrega), si las hubo, con el mismo formato.
 
