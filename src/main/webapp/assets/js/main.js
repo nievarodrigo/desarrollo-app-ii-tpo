@@ -544,6 +544,12 @@ function pintarFichas() {
   if (filtros.soloStock) fichas.push({ tipo: 'stock', texto: 'Sólo con stock' });
   if (filtros.precioMax < rango.max) fichas.push({ tipo: 'precio', texto: `Hasta ${precio(filtros.precioMax)}` });
 
+  const contador = $('[data-contador-filtros]');
+  if (contador) {
+    contador.textContent = `(${fichas.length})`;
+    contador.hidden = fichas.length === 0;
+  }
+
   contenedor.hidden = fichas.length === 0;
   contenedor.innerHTML = fichas
     .map(
