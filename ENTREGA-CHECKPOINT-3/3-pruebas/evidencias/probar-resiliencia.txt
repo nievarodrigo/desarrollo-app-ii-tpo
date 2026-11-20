@@ -1,0 +1,24 @@
+== 1. POST /pedidos sin Idempotency-Key → 400 Problem Details
+HTTP/1.1 400 Bad Request
+== 2. Primer POST con Idempotency-Key → 202
+HTTP/1.1 202 Accepted
+== 3. Reintento con la MISMA clave → mismo pedido (Idempotent-Replayed: true)
+HTTP/1.1 202 Accepted
+== 4. Misma clave, otro cuerpo → 422
+HTTP/1.1 422 Unprocessable Entity
+== 5. GET /pedidos/{id} → 200 con ETag; con If-None-Match → 304
+HTTP/1.1 200 OK
+HTTP/1.1 304 Not Modified
+== 6. Confirmar con If-Match desactualizado → 412; con el ETag vigente → 200
+HTTP/1.1 412 Precondition Failed
+HTTP/1.1 200 OK
+== 7. Errores del framework también en Problem Details (404, 405, 415)
+HTTP/1.1 404 Not Found
+HTTP/1.1 405 Method Not Allowed
+HTTP/1.1 415 Unsupported Media Type
+== 8. Gateway de IA (5 s de timeout; sin ANTHROPIC_API_KEY responde el fallback)
+{"criterios":{"categoria":"audio","orden":"precio-asc","precioMax":50000.0,"q":"auricular","soloStock":false},
+{"estado":"rechazada","milisegundos":0,"origen":"politica"}
+== 9. DLQ: mensaje inválido → 3 reintentos → ProcesarPedidoDLQ
+Enviado mensaje inválido veneno-616f4a0b-f311-4444-88ea-467bfc61a1d7
+[{"colaOrigen":"jms.queue.ProcesarPedidoQueue","cuerpo":"esto no es un pedido","idMensaje":"veneno-616f4a0b-f3

@@ -1,0 +1,17 @@
+# Evidencia: kill -9 de WildFly con un mensaje en la cola y DLQ (19/11/2026, WildFly 41.0.1)
+
+## 1) Tras el reinicio, el mensaje persistente se procesa
+16:40:55,579 WARNING [ar.edu.desarrolloappii.ecommerce.pedido.service.ProcesarPedidoMDB] (Thread-1 (activemq-client-global)) Pedido 1858603d-758c-475b-9658-7ba157bc998b reconstruido desde el mensaje persistente (reinicio del servidor).
+16:40:55,579 INFO  [ar.edu.desarrolloappii.ecommerce.pedido.service.ProcesarPedidoMDB] (Thread-1 (activemq-client-global)) Pedido 1858603d-758c-475b-9658-7ba157bc998b procesado por la cola.
+
+## 2) Mensaje inválido: 3 intentos (backoff 1 s, 2 s) y DLQ
+16:40:54,893 INFO  [org.jboss.as.ejb3] (MSC service thread 1-3) WFLYEJB0042: Started message driven bean 'MensajesMuertosMDB' with 'activemq-ra.rar' resource adapter
+16:41:36,223 ERROR [org.apache.activemq.artemis.ra.ActiveMQRALogger] (Thread-0 (activemq-client-global)) AMQ154004: Failed to deliver message: jakarta.ejb.EJBTransactionRolledbackException: Falló el 
+16:41:37,232 ERROR [org.apache.activemq.artemis.ra.ActiveMQRALogger] (Thread-1 (activemq-client-global)) AMQ154004: Failed to deliver message: jakarta.ejb.EJBTransactionRolledbackException: Falló el 
+16:41:39,241 ERROR [org.apache.activemq.artemis.ra.ActiveMQRALogger] (Thread-0 (activemq-client-global)) AMQ154004: Failed to deliver message: jakarta.ejb.EJBTransactionRolledbackException: Falló el 
+16:41:39,247 WARN  [org.apache.activemq.artemis.core.server] (Thread-24 (activemq-default)) AMQ222149: Sending message Reference[4294967820]:RELIABLE:CoreMessage[messageID=4294967820, durable=true, us
+16:41:39,252 SEVERE [ar.edu.desarrolloappii.ecommerce.pedido.service.MensajesMuertosMDB] (Thread-1 (activemq-client-global)) Mensaje veneno-9022ab4b-4f3a-45e6-bdba-d60b43eebeae en la DLQ tras 1 intent
+
+## 3) DLQ con la versión final del MDB (registra la cola de origen)
+16:50:43,739 SEVERE [ar.edu.desarrolloappii.ecommerce.pedido.service.MensajesMuertosMDB] (Thread-6 (activemq-client-global)) Mensaje veneno-a4b2740a-1beb-45d0-a2d1-807d34ed8c8c de jms.queue.ProcesarPedidoQueue llegó a l
+16:55:55,734 SEVERE [ar.edu.desarrolloappii.ecommerce.pedido.service.MensajesMuertosMDB] (Thread-10 (activemq-client-global)) Mensaje veneno-e15a67c9-3ce5-4e95-9654-ed879cc848d5 de jms.queue.ProcesarPedidoQueue llegó a 
