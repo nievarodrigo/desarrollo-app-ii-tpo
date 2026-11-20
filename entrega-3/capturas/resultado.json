@@ -1,0 +1,32 @@
+[
+  {
+    "paso": "Catálogo",
+    "ok": true,
+    "detalle": "productos listados"
+  },
+  {
+    "paso": "Búsqueda con IA",
+    "ok": true,
+    "detalle": "fichas: “auriculares” Quitar filtro · Quitar filtro · Audio Quitar filtro · Quitar filtro · Hasta $ 300.000 Quitar filtro · Quit"
+  },
+  {
+    "paso": "Resultados de la búsqueda",
+    "ok": true,
+    "detalle": "14 producto(s)"
+  },
+  {
+    "paso": "Ingreso",
+    "ok": true,
+    "detalle": "JWT del backend guardado en sessionStorage"
+  },
+  {
+    "paso": "Compra",
+    "ok": true,
+    "detalle": "Pedido recibido El servidor aceptó el pedido y lo procesa en segundo plano. Aún no se cobró ni confirmó el pago. Pedido 0fecdbb0-dc45-4f12-9"
+  },
+  {
+    "paso": "Estado del pedido",
+    "ok": true,
+    "detalle": "Pedido procesado"
+  }
+]

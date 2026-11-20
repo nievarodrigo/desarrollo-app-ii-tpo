@@ -6,6 +6,10 @@ import ar.edu.desarrolloappii.ecommerce.catalogo.service.CatalogoService;
 import ar.edu.desarrolloappii.ecommerce.catalogo.service.CriteriosDeBusqueda;
 import ar.edu.desarrolloappii.ecommerce.catalogo.service.RangoDePrecios;
 import ar.edu.desarrolloappii.ecommerce.pedido.domain.SolicitudPedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.domain.EventoPedido;
+import ar.edu.desarrolloappii.ecommerce.pedido.repository.PedidoEnMemoria;
+import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Identidad;
+import ar.edu.desarrolloappii.ecommerce.seguridad.domain.Rol;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -55,5 +59,18 @@ class PedidoServiceTest {
     @Test void rechazaPedidoVacio() {
         assertThrows(IllegalArgumentException.class, () -> PedidoService.validarYCalcular(
                 solicitud(), catalogo));
+    }
+
+    @Test void entrega_antes_de_un_error_de_publicacion_no_regresa_el_pedido_a_ERROR_ENVIO() {
+        PedidoEnMemoria repositorio = new PedidoEnMemoria();
+        PublicadorPedidos publicador = pedido -> {
+            repositorio.aplicar(pedido.getId(), EventoPedido.MENSAJE_PROCESADO);
+            throw new IllegalStateException("Envío con resultado ambiguo");
+        };
+        PedidoService servicio = new PedidoService(catalogo, repositorio, publicador);
+        var pedido = assertDoesNotThrow(() -> servicio.crear(solicitud(new SolicitudPedido.Item(1, 1)),
+                new Identidad("cliente@gomarket.com.ar", Rol.CLIENTE)));
+        assertEquals("PROCESADO", pedido.getEstado());
+        assertEquals("PROCESADO", repositorio.obtener(pedido.getId()).getEstado());
     }
 }

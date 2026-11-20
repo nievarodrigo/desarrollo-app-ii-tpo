@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Guía de defensa individual · 3.er checkpoint</title><link rel="stylesheet" href="estilo.css"></head>
+<body>
+
+<div class="portada">
+  <div class="marca">GOMARKET<i></i></div>
+  <div>
+    <h1>Guía de defensa<br>individual</h1>
+    <p>La nota es individual: quien no pueda explicar su parte, o código que no escribió, puede desaprobar aunque el grupo apruebe. Esta guía es para estudiar esta noche.</p>
+  </div>
+  <div class="meta">Desarrollo de Aplicaciones II · Grupo 5 · 20/11/2026<br>Rodrigo · Nicolás · Tomás · Iván · Folco</div>
+</div>
+
+<h2>Cómo es la defensa (rúbrica, hoja «Individual»)</h2>
+<p>A cada integrante le hacen tres cosas: <b>una pregunta conceptual</b>, <b>una pregunta sobre código que no escribió</b> y <b>un cambio o una predicción en vivo</b> (“¿qué pasa si…?”, “cambiá esto y mostralo”). Los commits son un dato de contexto, pero lo que decide es lo que cada uno explica.</p>
+<div class="caja alerta"><b>Transparencia:</b> buena parte del código de este checkpoint se escribió con un asistente de IA y está declarado en <span class="mono">entrega-3/DECLARACION_USO_IA.md</span>. Eso está permitido solo si el equipo lo entiende y lo puede defender. Por eso cada uno tiene que <b>leer los archivos de su parte, correr sus tests y hacer al menos un commit propio y real</b> (ver “Tu tarea de hoy” en cada sección).</div>
+
+<h3>Lo que TODOS tienen que poder explicar (el flujo completo, en 1 minuto)</h3>
+<ol>
+  <li>El cliente busca: si es una frase, el front la manda a <span class="mono">POST /api/v1/ia/interpretar</span>; el <b>gateway</b> decide si llama al modelo o responde con reglas.</li>
+  <li>Al ingresar, el front pide un <b>JWT</b> a <span class="mono">/auth/login</span> y lo manda en cada request.</li>
+  <li>Al comprar: <span class="mono">POST /api/v1/pedidos</span> con <b>Idempotency-Key</b>. El servidor recalcula el total, guarda el pedido PENDIENTE, lo publica en la <b>cola</b> <span class="mono">ProcesarPedidoQueue</span> y responde <b>202</b>.</li>
+  <li>El <b>MDB</b> <span class="mono">ProcesarPedidoMDB</span> lo toma y lo pasa a PROCESADO (patrón <b>State</b>). Si falla 3 veces, el mensaje va a la <b>DLQ</b>.</li>
+  <li>Un ADMIN confirma (con <b>If-Match</b> opcional): pasa a CONFIRMADO y se publica <span class="mono">PedidoConfirmado</span> en el <b>tópico</b>; lo reciben 3 suscriptores durables.</li>
+  <li>Cualquier error sale en <b>Problem Details</b>.</li>
+</ol>
+
+<h2 class="salto">Iván · Resiliencia del contrato REST</h2>
+<p><b>Qué expone:</b> Idempotency-Key, ETag (304 y 412), Problem Details y versionado <span class="mono">/api/v1</span>.</p>
+<table>
+  <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
+  <tr><td class="mono">pedido/service/IdempotenciaPedidos.java</td><td>Registro de claves por usuario: repetición, 422, 409, vencimiento y liberación ante fallas</td></tr>
+  <tr><td class="mono">pedido/controller/PedidoResource.java</td><td>Lee la cabecera, arma 202 + Location + ETag; If-Match en cancelar/confirmar</td></tr>
+  <tr><td class="mono">shared/http/Etags.java, Precondiciones.java</td><td>Huella SHA-256 y evaluación de If-None-Match/If-Match</td></tr>
+  <tr><td class="mono">shared/exception/Problemas.java, ErrorInesperadoMapper.java</td><td>Todo error a Problem Details; recorre la cadena de causas (EJBException)</td></tr>
+  <tr><td class="mono">config/JaxRsActivator.java, docs/openapi.yaml</td><td>Versión en la URI y contrato</td></tr>
+</table>
+<dl class="qa">
+  <dt>Conceptual: ¿por qué POST no es idempotente y cómo lo arreglan?</dt>
+  <dd>Repetir un POST crea otro recurso. El cliente manda un UUID por compra; si la clave ya se procesó con el mismo cuerpo, el servidor devuelve el mismo pedido sin crear otro.</dd>
+  <dt>Conceptual: 409 vs. 412 vs. 422</dt>
+  <dd>409: choca con el estado actual (transición inválida o la misma clave todavía en curso). 412: el <span class="mono">If-Match</span> no coincide con la versión actual. 422: misma clave con otro cuerpo.</dd>
+  <dt>Código que no escribiste: ¿por qué <span class="mono">Problemas.desde</span> recorre <span class="mono">getCause()</span>?</dt>
+  <dd>Porque <span class="mono">CatalogoServiceImpl</span> es un EJB <span class="mono">@Stateless</span> y el contenedor envuelve las excepciones en <span class="mono">EJBException</span>: sin recorrer las causas, un 404 saldría como 500.</dd>
+  <dt>En vivo: “¿qué pasa si mando la misma clave con otra cantidad?”</dt>
+  <dd>422 en Problem Details (paso 4 de <span class="mono">probar-resiliencia.sh</span>). Test: <span class="mono">IdempotenciaPedidosTest.mismaClaveConOtroCuerpoEs422</span>.</dd>
+</dl>
+<div class="caja ok"><b>Tu tarea de hoy:</b> leer esos archivos, correr <span class="mono">./mvnw test -Dtest='IdempotenciaPedidosTest,EtagsTest,ProblemasTest'</span> y hacer un commit propio, por ejemplo un test nuevo: que una clave con caracteres inválidos dé 400, o que el ETag cambie cuando cambia el estado del pedido.</div>
+
+<h2 class="salto">Folco · Resiliencia de la mensajería</h2>
+<p><b>Qué expone:</b> consumidor idempotente, DLQ, broker caído sin pérdida, el tópico pub/sub y la persistencia (JPA, Flyway, outbox). Es el rol de <b>Datos</b> del equipo.</p>
+<table>
+  <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
+  <tr><td class="mono">pedido/service/ProcesarPedidoMDB.java</td><td>Consumidor de la cola: idempotente (<span class="mono">idMensaje</span>), rehidratación tras reinicio, propaga fallas para provocar la reentrega</td></tr>
+  <tr><td class="mono">pedido/service/RegistroDeMensajes.java</td><td>Últimos 10.000 <span class="mono">idMensaje</span> procesados (LRU)</td></tr>
+  <tr><td class="mono">pedido/service/ReenvioDePedidos.java</td><td>Timer cada 15 s: republica pedidos en ERROR_ENVIO y eventos pendientes</td></tr>
+  <tr><td class="mono">pedido/service/MensajesMuertosMDB.java</td><td>Consumidor de la DLQ</td></tr>
+  <tr><td class="mono">PublicadorDeEventosJms.java, NotificacionMDB / AuditoriaMDB / EstadisticasMDB</td><td>Tópico <span class="mono">PedidoConfirmadoTopic</span> y sus 3 suscriptores durables</td></tr>
+  <tr><td class="mono">scripts/mensajeria.cli</td><td>3 intentos, reentregas a 1 s y 2 s, DLQ</td></tr>
+  <tr><td class="mono">pedido/repository/jpa/PedidoJpa, PedidoMapper, *Entity</td><td>Repository y Data Mapper con JPA; el <span class="mono">EntityManager</span> es la Unit of Work</td></tr>
+  <tr><td class="mono">OutboxPedidos, PublicacionInmediata, RelayOutbox, EntregaOutbox</td><td>Transactional Outbox: fila en la misma transacción, publicación tras el commit, relay cada 5 s</td></tr>
+  <tr><td class="mono">src/main/resources/db/migration/V1–V3, scripts/datasource.cli</td><td>Migraciones Flyway y datasource por JNDI</td></tr>
+</table>
+<dl class="qa">
+  <dt>Conceptual: cola vs. tópico</dt>
+  <dd>Cola (punto a punto): cada mensaje lo procesa un solo consumidor (procesar el pedido tiene un único responsable). Tópico (pub/sub): cada suscriptor recibe una copia (un pedido confirmado le interesa a notificaciones, auditoría y estadísticas).</dd>
+  <dt>Conceptual: ¿qué es una suscripción durable?</dt>
+  <dd>El broker identifica al suscriptor (<span class="mono">clientId</span> + <span class="mono">subscriptionName</span>) y le guarda los mensajes mientras está caído; al volver los recibe.</dd>
+  <dt>Código que no escribiste: ¿por qué <span class="mono">registro.registrar(idMensaje)</span> va DESPUÉS de aplicar el evento?</dt>
+  <dd>Si se registrara antes y el procesamiento fallara, la reentrega se descartaría como duplicada y el pedido quedaría sin procesar.</dd>
+  <dt>Conceptual: ¿qué problema resuelve el Transactional Outbox?</dt>
+  <dd>“Guardé pero no publiqué” (o al revés): base y broker son dos sistemas sin una transacción común. Se guarda el mensaje en una tabla en la MISMA transacción que el pedido y se publica después; si falla, se reintenta con el mismo id y el receptor deduplica.</dd>
+  <dt>En vivo: “matá el servidor con un pedido en la cola. ¿Qué pasa?”</dt>
+  <dd>El mensaje es persistente (journal en disco). Al volver, el MDB lo procesa y reconstruye el pedido desde el mensaje. Demo: <span class="mono">probar-resiliencia.sh --broker</span>.</dd>
+</dl>
+<div class="caja ok"><b>Tu tarea de hoy:</b> correr <span class="mono">./mvnw test -Dtest='FlujoPedidoTest,EventosPedidoTest,RegistroDeMensajesTest,DatosJpaTest'</span>, ensayar el <span class="mono">kill -9</span> con el plan de demo y hacer un commit propio: por ejemplo, un test de que un evento sin <span class="mono">idPedido</span> falla, o documentar el diagrama cola + tópico en el ADR-013.</div>
+
+<h2 class="salto">Tomás · Integraciones y front</h2>
+<p><b>Qué expone:</b> arquitectura de las integraciones y cómo el front las usa (búsqueda con IA, JWT, Idempotency-Key en el checkout).</p>
+<table>
+  <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
+  <tr><td class="mono">assets/js/compartido/cliente-http.js</td><td>Base <span class="mono">api/v1/</span>, token JWT en sessionStorage, <span class="mono">ingresarEnBackend</span></td></tr>
+  <tr><td class="mono">assets/js/main.js › buscarConEnter</td><td>Frase de 3+ palabras → gateway de IA → fichas de filtros</td></tr>
+  <tr><td class="mono">carrito/presentacion/carrito-view.js</td><td>Clave de compra (<span class="mono">nuevaClave</span>, se reusa si el carrito no cambió), mensajes por estado</td></tr>
+  <tr><td class="mono">usuario/presentacion/usuario-view.js</td><td>Al ingresar pide el JWT; al salir lo borra</td></tr>
+  <tr><td class="mono">scripts/recorrido-ui.mjs</td><td>Recorrido automatizado en Chrome y capturas del manual</td></tr>
+</table>
+<dl class="qa">
+  <dt>Conceptual: ¿por qué REST para comprar y JMS para procesar?</dt>
+  <dd>El cliente necesita una respuesta inmediata (202 + id); el procesamiento puede tardar o fallar, y con la cola no bloquea al cliente ni se pierde si el consumidor está caído.</dd>
+  <dt>Código que no escribiste: ¿por qué la clave de compra se regenera si cambia el carrito?</dt>
+  <dd>Misma clave + otro cuerpo = 422. Si el usuario cambió el carrito es otra compra, así que corresponde otra clave.</dd>
+  <dt>En vivo: “apagá la IA y buscá”</dt>
+  <dd><span class="mono">PUT /api/v1/admin/ia/habilitada {"habilitada":false}</span>: la búsqueda sigue con el aviso “modo básico”.</dd>
+</dl>
+<div class="caja ok"><b>Tu tarea de hoy:</b> correr <span class="mono">node scripts/recorrido-ui.mjs</span> (ver el plan de demo), probar la tienda a mano y hacer un commit propio: por ejemplo, mostrar en la interfaz el aviso de 429 de la IA, o un test de <span class="mono">cliente-http</span> que verifique que se manda el header Authorization.</div>
+
+<h2 class="salto">Rodrigo · Gateway de IA y costos</h2>
+<p><b>Qué expone:</b> qué es el gateway, por qué Haiku 5.5 y cuánto cuesta a escala.</p>
+<table>
+  <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
+  <tr><td class="mono">ia/service/GatewayIA.java</td><td>Facade: interruptor, política, bulkhead, circuit breaker, timeout de 5 s, validación, fallback, trazas</td></tr>
+  <tr><td class="mono">ia/service/CircuitoIA.java</td><td>CERRADO / ABIERTO (30 s) / SEMIABIERTO; 10 llamadas, 50 %</td></tr>
+  <tr><td class="mono">ia/service/ModeloClaude.java + resources/ia/prompt-busqueda-v3.txt</td><td>Adapter con el SDK; consulta delimitada; tokens y costo</td></tr>
+  <tr><td class="mono">src/test/resources/ia/eval-set-v1.json + EvalSetIATest</td><td>24 casos, umbrales en el CI</td></tr>
+  <tr><td class="mono">docs/ia/FICHA_IA.md, docs/adr/adr-012.md</td><td>Gobernanza, riesgos OWASP LLM, elección y costo</td></tr>
+</table>
+<dl class="qa">
+  <dt>Conceptual: ¿para qué un circuit breaker si ya hay timeout?</dt>
+  <dd>El timeout limita cuánto espera UNA llamada; el circuit breaker evita seguir llamando a un proveedor que viene fallando: falla rápido durante 30 s y protege recursos y costo.</dd>
+  <dt>Código que no escribiste: ¿por qué el circuito se consulta DESPUÉS de tomar el cupo del bulkhead?</dt>
+  <dd>Para que la única llamada de prueba del estado SEMIABIERTO siempre llegue al proveedor; si se rechazara por falta de cupo, el circuito quedaría trabado.</dd>
+  <dt>En vivo: “¿cuánto cuesta con 100.000 usuarios?”</dt>
+  <dd>500 × 0,10 + 150 × 0,50 por millón = US$ 0,000125 por búsqueda; × 1.000.000 búsquedas/mes = US$ 125/mes.</dd>
+</dl>
+<div class="caja ok"><b>Lo que tenés que saber explicar:</b> el adapter local (<span class="mono">ModeloLocal</span>, Ollama con qwen2.5:3b) y por qué en producción sigue siendo Haiku. El eval set contra el modelo local dio 92 % de exactitud (<span class="mono">entrega-3/evidencias/eval-ia-modelo-local.txt</span>). Además: coordinar los commits del equipo y el merge del PR #4.</div>
+
+<h2 class="salto">Nicolás · Calidad y pruebas</h2>
+<p><b>Qué expone:</b> CI con cobertura, plan de pruebas, matriz de trazabilidad y manual.</p>
+<table>
+  <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
+  <tr><td class="mono">.github/workflows/ci.yml</td><td>Jobs de backend y frontend, JaCoCo, eval set, artefactos</td></tr>
+  <tr><td class="mono">entrega-3/PLAN_DE_PRUEBAS.md</td><td>54 casos, niveles, técnicas, criterios de entrada y salida</td></tr>
+  <tr><td class="mono">entrega-3/MATRIZ_TRAZABILIDAD.md</td><td>BR → HU (Gherkin) → CP → componente → patrón → evidencia</td></tr>
+  <tr><td class="mono">entrega-3/MANUAL_DE_USUARIO.md</td><td>Tutorial con capturas, guías, referencia (Diátaxis)</td></tr>
+</table>
+<dl class="qa">
+  <dt>Conceptual: ¿qué es la trazabilidad y para qué sirve?</dt>
+  <dd>Seguir cada requisito hasta su prueba y su código, en ambos sentidos: si cambia un requisito sabés qué probar, y si falla un test sabés qué requisito está en riesgo.</dd>
+  <dt>Código que no escribiste: ¿por qué el CI usa <span class="mono">shell: bash</span> en el paso de JS?</dt>
+  <dd>Activa <span class="mono">pipefail</span>. Con <span class="mono">node --test | tee</span>, el código de salida es el de <span class="mono">tee</span>: sin pipefail, un test que falla no rompería el job.</dd>
+  <dt>En vivo: “seguí un requisito de punta a punta”</dt>
+  <dd>BR05 → HU05 → criterio “misma clave = mismo pedido” → CP-15 → <span class="mono">IdempotenciaPedidos</span> → <span class="mono">IdempotenciaPedidosTest</span> → <span class="mono">probar-resiliencia.txt</span>.</dd>
+</dl>
+<div class="caja ok"><b>Tu tarea de hoy:</b> abrir la corrida del CI después del push y verificar los artefactos; revisar el plan contra la ejecución real y hacer un commit propio, por ejemplo agregar casos en Gherkin para los criterios de seguridad SEC de la clase 11, o completar la columna de resultado del plan con la corrida de hoy.</div>
+
+</body>
+</html>

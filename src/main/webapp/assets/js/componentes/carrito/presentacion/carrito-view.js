@@ -45,13 +45,14 @@ function vacio() {
         <svg viewBox="0 0 24 24" focusable="false"><path d="M3 4h2.2l2.3 11.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L21 8H6.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17.5" cy="20" r="1.5" fill="currentColor"/></svg>
       </span>
       <h3>Tu carrito está vacío</h3>
-      <p>Todavía no agregaste nada. Empezá por el catálogo: hay 16 productos esperando.</p>
+      <p>Todavía no agregaste nada. Empezá por el catálogo: hay más de 150 productos esperando.</p>
       <button class="boton boton--primario" type="button" data-ir-al-catalogo>Ver el catálogo</button>
     </div>`;
 }
 
 function confirmado(pedido) {
-  const pendiente = pedido.estado === 'PENDIENTE';
+  // ERROR_ENVIO: el servidor aceptó la compra y la reenvía solo; para el cliente sigue "recibido".
+  const pendiente = pedido.estado === 'PENDIENTE' || pedido.estado === 'ERROR_ENVIO';
   const procesado = pedido.estado === 'PROCESADO';
   return `
     <div class="carrito__confirmado">
@@ -220,7 +221,8 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
       render(carrito.resumen());
       cerrarCarrito();
       alIrAlCatalogo?.();
-    } else if (boton.dataset.consultarPedido !== undefined && pedidoConfirmado?.estado === 'PENDIENTE') {
+    } else if (boton.dataset.consultarPedido !== undefined
+        && ['PENDIENTE', 'ERROR_ENVIO'].includes(pedidoConfirmado?.estado)) {
       boton.disabled = true;
       obtener(`pedidos/${pedidoConfirmado.codigo}`)
         .then((actual) => {
@@ -266,6 +268,22 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
    * paso 2, no. Esa es la diferencia entre un chequeo de UI y un control de
    * acceso, y es la pregunta que conviene tener contestada.
    */
+  /**
+   * UUID v4 para la Idempotency-Key. `crypto.randomUUID` sólo existe en contextos
+   * seguros (https o localhost); servido por http://IP:8080 se arma con getRandomValues.
+   */
+  function nuevaClave() {
+    if (globalThis.crypto?.randomUUID) return crypto.randomUUID();
+    const b = crypto.getRandomValues(new Uint8Array(16));
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    const h = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+    return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+  }
+
+  /** Idempotency-Key de la compra en curso (y el carrito al que corresponde); se conserva entre reintentos fallidos. */
+  let claveDeCompra = null;
+
   document.querySelector('[data-checkout]')?.addEventListener('click', async (evento) => {
     const boton = evento.currentTarget;
     if (carrito.resumen().unidades === 0) return;
@@ -283,7 +301,15 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
         const items = carrito.obtenerItems().map((item) => ({
           idProducto: item.id, cantidad: item.cantidad
         }));
-        const aceptado = await publicar('pedidos', { items });
+        // Una clave por compra: si la red falla y el usuario reintenta, el servidor
+        // reconoce la misma clave y devuelve el pedido ya creado en vez de duplicarlo.
+        // Si el carrito cambió entre intentos es otra compra: clave nueva.
+        const contenido = JSON.stringify(items);
+        if (claveDeCompra?.contenido !== contenido) {
+          claveDeCompra = { clave: nuevaClave(), contenido };
+        }
+        const aceptado = await publicar('pedidos', { items }, { 'Idempotency-Key': claveDeCompra.clave });
+        claveDeCompra = null;
         pedido = {
           codigo: aceptado.id,
           total: Number(aceptado.total),
@@ -302,7 +328,12 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
       }
       pedidoConfirmado = pedido;
       render(carrito.resumen());
-      avisar(pedido.estado === 'PENDIENTE' ? 'Pedido aceptado para procesar.' : 'Pedido simulado localmente.', 'ok');
+      const mensajes = {
+        PENDIENTE: 'Pedido aceptado para procesar.',
+        PROCESADO: 'Pedido aceptado y procesado.',
+        ERROR_ENVIO: 'Pedido aceptado. Lo enviamos apenas se normalice el servicio: no hace falta comprar de nuevo.'
+      };
+      avisar(mensajes[pedido.estado] ?? 'Pedido simulado localmente.', 'ok');
       panel.querySelector('[data-cerrar-carrito]')?.focus({ preventScroll: true });
     } catch (error) {
       // Si falló REST no vaciamos el carrito ni simulamos una compra exitosa.

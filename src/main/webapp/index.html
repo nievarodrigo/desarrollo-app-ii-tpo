@@ -47,9 +47,7 @@
   <header class="cabecera" id="cabecera">
     <div class="cabecera__barra contenedor">
       <a class="marca" href="#inicio" aria-label="GOMARKET, inicio">
-        <span class="marca__sello" aria-hidden="true">
-          <svg viewBox="0 0 32 32" focusable="false"><path d="M8 24V8h12M8 16h9" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
-        </span>
+        <span class="marca__sello" aria-hidden="true"><span class="marca__bolsa"></span></span>
         <span class="marca__texto">
           <strong>GO</strong><em>MARKET</em>
         </span>
@@ -70,9 +68,12 @@
         <span class="buscador__lupa" aria-hidden="true">
           <svg viewBox="0 0 20 20" focusable="false"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </span>
-        <input id="q-cabecera" type="search" name="q" placeholder="Buscar auriculares, monitores, sillas…" autocomplete="off" data-buscador-input>
+        <input id="q-cabecera" type="search" name="q" placeholder="Buscá o pedí a la IA" autocomplete="off" data-buscador-input>
         <button class="buscador__limpiar" type="button" hidden data-buscador-limpiar aria-label="Limpiar búsqueda">
           <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m6 6 8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="buscador__ia" type="button" data-buscador-ia aria-label="Buscar con IA" title="Buscar con IA: describí lo que querés (ej. auriculares baratos hasta 300 mil)">
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M8 2.5 9.4 6.6 13.5 8 9.4 9.4 8 13.5 6.6 9.4 2.5 8 6.6 6.6Z" fill="currentColor"/><path d="M14.5 11 15.3 13.2 17.5 14 15.3 14.8 14.5 17 13.7 14.8 11.5 14 13.7 13.2Z" fill="currentColor"/></svg>
         </button>
       </form>
 
@@ -134,7 +135,7 @@
             <em>elegidas</em> de a una.
           </h1>
           <p class="hero__bajada">
-            Curamos un catálogo corto y honesto: tecnología, audio, hogar, oficina y deportes.
+            Más de 150 productos elegidos con criterio: tecnología, audio, hogar, oficina y deportes.
             Nada de listas infinitas — sólo lo que probaríamos en casa.
           </p>
           <div class="hero__acciones">
@@ -387,12 +388,10 @@
       <div class="pie__grilla">
         <div class="pie__marca">
           <span class="marca marca--pie">
-            <span class="marca__sello" aria-hidden="true">
-              <svg viewBox="0 0 32 32" focusable="false"><path d="M6 24V8h8a5 5 0 0 1 0 10H6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="square"/><circle cx="24" cy="22" r="4" fill="currentColor"/></svg>
-            </span>
+            <span class="marca__sello" aria-hidden="true"><span class="marca__bolsa"></span></span>
             <span class="marca__texto"><strong>GO</strong><em>MARKET</em></span>
           </span>
-          <p>Tienda online de tecnología, audio, hogar, oficina y deportes. Catálogo corto, criterio largo.</p>
+          <p>Tienda online de tecnología, audio, hogar, oficina y deportes. Catálogo amplio, criterio largo.</p>
           <ul class="pie__redes">
             <li><a href="#inicio" aria-label="Instagram de GOMARKET"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg></a></li>
             <li><a href="#inicio" aria-label="WhatsApp de GOMARKET"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 20.5 5 16.4A8.2 8.2 0 1 1 8 19.3l-4.5 1.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9.2c0 3 2.4 5.4 5.4 5.4l.9-1.6-2-1-.8.9a4.6 4.6 0 0 1-1.8-1.8l.9-.8-1-2-1.6.9Z" fill="currentColor"/></svg></a></li>

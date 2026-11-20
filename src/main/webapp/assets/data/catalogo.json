@@ -45,7 +45,7 @@
       "categoria": "audio",
       "precio": 289900,
       "precioAnterior": 349900,
-      "stock": 8,
+      "stock": 34,
       "rating": 4.8,
       "activo": true,
       "arte": "headphones",
@@ -68,7 +68,7 @@
       "marca": "Cardinal",
       "categoria": "tecnologia",
       "precio": 1849000,
-      "stock": 3,
+      "stock": 19,
       "rating": 4.7,
       "activo": true,
       "arte": "laptop",
@@ -135,7 +135,7 @@
       "marca": "Nörd",
       "categoria": "audio",
       "precio": 96500,
-      "stock": 0,
+      "stock": 12,
       "rating": 4.4,
       "activo": true,
       "arte": "speaker",
@@ -155,7 +155,7 @@
       "marca": "Solera",
       "categoria": "oficina",
       "precio": 542000,
-      "stock": 5,
+      "stock": 25,
       "rating": 4.9,
       "activo": true,
       "arte": "chair",
@@ -177,7 +177,7 @@
       "marca": "Bruma",
       "categoria": "hogar",
       "precio": 227400,
-      "stock": 9,
+      "stock": 37,
       "rating": 4.6,
       "activo": true,
       "arte": "coffee",
@@ -198,7 +198,7 @@
       "categoria": "deportes",
       "precio": 398000,
       "precioAnterior": 465000,
-      "stock": 4,
+      "stock": 22,
       "rating": 4.7,
       "activo": true,
       "arte": "dumbbell",
@@ -220,7 +220,7 @@
       "marca": "Cardinal",
       "categoria": "tecnologia",
       "precio": 612000,
-      "stock": 7,
+      "stock": 31,
       "rating": 4.5,
       "activo": true,
       "arte": "monitor",
@@ -262,7 +262,7 @@
       "marca": "Solera",
       "categoria": "oficina",
       "precio": 874500,
-      "stock": 2,
+      "stock": 16,
       "rating": 4.8,
       "activo": true,
       "arte": "desk",
@@ -282,7 +282,7 @@
       "marca": "Pampa",
       "categoria": "tecnologia",
       "precio": 274000,
-      "stock": 0,
+      "stock": 12,
       "rating": 4.2,
       "activo": true,
       "arte": "watch",
@@ -344,7 +344,7 @@
       "marca": "Pampa",
       "categoria": "deportes",
       "precio": 129900,
-      "stock": 6,
+      "stock": 28,
       "rating": 4.4,
       "activo": true,
       "arte": "backpack",
@@ -379,6 +379,3077 @@
         "oferta"
       ],
       "resenias": 57
+    },
+    {
+      "id": 17,
+      "sku": "AUD-020",
+      "nombre": "Auriculares Inalámbricos In-Ear",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 132500,
+      "precioAnterior": 158000,
+      "stock": 27,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Drivers de 10 mm, modo ambiente y estuche de carga con 24 horas extra de batería. Resistentes al sudor para entrenar.",
+      "destacados": [
+        "24 h con estuche",
+        "IPX4",
+        "Modo ambiente"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 305
+    },
+    {
+      "id": 18,
+      "sku": "AUD-023",
+      "nombre": "Barra de Sonido 2.1",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 318000,
+      "stock": 28,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Barra compacta con subwoofer inalámbrico, entrada HDMI ARC y modo diálogo para entender cada palabra de la serie.",
+      "destacados": [
+        "Subwoofer inalámbrico",
+        "HDMI ARC",
+        "Modo diálogo"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 72
+    },
+    {
+      "id": 19,
+      "sku": "AUD-026",
+      "nombre": "Parlante Bluetooth de Mesa",
+      "marca": "Bruma",
+      "categoria": "audio",
+      "precio": 74900,
+      "stock": 38,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Cuerpo de tela y madera, 12 horas de autonomía y micrófono integrado para llamadas. Cabe en cualquier estante.",
+      "destacados": [
+        "12 h de batería",
+        "Micrófono integrado",
+        "Tela y madera"
+      ],
+      "etiquetas": [],
+      "resenias": 143
+    },
+    {
+      "id": 20,
+      "sku": "AUD-030",
+      "nombre": "Micrófono Dinámico para Podcast",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 189000,
+      "stock": 12,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Cápsula dinámica cardioide que rechaza el ruido del cuarto. Salida USB y XLR, con brazo articulado incluido.",
+      "destacados": [
+        "USB + XLR",
+        "Cardioide",
+        "Brazo incluido"
+      ],
+      "etiquetas": [],
+      "resenias": 64
+    },
+    {
+      "id": 21,
+      "sku": "TEC-026",
+      "nombre": "Notebook Ligera 13\"",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 1295000,
+      "precioAnterior": 1420000,
+      "stock": 37,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "laptop",
+      "descripcion": "1,1 kg de peso, 8 GB de memoria, SSD de 256 GB y hasta 15 horas de autonomía. Para estudiar y trabajar en cualquier lado.",
+      "destacados": [
+        "1,1 kg",
+        "15 h de batería",
+        "SSD 256 GB"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 158
+    },
+    {
+      "id": 22,
+      "sku": "TEC-029",
+      "nombre": "Teclado Inalámbrico Silencioso",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 58900,
+      "stock": 45,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "keyboard",
+      "descripcion": "Teclas de perfil bajo con recorrido suave y sin clic, conexión multidispositivo y pilas que duran un año.",
+      "destacados": [
+        "Silencioso",
+        "Multidispositivo",
+        "Batería de 1 año"
+      ],
+      "etiquetas": [],
+      "resenias": 227
+    },
+    {
+      "id": 23,
+      "sku": "TEC-033",
+      "nombre": "Monitor 24\" Full HD",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 248000,
+      "precioAnterior": 279000,
+      "stock": 14,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Panel IPS de 24 pulgadas a 100 Hz con bordes mínimos, entradas HDMI y DisplayPort y soporte regulable en altura.",
+      "destacados": [
+        "Full HD 100 Hz",
+        "HDMI + DisplayPort",
+        "Soporte regulable"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 191
+    },
+    {
+      "id": 24,
+      "sku": "TEC-036",
+      "nombre": "Monitor Curvo 34\" Ultrawide",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 985000,
+      "stock": 19,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Formato 21:9 con curvatura 1500R, resolución 3440 × 1440 y modo de pantalla dividida para trabajar con dos ventanas a la vez.",
+      "destacados": [
+        "3440 × 1440",
+        "Curvo 1500R",
+        "Pantalla dividida"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 52
+    },
+    {
+      "id": 25,
+      "sku": "TEC-040",
+      "nombre": "Smartwatch Urbano AMOLED",
+      "marca": "Pampa",
+      "categoria": "tecnologia",
+      "precio": 196500,
+      "stock": 18,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "Pantalla AMOLED de 1,4 pulgadas, caja de acero y notificaciones del celular. Seguimiento de sueño y pasos todo el día.",
+      "destacados": [
+        "AMOLED 1,4\"",
+        "7 días",
+        "Caja de acero"
+      ],
+      "etiquetas": [],
+      "resenias": 174
+    },
+    {
+      "id": 26,
+      "sku": "HOG-024",
+      "nombre": "Lámpara de Pie Nórdica",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 156000,
+      "stock": 34,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Estructura de fresno y pantalla de lino, con luz cálida de bajo consumo. Un rincón de lectura en cualquier living.",
+      "destacados": [
+        "Fresno macizo",
+        "Pantalla de lino",
+        "LED cálido"
+      ],
+      "etiquetas": [],
+      "resenias": 49
+    },
+    {
+      "id": 27,
+      "sku": "HOG-027",
+      "nombre": "Cafetera Prensa Francesa 1 L",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 42500,
+      "stock": 31,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Vidrio borosilicato con filtro de acero de doble malla y estructura que aísla del calor. Para cuatro tazas.",
+      "destacados": [
+        "Vidrio borosilicato",
+        "Doble malla",
+        "1 L"
+      ],
+      "etiquetas": [],
+      "resenias": 268
+    },
+    {
+      "id": 28,
+      "sku": "HOG-031",
+      "nombre": "Cafetera Espresso Automática",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 689000,
+      "precioAnterior": 759000,
+      "stock": 22,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Molinillo cónico integrado, bomba de 15 bares y vaporizador de leche. Del grano a la taza en menos de un minuto.",
+      "destacados": [
+        "Molinillo integrado",
+        "15 bares",
+        "Vaporizador de leche"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 98
+    },
+    {
+      "id": 29,
+      "sku": "HOG-035",
+      "nombre": "Manta Polar Doble Faz",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 36900,
+      "stock": 52,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "blanket",
+      "descripcion": "Polar liviano y suave de 150 × 200 cm, con una cara lisa y otra tipo corderito. Lavable a máquina.",
+      "destacados": [
+        "150 × 200 cm",
+        "Doble faz",
+        "Lavable"
+      ],
+      "etiquetas": [],
+      "resenias": 321
+    },
+    {
+      "id": 30,
+      "sku": "HOG-038",
+      "nombre": "Velador con Carga Inalámbrica",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 69500,
+      "precioAnterior": 82000,
+      "stock": 22,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Luz táctil con tres intensidades y base que carga el celular sin cables. Cuerpo de aluminio cepillado.",
+      "destacados": [
+        "Control táctil",
+        "Carga Qi 15 W",
+        "Aluminio"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 112
+    },
+    {
+      "id": 31,
+      "sku": "OFI-021",
+      "nombre": "Silla Gamer Reclinable",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 298000,
+      "stock": 10,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Respaldo reclinable hasta 160°, almohadillas lumbar y cervical y pistón clase 4. Tapizado de cuero sintético.",
+      "destacados": [
+        "Reclina 160°",
+        "Pistón clase 4",
+        "Almohadillas"
+      ],
+      "etiquetas": [],
+      "resenias": 203
+    },
+    {
+      "id": 32,
+      "sku": "OFI-024",
+      "nombre": "Escritorio Compacto con Cajonera",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 329000,
+      "stock": 31,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Tapa melamínica de 120 × 60 cm, cajonera con llave y pasacables oculto. Ideal para ambientes chicos.",
+      "destacados": [
+        "120 × 60 cm",
+        "Cajonera con llave",
+        "Pasacables"
+      ],
+      "etiquetas": [],
+      "resenias": 85
+    },
+    {
+      "id": 33,
+      "sku": "OFI-027",
+      "nombre": "Organizador de Cables y Cargador",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 28500,
+      "stock": 60,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Caja de bambú con ranuras para cables y un soporte para dejar el celular y el cargador a mano. Sin enredos.",
+      "destacados": [
+        "Bambú",
+        "Soporte para celular",
+        "Ranuras para cables"
+      ],
+      "etiquetas": [],
+      "resenias": 137
+    },
+    {
+      "id": 34,
+      "sku": "OFI-030",
+      "nombre": "Silla de Visita Tapizada",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 118500,
+      "precioAnterior": 134000,
+      "stock": 0,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Asiento tapizado en tela gruesa, patas de acero con regatones y estructura apilable. Para reuniones y recepción.",
+      "destacados": [
+        "Apilable",
+        "Patas de acero",
+        "Tela gruesa"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 38
+    },
+    {
+      "id": 35,
+      "sku": "OFI-033",
+      "nombre": "Monitor Portátil 15,6\" USB-C",
+      "marca": "Cardinal",
+      "categoria": "oficina",
+      "precio": 224000,
+      "stock": 13,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Segunda pantalla Full HD de 1 kg que se alimenta por un solo cable USB-C. Funda con soporte incluida.",
+      "destacados": [
+        "Un solo cable",
+        "1 kg",
+        "Funda-soporte"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 79
+    },
+    {
+      "id": 36,
+      "sku": "DEP-019",
+      "nombre": "Mancuernas Hexagonales 10 kg (par)",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 112000,
+      "stock": 15,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Dos mancuernas de 5 kg recubiertas en goma, con agarre moleteado y forma hexagonal que no rueda.",
+      "destacados": [
+        "Goma antigolpes",
+        "Agarre moleteado",
+        "No rueda"
+      ],
+      "etiquetas": [],
+      "resenias": 166
+    },
+    {
+      "id": 37,
+      "sku": "DEP-022",
+      "nombre": "Botella Deportiva 1 L",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 17900,
+      "precioAnterior": 21500,
+      "stock": 80,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "bottle",
+      "descripcion": "Tritán libre de BPA, tapa con traba antiderrame y marcas de medida para llevar la cuenta de la hidratación.",
+      "destacados": [
+        "Libre de BPA",
+        "Tapa antiderrame",
+        "1 L"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 489
+    },
+    {
+      "id": 38,
+      "sku": "DEP-025",
+      "nombre": "Mochila de Trekking 45 L",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 214000,
+      "stock": 25,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Armazón interno regulable, cubre-mochila impermeable y bolsillo para hidratación. Para escapadas de varios días.",
+      "destacados": [
+        "Armazón regulable",
+        "Cubre-mochila",
+        "Hidratación"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 81
+    },
+    {
+      "id": 39,
+      "sku": "DEP-028",
+      "nombre": "Reloj Deportivo Running GPS",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 342000,
+      "precioAnterior": 389000,
+      "stock": 31,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "GPS multibanda, métricas de running y recuperación, y planes de entrenamiento. Correa de silicona liviana.",
+      "destacados": [
+        "GPS multibanda",
+        "Planes de entrenamiento",
+        "20 días de batería"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 109
+    },
+    {
+      "id": 40,
+      "sku": "DEP-031",
+      "nombre": "Mochila Urbana Antirrobo",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 86500,
+      "stock": 24,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Cierres ocultos, bolsillo trasero para documentos y puerto de carga USB externo. Tela repelente al agua.",
+      "destacados": [
+        "Cierres ocultos",
+        "Puerto USB",
+        "Repelente al agua"
+      ],
+      "etiquetas": [],
+      "resenias": 215
+    },
+    {
+      "id": 41,
+      "sku": "AUD-031",
+      "nombre": "Auriculares con Cable Estudio",
+      "marca": "Bruma",
+      "categoria": "audio",
+      "precio": 39900,
+      "stock": 64,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Sonido equilibrado, cable de 1,5 m con micrófono y almohadillas suaves para usar todo el día.",
+      "destacados": [
+        "Micrófono en el cable",
+        "Plegables",
+        "Jack 3,5 mm"
+      ],
+      "etiquetas": [],
+      "resenias": 188
+    },
+    {
+      "id": 42,
+      "sku": "AUD-032",
+      "nombre": "Auriculares Deportivos Bluetooth",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 64900,
+      "precioAnterior": 79900,
+      "stock": 45,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Gancho de oreja que no se mueve al correr, resistentes al sudor y 10 horas de música.",
+      "destacados": [
+        "IPX5",
+        "10 h de batería",
+        "Gancho de oreja"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 241
+    },
+    {
+      "id": 43,
+      "sku": "AUD-033",
+      "nombre": "Auriculares Vincha Bluetooth",
+      "marca": "Bruma",
+      "categoria": "audio",
+      "precio": 98500,
+      "stock": 32,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Vincha liviana con 40 horas de batería, plegables y con modo de baja latencia para videos.",
+      "destacados": [
+        "40 h de batería",
+        "Baja latencia",
+        "Plegables"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 156
+    },
+    {
+      "id": 44,
+      "sku": "AUD-034",
+      "nombre": "Auriculares Gamer con Micrófono",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 174900,
+      "precioAnterior": 199000,
+      "stock": 18,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Sonido envolvente 7.1, micrófono desmontable con cancelación de ruido y luces RGB.",
+      "destacados": [
+        "Sonido 7.1",
+        "Micrófono desmontable",
+        "USB y 3,5 mm"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 97
+    },
+    {
+      "id": 45,
+      "sku": "AUD-035",
+      "nombre": "Auriculares Premium Hi-Res",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 429000,
+      "stock": 9,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Drivers de berilio, audio de alta resolución y cancelación de ruido adaptativa con 50 horas.",
+      "destacados": [
+        "Hi-Res",
+        "ANC adaptativa",
+        "50 h de batería"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 63
+    },
+    {
+      "id": 46,
+      "sku": "TEC-100",
+      "nombre": "Mouse Óptico USB 1600 DPI",
+      "marca": "Nörd",
+      "categoria": "tecnologia",
+      "precio": 25900,
+      "precioAnterior": 29800,
+      "stock": 5,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "mouse",
+      "descripcion": "Trabajá con un sensor óptico de 1600 DPI y cable USB de 1,5 m.",
+      "destacados": [
+        "1600 DPI",
+        "Cable de 1,5 m",
+        "Conexión USB"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 8
+    },
+    {
+      "id": 47,
+      "sku": "TEC-101",
+      "nombre": "Mouse Inalámbrico Ergonómico",
+      "marca": "Bruma",
+      "categoria": "tecnologia",
+      "precio": 39500,
+      "stock": 24,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "mouse",
+      "descripcion": "Trabajá con agarre lateral, seis botones y sensor ajustable hasta 2400 DPI. Incluye receptor USB de 2,4 GHz.",
+      "destacados": [
+        "Hasta 2400 DPI",
+        "Receptor incluido",
+        "6 botones"
+      ],
+      "etiquetas": [],
+      "resenias": 75
+    },
+    {
+      "id": 48,
+      "sku": "TEC-102",
+      "nombre": "Mouse Vertical Recargable",
+      "marca": "Solera",
+      "categoria": "tecnologia",
+      "precio": 69000,
+      "stock": 43,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "mouse",
+      "descripcion": "Usá una postura de mano vertical con seis botones y batería recargable de 500 mAh.",
+      "destacados": [
+        "Diseño vertical",
+        "6 botones",
+        "Batería de 500 mAh"
+      ],
+      "etiquetas": [],
+      "resenias": 142
+    },
+    {
+      "id": 49,
+      "sku": "TEC-103",
+      "nombre": "Tablet de Estudio 10 Pulgadas",
+      "marca": "Pampa",
+      "categoria": "tecnologia",
+      "precio": 249900,
+      "precioAnterior": 287400,
+      "stock": 62,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "tablet",
+      "descripcion": "Leé apuntes en una pantalla de 10 pulgadas con 4 GB de RAM, 64 GB de almacenamiento y conexión wifi.",
+      "destacados": [
+        "Pantalla de 10″",
+        "4 GB de RAM",
+        "64 GB internos"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 209
+    },
+    {
+      "id": 50,
+      "sku": "TEC-104",
+      "nombre": "Lector Digital de Tinta Electrónica",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 319000,
+      "stock": 81,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "tablet",
+      "descripcion": "Llevá tus libros en una pantalla de tinta electrónica de 6 pulgadas con luz regulable y 16 GB de almacenamiento. Admite EPUB y PDF.",
+      "destacados": [
+        "Tinta electrónica",
+        "Luz regulable",
+        "16 GB internos"
+      ],
+      "etiquetas": [],
+      "resenias": 276
+    },
+    {
+      "id": 51,
+      "sku": "TEC-105",
+      "nombre": "Tablet con Lápiz 12 Pulgadas",
+      "marca": "Austral",
+      "categoria": "tecnologia",
+      "precio": 699900,
+      "stock": 14,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "tablet",
+      "descripcion": "Dibujá y tomá notas con el lápiz incluido y pantalla de 12 pulgadas. Tiene 8 GB de RAM y 256 GB de almacenamiento.",
+      "destacados": [
+        "Lápiz incluido",
+        "8 GB de RAM",
+        "256 GB internos"
+      ],
+      "etiquetas": [],
+      "resenias": 343
+    },
+    {
+      "id": 52,
+      "sku": "TEC-106",
+      "nombre": "Celular Compacto 128 GB",
+      "marca": "Ceibo",
+      "categoria": "tecnologia",
+      "precio": 289900,
+      "precioAnterior": 347900,
+      "stock": 33,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "phone",
+      "descripcion": "Sacá fotos con cámara de 50 MP y pantalla de 6,1 pulgadas. Incluye 6 GB de RAM, 128 GB de almacenamiento y batería de 5000 mAh.",
+      "destacados": [
+        "Cámara de 50 MP",
+        "128 GB internos",
+        "Batería de 5000 mAh"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 410
+    },
+    {
+      "id": 53,
+      "sku": "TEC-107",
+      "nombre": "Celular Avanzado 256 GB",
+      "marca": "Lumen",
+      "categoria": "tecnologia",
+      "precio": 899000,
+      "stock": 52,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "phone",
+      "descripcion": "Grabá videos en 4K y navegá en una pantalla OLED de 6,7 pulgadas a 120 Hz. Tiene 12 GB de RAM y almacenamiento de 256 GB.",
+      "destacados": [
+        "Pantalla OLED",
+        "Video en 4K",
+        "12 GB de RAM"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 477
+    },
+    {
+      "id": 54,
+      "sku": "TEC-108",
+      "nombre": "Cargador de Pared USB-C 30 W",
+      "marca": "Tándem",
+      "categoria": "tecnologia",
+      "precio": 29500,
+      "stock": 71,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "phone",
+      "descripcion": "Cargá tu celular con salida USB-C de hasta 30 W y protocolo PD. Incluye ficha de dos patas inclinadas y protección contra sobrecarga.",
+      "destacados": [
+        "Potencia de 30 W",
+        "Protocolo PD",
+        "Ficha argentina"
+      ],
+      "etiquetas": [],
+      "resenias": 544
+    },
+    {
+      "id": 55,
+      "sku": "TEC-109",
+      "nombre": "Batería Externa 20000 mAh",
+      "marca": "Quebracho",
+      "categoria": "tecnologia",
+      "precio": 59900,
+      "precioAnterior": 71900,
+      "stock": 90,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "phone",
+      "descripcion": "Recargá tus dispositivos fuera de casa con capacidad de 20000 mAh, dos puertos USB-A y salida USB-C de hasta 20 W.",
+      "destacados": [
+        "20000 mAh",
+        "3 salidas",
+        "USB-C de 20 W"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 611
+    },
+    {
+      "id": 56,
+      "sku": "TEC-110",
+      "nombre": "Televisor Inteligente 43 Pulgadas",
+      "marca": "Nörd",
+      "categoria": "tecnologia",
+      "precio": 499900,
+      "stock": 23,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "tv",
+      "descripcion": "Mirá series en una pantalla Full HD de 43 pulgadas. Incluye wifi, aplicaciones de streaming y dos entradas HDMI.",
+      "destacados": [
+        "Pantalla de 43″",
+        "Resolución Full HD",
+        "2 entradas HDMI"
+      ],
+      "etiquetas": [],
+      "resenias": 678
+    },
+    {
+      "id": 57,
+      "sku": "TEC-111",
+      "nombre": "Televisor 55 Pulgadas 4K",
+      "marca": "Bruma",
+      "categoria": "tecnologia",
+      "precio": 849000,
+      "stock": 42,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "tv",
+      "descripcion": "Disfrutá películas en resolución 4K con pantalla de 55 pulgadas y soporte HDR10. Incluye wifi de doble banda y tres entradas HDMI.",
+      "destacados": [
+        "Resolución 4K",
+        "Soporte HDR10",
+        "3 entradas HDMI"
+      ],
+      "etiquetas": [],
+      "resenias": 745
+    },
+    {
+      "id": 58,
+      "sku": "TEC-112",
+      "nombre": "Proyector Portátil Full HD",
+      "marca": "Solera",
+      "categoria": "tecnologia",
+      "precio": 379900,
+      "precioAnterior": 474900,
+      "stock": 0,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "tv",
+      "descripcion": "Proyectá películas hasta 120 pulgadas con resolución nativa Full HD y brillo de 450 lúmenes ANSI. Incluye entrada HDMI y enfoque manual.",
+      "destacados": [
+        "Full HD nativo",
+        "450 lúmenes ANSI",
+        "Hasta 120 pulgadas"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 812
+    },
+    {
+      "id": 59,
+      "sku": "TEC-113",
+      "nombre": "Cámara Web Full HD con Tapa",
+      "marca": "Pampa",
+      "categoria": "tecnologia",
+      "precio": 49900,
+      "stock": 80,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "camera",
+      "descripcion": "Hacé videollamadas a 1080p y 30 cuadros por segundo. Incluye micrófono, conexión USB y tapa física para cubrir la lente.",
+      "destacados": [
+        "Video de 1080p",
+        "Tapa de privacidad",
+        "Conexión USB"
+      ],
+      "etiquetas": [],
+      "resenias": 879
+    },
+    {
+      "id": 60,
+      "sku": "TEC-114",
+      "nombre": "Cámara Web 4K para Streaming",
+      "marca": "Cardinal",
+      "categoria": "tecnologia",
+      "precio": 139900,
+      "stock": 13,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "camera",
+      "descripcion": "Transmití en 4K a 30 cuadros por segundo con enfoque automático. Incluye soporte para monitor y rosca de trípode de 1/4 de pulgada.",
+      "destacados": [
+        "Video 4K a 30 fps",
+        "Enfoque automático",
+        "Rosca de 1/4″"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 946
+    },
+    {
+      "id": 61,
+      "sku": "TEC-115",
+      "nombre": "Cámara de Acción Sumergible",
+      "marca": "Austral",
+      "categoria": "tecnologia",
+      "precio": 219000,
+      "precioAnterior": 251800,
+      "stock": 32,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "camera",
+      "descripcion": "Grabá tus salidas en 4K a 30 cuadros por segundo. Incluye carcasa sumergible hasta 30 m y dos baterías de 1050 mAh.",
+      "destacados": [
+        "Video en 4K",
+        "Carcasa hasta 30 m",
+        "2 baterías incluidas"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 70
+    },
+    {
+      "id": 62,
+      "sku": "TEC-116",
+      "nombre": "Notebook de Estudio 15,6 Pulgadas",
+      "marca": "Ceibo",
+      "categoria": "tecnologia",
+      "precio": 649900,
+      "stock": 51,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "laptop",
+      "descripcion": "Estudiá con pantalla Full HD de 15,6 pulgadas, 8 GB de RAM y SSD de 256 GB. Incluye teclado con distribución en español.",
+      "destacados": [
+        "Pantalla Full HD",
+        "8 GB de RAM",
+        "SSD de 256 GB"
+      ],
+      "etiquetas": [],
+      "resenias": 137
+    },
+    {
+      "id": 63,
+      "sku": "TEC-117",
+      "nombre": "Notebook de Diseño 16 Pulgadas",
+      "marca": "Lumen",
+      "categoria": "tecnologia",
+      "precio": 2199000,
+      "stock": 70,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "laptop",
+      "descripcion": "Editá videos con pantalla de 16 pulgadas, 32 GB de RAM y SSD de 1 TB. Incluye placa gráfica dedicada con 8 GB de memoria.",
+      "destacados": [
+        "32 GB de RAM",
+        "SSD de 1 TB",
+        "Gráfica de 8 GB"
+      ],
+      "etiquetas": [],
+      "resenias": 204
+    },
+    {
+      "id": 64,
+      "sku": "TEC-118",
+      "nombre": "Teclado USB de Perfil Bajo",
+      "marca": "Tándem",
+      "categoria": "tecnologia",
+      "precio": 29900,
+      "precioAnterior": 34400,
+      "stock": 89,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "keyboard",
+      "descripcion": "Escribí con 105 teclas de perfil bajo y distribución en español con ñ. Conectalo por USB con su cable de 1,4 m.",
+      "destacados": [
+        "105 teclas",
+        "Incluye tecla ñ",
+        "Cable de 1,4 m"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 271
+    },
+    {
+      "id": 65,
+      "sku": "TEC-119",
+      "nombre": "Monitor de Diseño 32 Pulgadas 4K",
+      "marca": "Quebracho",
+      "categoria": "tecnologia",
+      "precio": 799900,
+      "stock": 22,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "monitor",
+      "descripcion": "Revisá proyectos en un panel IPS de 32 pulgadas con resolución 4K. Incluye soporte regulable y conexión USB-C con carga de hasta 65 W.",
+      "destacados": [
+        "Panel IPS 4K",
+        "Carga USB-C de 65 W",
+        "Altura regulable"
+      ],
+      "etiquetas": [],
+      "resenias": 338
+    },
+    {
+      "id": 66,
+      "sku": "TEC-120",
+      "nombre": "Pulsera de Actividad con Pantalla",
+      "marca": "Nörd",
+      "categoria": "tecnologia",
+      "precio": 49900,
+      "stock": 41,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "Registrá pasos desde la muñeca con pantalla de 1,47 pulgadas, resistencia al agua de 5 ATM y autonomía de hasta 10 días.",
+      "destacados": [
+        "Pantalla de 1,47″",
+        "Resistencia de 5 ATM",
+        "Hasta 10 días"
+      ],
+      "etiquetas": [],
+      "resenias": 405
+    },
+    {
+      "id": 67,
+      "sku": "TEC-121",
+      "nombre": "Impresora Multifunción de Tanque",
+      "marca": "Bruma",
+      "categoria": "tecnologia",
+      "precio": 449900,
+      "precioAnterior": 539900,
+      "stock": 60,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "printer",
+      "descripcion": "Imprimí, copiá y escaneá en formato A4 con tanques de tinta recargables, conexión wifi y escáner de 1200 DPI.",
+      "destacados": [
+        "Tanques recargables",
+        "Conexión wifi",
+        "Escáner de 1200 DPI"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 472
+    },
+    {
+      "id": 68,
+      "sku": "TEC-122",
+      "nombre": "Escáner Portátil de Documentos",
+      "marca": "Solera",
+      "categoria": "tecnologia",
+      "precio": 189000,
+      "stock": 79,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "printer",
+      "descripcion": "Digitalizá apuntes de hasta tamaño A4 con resolución de 600 DPI. Se alimenta por USB y permite guardar archivos PDF o JPG.",
+      "destacados": [
+        "Hasta tamaño A4",
+        "Resolución de 600 DPI",
+        "Alimentación USB"
+      ],
+      "etiquetas": [],
+      "resenias": 539
+    },
+    {
+      "id": 69,
+      "sku": "AUD-100",
+      "nombre": "Auriculares de Botón con Cable",
+      "marca": "Pampa",
+      "categoria": "audio",
+      "precio": 15900,
+      "stock": 12,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Escuchá música con parlantes de 10 mm y ficha de 3,5 mm. Incluyen micrófono y cable de 1,2 m con botón para llamadas.",
+      "destacados": [
+        "Ficha de 3,5 mm",
+        "Cable de 1,2 m",
+        "Micrófono integrado"
+      ],
+      "etiquetas": [],
+      "resenias": 606
+    },
+    {
+      "id": 70,
+      "sku": "AUD-101",
+      "nombre": "Auriculares Plegables para Viaje",
+      "marca": "Cardinal",
+      "categoria": "audio",
+      "precio": 45900,
+      "precioAnterior": 55100,
+      "stock": 31,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Llevá tu música con una vincha plegable y parlantes de 40 mm. Incluyen conexión inalámbrica y batería de hasta 25 horas.",
+      "destacados": [
+        "Vincha plegable",
+        "Hasta 25 horas",
+        "Parlantes de 40 mm"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 673
+    },
+    {
+      "id": 71,
+      "sku": "AUD-102",
+      "nombre": "Auriculares Abiertos para Correr",
+      "marca": "Austral",
+      "categoria": "audio",
+      "precio": 89900,
+      "stock": 50,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Corré con un diseño que deja libre el canal auditivo, conexión inalámbrica, resistencia IPX5 y hasta 8 horas de autonomía.",
+      "destacados": [
+        "Oído abierto",
+        "Resistencia IPX5",
+        "Hasta 8 horas"
+      ],
+      "etiquetas": [],
+      "resenias": 740
+    },
+    {
+      "id": 72,
+      "sku": "AUD-103",
+      "nombre": "Auriculares de Monitoreo Cerrados",
+      "marca": "Ceibo",
+      "categoria": "audio",
+      "precio": 129000,
+      "stock": 69,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Revisá tus grabaciones con parlantes de 50 mm y diseño cerrado. Incluyen cable desmontable de 3 m y adaptador a ficha de 6,35 mm.",
+      "destacados": [
+        "Parlantes de 50 mm",
+        "Cable desmontable",
+        "Adaptador de 6,35 mm"
+      ],
+      "etiquetas": [],
+      "resenias": 807
+    },
+    {
+      "id": 73,
+      "sku": "AUD-104",
+      "nombre": "Auriculares Inalámbricos con Estuche Compacto",
+      "marca": "Lumen",
+      "categoria": "audio",
+      "precio": 59900,
+      "precioAnterior": 74900,
+      "stock": 88,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Escuchá hasta 6 horas por carga y completá 24 horas con el estuche. Incluyen controles táctiles y almohadillas en tres tamaños.",
+      "destacados": [
+        "Hasta 24 h totales",
+        "Controles táctiles",
+        "3 tamaños de puntas"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 874
+    },
+    {
+      "id": 74,
+      "sku": "AUD-105",
+      "nombre": "Auriculares de Estudio Abiertos",
+      "marca": "Tándem",
+      "categoria": "audio",
+      "precio": 299900,
+      "stock": 21,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Mezclá audio con diseño abierto y transductores de 50 mm. Tienen impedancia de 80 ohms y cable de 3 m con ficha de 3,5 mm.",
+      "destacados": [
+        "Diseño abierto",
+        "Impedancia de 80 ohms",
+        "Cable de 3 m"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 941
+    },
+    {
+      "id": 75,
+      "sku": "AUD-106",
+      "nombre": "Auriculares Infantiles con Límite de Volumen",
+      "marca": "Quebracho",
+      "categoria": "audio",
+      "precio": 34900,
+      "stock": 40,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "headphones",
+      "descripcion": "Acompañá las clases con una vincha ajustable y volumen limitado a 85 dB. Incluyen cable de 1,2 m y almohadillas acolchadas.",
+      "destacados": [
+        "Límite de 85 dB",
+        "Vincha ajustable",
+        "Cable de 1,2 m"
+      ],
+      "etiquetas": [],
+      "resenias": 65
+    },
+    {
+      "id": 76,
+      "sku": "AUD-107",
+      "nombre": "Parlante de Bolsillo Resistente al Agua",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 29900,
+      "precioAnterior": 34400,
+      "stock": 59,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Llevá música a tus paseos con potencia de 5 W, resistencia IPX7 y hasta 10 horas de batería. Se carga por USB-C.",
+      "destacados": [
+        "Potencia de 5 W",
+        "Resistencia IPX7",
+        "Hasta 10 horas"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 132
+    },
+    {
+      "id": 77,
+      "sku": "AUD-108",
+      "nombre": "Parlante Portátil con Correa 20 W",
+      "marca": "Bruma",
+      "categoria": "audio",
+      "precio": 79900,
+      "stock": 78,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Compartí música con potencia de 20 W y hasta 14 horas de batería. Incluye correa de transporte, entrada auxiliar y resistencia IPX6.",
+      "destacados": [
+        "Potencia de 20 W",
+        "Correa incluida",
+        "Hasta 14 horas"
+      ],
+      "etiquetas": [],
+      "resenias": 199
+    },
+    {
+      "id": 78,
+      "sku": "AUD-109",
+      "nombre": "Parlantes de Escritorio USB 2.0",
+      "marca": "Solera",
+      "categoria": "audio",
+      "precio": 25900,
+      "stock": 11,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Mejorá el audio de tu computadora con dos parlantes de 3 W. Se alimentan por USB y reciben sonido mediante ficha de 3,5 mm.",
+      "destacados": [
+        "2 parlantes de 3 W",
+        "Alimentación USB",
+        "Control de volumen"
+      ],
+      "etiquetas": [],
+      "resenias": 266
+    },
+    {
+      "id": 79,
+      "sku": "AUD-110",
+      "nombre": "Monitores de Estudio Activos 4 Pulgadas",
+      "marca": "Pampa",
+      "categoria": "audio",
+      "precio": 289900,
+      "precioAnterior": 333400,
+      "stock": 30,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Escuchá tus mezclas en un par de monitores activos con woofer de 4 pulgadas y potencia total de 60 W. Incluyen entradas TRS y RCA.",
+      "destacados": [
+        "Par de monitores",
+        "Potencia total 60 W",
+        "Entradas TRS y RCA"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 333
+    },
+    {
+      "id": 80,
+      "sku": "AUD-111",
+      "nombre": "Sistema de Audio para Living 120 W",
+      "marca": "Cardinal",
+      "categoria": "audio",
+      "precio": 449900,
+      "stock": 49,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Llená tu living con un sistema estéreo de 120 W RMS y entrada óptica. Incluye control remoto y conexión inalámbrica para el celular.",
+      "destacados": [
+        "120 W RMS",
+        "Entrada óptica",
+        "Control remoto"
+      ],
+      "etiquetas": [],
+      "resenias": 400
+    },
+    {
+      "id": 81,
+      "sku": "AUD-112",
+      "nombre": "Parlante para Eventos con Trípode",
+      "marca": "Austral",
+      "categoria": "audio",
+      "precio": 599000,
+      "stock": 68,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "speaker",
+      "descripcion": "Amplificá música y voz con un woofer de 12 pulgadas y 250 W RMS. Incluye trípode y dos entradas de micrófono con control independiente.",
+      "destacados": [
+        "Woofer de 12″",
+        "250 W RMS",
+        "Trípode incluido"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 467
+    },
+    {
+      "id": 82,
+      "sku": "AUD-113",
+      "nombre": "Micrófono de Solapa con Cable",
+      "marca": "Ceibo",
+      "categoria": "audio",
+      "precio": 19900,
+      "precioAnterior": 23900,
+      "stock": 87,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Grabá entrevistas con cápsula omnidireccional y cable de 2 m. Incluye clip, espuma antiviento y ficha TRRS de 3,5 mm.",
+      "destacados": [
+        "Cable de 2 m",
+        "Omnidireccional",
+        "Clip incluido"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 534
+    },
+    {
+      "id": 83,
+      "sku": "AUD-114",
+      "nombre": "Micrófono USB Compacto para Clases",
+      "marca": "Lumen",
+      "categoria": "audio",
+      "precio": 49900,
+      "stock": 20,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Participá en clases con un micrófono cardioide USB de 16 bits y 48 kHz. Incluye trípode de mesa y botón de silencio.",
+      "destacados": [
+        "Patrón cardioide",
+        "16 bits y 48 kHz",
+        "Botón de silencio"
+      ],
+      "etiquetas": [],
+      "resenias": 601
+    },
+    {
+      "id": 84,
+      "sku": "AUD-115",
+      "nombre": "Micrófono Inalámbrico Doble USB-C",
+      "marca": "Tándem",
+      "categoria": "audio",
+      "precio": 119900,
+      "stock": 39,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Grabá dos voces con transmisores de solapa y receptor USB-C. Ofrece hasta 30 m de alcance en espacio abierto y 6 horas de autonomía.",
+      "destacados": [
+        "2 transmisores",
+        "Receptor USB-C",
+        "Hasta 6 horas"
+      ],
+      "etiquetas": [],
+      "resenias": 668
+    },
+    {
+      "id": 85,
+      "sku": "AUD-116",
+      "nombre": "Micrófono de Estudio XLR",
+      "marca": "Quebracho",
+      "categoria": "audio",
+      "precio": 179000,
+      "precioAnterior": 214800,
+      "stock": 0,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Grabá voces con cápsula de condensador y patrón cardioide. Incluye soporte elástico y filtro antipop; requiere alimentación de 48 V.",
+      "destacados": [
+        "Conexión XLR",
+        "Requiere 48 V",
+        "Filtro antipop"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 735
+    },
+    {
+      "id": 86,
+      "sku": "AUD-117",
+      "nombre": "Micrófono para Streaming con Brazo",
+      "marca": "Nörd",
+      "categoria": "audio",
+      "precio": 149900,
+      "stock": 77,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Armá tu espacio de streaming con audio USB de 24 bits y 96 kHz. Incluye brazo articulado, filtro antipop y salida para auriculares.",
+      "destacados": [
+        "24 bits y 96 kHz",
+        "Brazo articulado",
+        "Monitoreo directo"
+      ],
+      "etiquetas": [],
+      "resenias": 802
+    },
+    {
+      "id": 87,
+      "sku": "AUD-118",
+      "nombre": "Micrófono de Mano para Karaoke",
+      "marca": "Bruma",
+      "categoria": "audio",
+      "precio": 39900,
+      "stock": 10,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Cantá con cápsula dinámica y conexión XLR. Incluye cable de 4 m a ficha de 6,35 mm e interruptor en el cuerpo.",
+      "destacados": [
+        "Cápsula dinámica",
+        "Cable de 4 m",
+        "Interruptor integrado"
+      ],
+      "etiquetas": [],
+      "resenias": 869
+    },
+    {
+      "id": 88,
+      "sku": "AUD-119",
+      "nombre": "Micrófono Direccional para Cámara",
+      "marca": "Solera",
+      "categoria": "audio",
+      "precio": 89900,
+      "precioAnterior": 112400,
+      "stock": 29,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "mic",
+      "descripcion": "Captá diálogos con patrón supercardioide y conexión de 3,5 mm. Incluye soporte para zapata, suspensión y cubierta antiviento.",
+      "destacados": [
+        "Patrón supercardioide",
+        "Soporte para zapata",
+        "Antiviento incluido"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 936
+    },
+    {
+      "id": 89,
+      "sku": "HOG-100",
+      "nombre": "Mate de Acero con Base Antideslizante",
+      "marca": "Pampa",
+      "categoria": "hogar",
+      "precio": 15900,
+      "stock": 48,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "mug",
+      "descripcion": "Tomá mate en un recipiente de acero inoxidable de 220 ml con doble pared y base de silicona.",
+      "destacados": [
+        "Capacidad de 220 ml",
+        "Doble pared",
+        "Base de silicona"
+      ],
+      "etiquetas": [],
+      "resenias": 60
+    },
+    {
+      "id": 90,
+      "sku": "HOG-101",
+      "nombre": "Mate de Calabaza con Virola Lisa",
+      "marca": "Cardinal",
+      "categoria": "hogar",
+      "precio": 22900,
+      "stock": 67,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "mug",
+      "descripcion": "Prepará tus mates en una calabaza natural de aproximadamente 250 ml con virola de acero. Requiere curado antes del primer uso.",
+      "destacados": [
+        "Calabaza natural",
+        "Virola de acero",
+        "Requiere curado"
+      ],
+      "etiquetas": [],
+      "resenias": 127
+    },
+    {
+      "id": 91,
+      "sku": "HOG-102",
+      "nombre": "Termo Matero de Acero 1 L",
+      "marca": "Austral",
+      "categoria": "hogar",
+      "precio": 49900,
+      "precioAnterior": 57400,
+      "stock": 86,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "bottle",
+      "descripcion": "Llevá agua para el mate con doble pared de acero y capacidad de 1 litro. Incluye pico cebador y tapa que funciona como taza.",
+      "destacados": [
+        "Capacidad de 1 L",
+        "Pico cebador",
+        "Tapa con taza"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 194
+    },
+    {
+      "id": 92,
+      "sku": "HOG-103",
+      "nombre": "Bombilla de Acero Desmontable",
+      "marca": "Ceibo",
+      "categoria": "hogar",
+      "precio": 9900,
+      "stock": 19,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "mug",
+      "descripcion": "Cebá con una bombilla de acero inoxidable de 19 cm y filtro desmontable. Incluye cepillo para limpiar su interior.",
+      "destacados": [
+        "Largo de 19 cm",
+        "Filtro desmontable",
+        "Cepillo incluido"
+      ],
+      "etiquetas": [],
+      "resenias": 261
+    },
+    {
+      "id": 93,
+      "sku": "HOG-104",
+      "nombre": "Juego de Dos Tazas de Cerámica",
+      "marca": "Lumen",
+      "categoria": "hogar",
+      "precio": 19500,
+      "stock": 38,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "mug",
+      "descripcion": "Serví café o té en dos tazas de cerámica de 300 ml cada una. Son aptas para microondas y lavavajillas.",
+      "destacados": [
+        "2 tazas de 300 ml",
+        "Aptas microondas",
+        "Aptas lavavajillas"
+      ],
+      "etiquetas": [],
+      "resenias": 328
+    },
+    {
+      "id": 94,
+      "sku": "HOG-105",
+      "nombre": "Termo de Mesa con Bomba 1,8 L",
+      "marca": "Tándem",
+      "categoria": "hogar",
+      "precio": 69900,
+      "precioAnterior": 80400,
+      "stock": 57,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "mug",
+      "descripcion": "Serví agua caliente con bomba superior y capacidad de 1,8 litros. Tiene interior de acero inoxidable y asa para transportarlo.",
+      "destacados": [
+        "Capacidad de 1,8 L",
+        "Bomba superior",
+        "Asa de transporte"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 395
+    },
+    {
+      "id": 95,
+      "sku": "HOG-106",
+      "nombre": "Sartén Antiadherente 24 cm",
+      "marca": "Quebracho",
+      "categoria": "hogar",
+      "precio": 24900,
+      "stock": 76,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "pan",
+      "descripcion": "Cociná con una sartén de aluminio de 24 cm y revestimiento antiadherente. Tiene mango aislante y es apta para cocinas a gas y eléctricas.",
+      "destacados": [
+        "Diámetro de 24 cm",
+        "Mango aislante",
+        "Aluminio antiadherente"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 462
+    },
+    {
+      "id": 96,
+      "sku": "HOG-107",
+      "nombre": "Olla de Acero con Tapa 5 L",
+      "marca": "Nörd",
+      "categoria": "hogar",
+      "precio": 59900,
+      "stock": 9,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "pan",
+      "descripcion": "Prepará guisos en una olla de acero de 5 litros. Su base triple es apta para inducción e incluye tapa de vidrio.",
+      "destacados": [
+        "Capacidad de 5 L",
+        "Base triple",
+        "Apta para inducción"
+      ],
+      "etiquetas": [],
+      "resenias": 529
+    },
+    {
+      "id": 97,
+      "sku": "HOG-108",
+      "nombre": "Freidora de Aire Digital 5 L",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 139900,
+      "precioAnterior": 167900,
+      "stock": 28,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "pan",
+      "descripcion": "Cociná con circulación de aire caliente y potencia de 1500 W. Tiene canasto de 5 litros, temporizador y temperatura ajustable de 80 a 200 °C.",
+      "destacados": [
+        "Canasto de 5 L",
+        "Potencia de 1500 W",
+        "De 80 a 200 °C"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 596
+    },
+    {
+      "id": 98,
+      "sku": "HOG-109",
+      "nombre": "Batería de Cocina de Acero 7 Piezas",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 249000,
+      "stock": 47,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "pan",
+      "descripcion": "Equipá tu cocina con tres ollas con tapa y una sartén de acero inoxidable. Todos los recipientes tienen base apta para inducción.",
+      "destacados": [
+        "7 piezas",
+        "Acero inoxidable",
+        "Apta para inducción"
+      ],
+      "etiquetas": [],
+      "resenias": 663
+    },
+    {
+      "id": 99,
+      "sku": "HOG-110",
+      "nombre": "Asadera Rectangular 35 cm",
+      "marca": "Pampa",
+      "categoria": "hogar",
+      "precio": 17900,
+      "stock": 66,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "pan",
+      "descripcion": "Horneá verduras y carnes en una asadera de acero de 35 × 25 cm. Tiene borde de 5 cm y revestimiento antiadherente.",
+      "destacados": [
+        "35 × 25 cm",
+        "Borde de 5 cm",
+        "Revestimiento interno"
+      ],
+      "etiquetas": [],
+      "resenias": 730
+    },
+    {
+      "id": 100,
+      "sku": "HOG-111",
+      "nombre": "Horno Eléctrico de Mesada 60 L",
+      "marca": "Cardinal",
+      "categoria": "hogar",
+      "precio": 289900,
+      "precioAnterior": 347900,
+      "stock": 85,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "pan",
+      "descripcion": "Horneá con capacidad de 60 litros, convección y potencia de 2200 W. Incluye bandeja, rejilla y control de temperatura hasta 250 °C.",
+      "destacados": [
+        "Capacidad de 60 L",
+        "Función convección",
+        "Hasta 250 °C"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 797
+    },
+    {
+      "id": 101,
+      "sku": "HOG-112",
+      "nombre": "Cafetera Italiana de Aluminio",
+      "marca": "Austral",
+      "categoria": "hogar",
+      "precio": 34900,
+      "precioAnterior": 40100,
+      "stock": 18,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Prepará hasta seis pocillos con una cafetera de aluminio de 300 ml. Tiene válvula de seguridad y es apta para cocina a gas.",
+      "destacados": [
+        "Capacidad de 300 ml",
+        "Hasta 6 pocillos",
+        "Válvula de seguridad"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 864
+    },
+    {
+      "id": 102,
+      "sku": "HOG-113",
+      "nombre": "Molinillo de Café Eléctrico",
+      "marca": "Ceibo",
+      "categoria": "hogar",
+      "precio": 45900,
+      "stock": 37,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Molé hasta 60 g de granos con cuchillas de acero inoxidable y motor de 150 W. La tapa transparente permite controlar la molienda.",
+      "destacados": [
+        "Capacidad de 60 g",
+        "Motor de 150 W",
+        "Cuchillas de acero"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 931
+    },
+    {
+      "id": 103,
+      "sku": "HOG-114",
+      "nombre": "Cafetera Espresso con Molinillo",
+      "marca": "Lumen",
+      "categoria": "hogar",
+      "precio": 899000,
+      "precioAnterior": 1123800,
+      "stock": 56,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "coffee",
+      "descripcion": "Prepará espresso con bomba de 15 bares y molinillo integrado de 15 ajustes. Incluye vaporizador y depósito de agua de 2 litros.",
+      "destacados": [
+        "Bomba de 15 bares",
+        "15 ajustes de molienda",
+        "Depósito de 2 L"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 55
+    },
+    {
+      "id": 104,
+      "sku": "HOG-115",
+      "nombre": "Maceta de Cerámica con Plato",
+      "marca": "Tándem",
+      "categoria": "hogar",
+      "precio": 12900,
+      "stock": 75,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "plant",
+      "descripcion": "Sumá verde a tu casa con una maceta de cerámica de 16 cm de diámetro. Incluye plato y orificio de drenaje; se entrega sin planta.",
+      "destacados": [
+        "Diámetro de 16 cm",
+        "Plato incluido",
+        "Orificio de drenaje"
+      ],
+      "etiquetas": [],
+      "resenias": 122
+    },
+    {
+      "id": 105,
+      "sku": "HOG-116",
+      "nombre": "Planta Artificial en Maceta 45 cm",
+      "marca": "Quebracho",
+      "categoria": "hogar",
+      "precio": 29900,
+      "stock": 8,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "plant",
+      "descripcion": "Decorá estantes con una planta artificial de 45 cm de alto y hojas flexibles. Incluye maceta de 12 cm y se limpia con paño húmedo.",
+      "destacados": [
+        "Altura de 45 cm",
+        "Maceta incluida",
+        "Hojas flexibles"
+      ],
+      "etiquetas": [],
+      "resenias": 189
+    },
+    {
+      "id": 106,
+      "sku": "HOG-117",
+      "nombre": "Florero de Vidrio Ámbar 25 cm",
+      "marca": "Nörd",
+      "categoria": "hogar",
+      "precio": 19500,
+      "precioAnterior": 22400,
+      "stock": 27,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "plant",
+      "descripcion": "Decorá tu mesa con un florero de vidrio ámbar de 25 cm de alto. Tiene boca de 8 cm para acomodar flores frescas o secas.",
+      "destacados": [
+        "Vidrio ámbar",
+        "Altura de 25 cm",
+        "Boca de 8 cm"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 256
+    },
+    {
+      "id": 107,
+      "sku": "HOG-118",
+      "nombre": "Alfombra Tejida de Algodón 60 × 90",
+      "marca": "Bruma",
+      "categoria": "hogar",
+      "precio": 25900,
+      "stock": 46,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "mat",
+      "descripcion": "Vestí el dormitorio con una alfombra de algodón de 60 × 90 cm. Su tejido plano permite lavarla a mano con agua fría.",
+      "destacados": [
+        "60 × 90 cm",
+        "Tejido de algodón",
+        "Lavado a mano"
+      ],
+      "etiquetas": [],
+      "resenias": 323
+    },
+    {
+      "id": 108,
+      "sku": "HOG-119",
+      "nombre": "Alfombra de Entrada Antideslizante",
+      "marca": "Solera",
+      "categoria": "hogar",
+      "precio": 15900,
+      "stock": 65,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "mat",
+      "descripcion": "Protegé el acceso con una alfombra de 40 × 60 cm y base de goma. Su superficie de fibras sintéticas ayuda a retener polvo del calzado.",
+      "destacados": [
+        "40 × 60 cm",
+        "Base de goma",
+        "Fibras sintéticas"
+      ],
+      "etiquetas": [],
+      "resenias": 390
+    },
+    {
+      "id": 109,
+      "sku": "HOG-120",
+      "nombre": "Lámpara de Mesa con Luz Cálida",
+      "marca": "Pampa",
+      "categoria": "hogar",
+      "precio": 39900,
+      "precioAnterior": 45900,
+      "stock": 84,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Iluminá tu mesa de luz con una pantalla textil de 22 cm de diámetro. Incluye lámpara LED E27 de 7 W y cable con interruptor.",
+      "destacados": [
+        "LED E27 de 7 W",
+        "Pantalla textil",
+        "Luz cálida"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 457
+    },
+    {
+      "id": 110,
+      "sku": "HOG-121",
+      "nombre": "Manta de Algodón para Sillón",
+      "marca": "Cardinal",
+      "categoria": "hogar",
+      "precio": 49900,
+      "stock": 17,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "blanket",
+      "descripcion": "Abrigate con una manta de algodón de 150 × 200 cm y terminación con flecos. Podés lavarla en máquina con programa suave a 30 °C.",
+      "destacados": [
+        "150 × 200 cm",
+        "Tejido de algodón",
+        "Lavado a 30 °C"
+      ],
+      "etiquetas": [],
+      "resenias": 524
+    },
+    {
+      "id": 111,
+      "sku": "HOG-122",
+      "nombre": "Silla Plegable de Madera para Comedor",
+      "marca": "Austral",
+      "categoria": "hogar",
+      "precio": 79900,
+      "stock": 36,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Sumá un asiento plegable de madera con respaldo y altura de asiento de 45 cm. Soporta hasta 100 kg.",
+      "destacados": [
+        "Madera barnizada",
+        "Diseño plegable",
+        "Soporta hasta 100 kg"
+      ],
+      "etiquetas": [],
+      "resenias": 591
+    },
+    {
+      "id": 112,
+      "sku": "HOG-123",
+      "nombre": "Organizador de Cocina de Dos Niveles",
+      "marca": "Ceibo",
+      "categoria": "hogar",
+      "precio": 22900,
+      "precioAnterior": 27500,
+      "stock": 55,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Ordená frascos y condimentos en una estructura metálica de 30 × 18 × 32 cm. Tiene dos estantes y apoyos de goma.",
+      "destacados": [
+        "2 niveles",
+        "Estructura metálica",
+        "Apoyos de goma"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 658
+    },
+    {
+      "id": 113,
+      "sku": "OFI-100",
+      "nombre": "Cuaderno Universitario A4 Rayado",
+      "marca": "Lumen",
+      "categoria": "oficina",
+      "precio": 6500,
+      "stock": 74,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Tomá apuntes en 80 hojas rayadas de papel de 80 g/m². Incluye espiral metálico y tapa de polipropileno en formato A4.",
+      "destacados": [
+        "80 hojas",
+        "Papel de 80 g/m²",
+        "Formato A4"
+      ],
+      "etiquetas": [],
+      "resenias": 725
+    },
+    {
+      "id": 114,
+      "sku": "OFI-101",
+      "nombre": "Cuaderno A5 Punteado Tapa Dura",
+      "marca": "Tándem",
+      "categoria": "oficina",
+      "precio": 11900,
+      "stock": 7,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Organizá ideas en 160 páginas punteadas de papel de 90 g/m². Tiene formato A5, cierre elástico y señalador de cinta.",
+      "destacados": [
+        "160 páginas",
+        "Papel de 90 g/m²",
+        "Cierre elástico"
+      ],
+      "etiquetas": [],
+      "resenias": 792
+    },
+    {
+      "id": 115,
+      "sku": "OFI-102",
+      "nombre": "Set de Lapiceras de Trazo Fino",
+      "marca": "Quebracho",
+      "categoria": "oficina",
+      "precio": 4500,
+      "precioAnterior": 5400,
+      "stock": 26,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Escribí con seis lapiceras de tinta azul y punta de 0,7 mm. El cuerpo hexagonal ayuda a sujetarlas mientras tomás apuntes.",
+      "destacados": [
+        "6 lapiceras",
+        "Punta de 0,7 mm",
+        "Tinta azul"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 859
+    },
+    {
+      "id": 116,
+      "sku": "OFI-103",
+      "nombre": "Set de Resaltadores Pastel",
+      "marca": "Nörd",
+      "categoria": "oficina",
+      "precio": 7900,
+      "stock": 45,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Marcá tus apuntes con seis colores pastel y punta biselada. El trazo permite destacar líneas de entre 1 y 4 mm de ancho.",
+      "destacados": [
+        "6 colores pastel",
+        "Punta biselada",
+        "Trazo de 1 a 4 mm"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 926
+    },
+    {
+      "id": 117,
+      "sku": "OFI-104",
+      "nombre": "Cartuchera de Tela con Dos Cierres",
+      "marca": "Bruma",
+      "categoria": "oficina",
+      "precio": 9900,
+      "stock": 64,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Guardá tus útiles en una cartuchera de poliéster de 22 × 9 × 7 cm. Tiene dos compartimentos con cierre y forro lavable.",
+      "destacados": [
+        "2 compartimentos",
+        "Tela de poliéster",
+        "Forro lavable"
+      ],
+      "etiquetas": [],
+      "resenias": 50
+    },
+    {
+      "id": 118,
+      "sku": "OFI-105",
+      "nombre": "Carpeta A4 con 40 Folios",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 8900,
+      "precioAnterior": 11100,
+      "stock": 0,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Protegé tus trabajos en una carpeta A4 con 40 folios transparentes fijos. La tapa semirrígida incluye un bolsillo para identificar el contenido.",
+      "destacados": [
+        "40 folios fijos",
+        "Formato A4",
+        "Tapa semirrígida"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 117
+    },
+    {
+      "id": 119,
+      "sku": "OFI-106",
+      "nombre": "Organizador de Documentos de Tres Bandejas",
+      "marca": "Pampa",
+      "categoria": "oficina",
+      "precio": 24900,
+      "stock": 16,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Separá papeles A4 en tres bandejas apiladas de malla metálica. Mide 35 × 29 × 25 cm y tiene patas de goma.",
+      "destacados": [
+        "3 bandejas",
+        "Para hojas A4",
+        "Malla metálica"
+      ],
+      "etiquetas": [],
+      "resenias": 184
+    },
+    {
+      "id": 120,
+      "sku": "OFI-107",
+      "nombre": "Pizarra Blanca Magnética 60 × 90",
+      "marca": "Cardinal",
+      "categoria": "oficina",
+      "precio": 45900,
+      "stock": 35,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Planificá tareas sobre una superficie magnética de 60 × 90 cm. Incluye bandeja, marcador y accesorios para fijarla a la pared.",
+      "destacados": [
+        "60 × 90 cm",
+        "Superficie magnética",
+        "Marcador incluido"
+      ],
+      "etiquetas": [],
+      "resenias": 251
+    },
+    {
+      "id": 121,
+      "sku": "OFI-108",
+      "nombre": "Abrochadora Metálica de Escritorio",
+      "marca": "Austral",
+      "categoria": "oficina",
+      "precio": 12900,
+      "precioAnterior": 14800,
+      "stock": 54,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "organizer",
+      "descripcion": "Uní hasta 25 hojas con una abrochadora metálica compatible con broches 24/6 y 26/6. Incluye 1000 broches.",
+      "destacados": [
+        "Hasta 25 hojas",
+        "Cuerpo metálico",
+        "1000 broches incluidos"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 318
+    },
+    {
+      "id": 122,
+      "sku": "OFI-109",
+      "nombre": "Silla de Trabajo con Apoyo Lumbar",
+      "marca": "Ceibo",
+      "categoria": "oficina",
+      "precio": 189900,
+      "stock": 73,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Trabajá con respaldo de malla, apoyo lumbar y altura regulable por pistón. Tiene apoyabrazos y base de cinco ruedas; soporta hasta 120 kg.",
+      "destacados": [
+        "Apoyo lumbar",
+        "Altura regulable",
+        "Soporta hasta 120 kg"
+      ],
+      "etiquetas": [],
+      "resenias": 385
+    },
+    {
+      "id": 123,
+      "sku": "OFI-110",
+      "nombre": "Silla Ejecutiva con Apoyacabeza",
+      "marca": "Lumen",
+      "categoria": "oficina",
+      "precio": 449900,
+      "stock": 6,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Acomodá tu postura con apoyacabeza, brazos regulables y reclinación hasta 135°. Incluye asiento de espuma y soporte para hasta 130 kg.",
+      "destacados": [
+        "Reclinación de 135°",
+        "Brazos regulables",
+        "Apoyacabeza incluido"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 452
+    },
+    {
+      "id": 124,
+      "sku": "OFI-111",
+      "nombre": "Banqueta Regulable para Mesa Alta",
+      "marca": "Tándem",
+      "categoria": "oficina",
+      "precio": 139000,
+      "precioAnterior": 159800,
+      "stock": 25,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Usá tu mesa alta con un asiento regulable entre 58 y 78 cm. Incluye aro apoyapiés, base metálica y tapizado sintético lavable.",
+      "destacados": [
+        "Altura de 58 a 78 cm",
+        "Aro apoyapiés",
+        "Tapizado lavable"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 519
+    },
+    {
+      "id": 125,
+      "sku": "OFI-112",
+      "nombre": "Escritorio Plegable de Pared",
+      "marca": "Quebracho",
+      "categoria": "oficina",
+      "precio": 119900,
+      "stock": 44,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Armá un rincón de estudio con una superficie de 80 × 50 cm y tablero de 18 mm. Incluye ménsulas; requiere fijación en pared resistente.",
+      "destacados": [
+        "Superficie de 80 × 50",
+        "Ménsulas incluidas",
+        "Tablero de 18 mm"
+      ],
+      "etiquetas": [],
+      "resenias": 586
+    },
+    {
+      "id": 126,
+      "sku": "OFI-113",
+      "nombre": "Escritorio de Trabajo en L 160 cm",
+      "marca": "Nörd",
+      "categoria": "oficina",
+      "precio": 349900,
+      "stock": 63,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Distribuí tu equipo sobre un escritorio en L de 160 × 120 cm. Tiene tablero de 25 mm, estructura de acero y pasacables integrado.",
+      "destacados": [
+        "Formato en L",
+        "Tablero de 25 mm",
+        "Pasacables integrado"
+      ],
+      "etiquetas": [],
+      "resenias": 653
+    },
+    {
+      "id": 127,
+      "sku": "OFI-114",
+      "nombre": "Mesa de Reunión para Seis Personas",
+      "marca": "Bruma",
+      "categoria": "oficina",
+      "precio": 899000,
+      "precioAnterior": 1078800,
+      "stock": 82,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Reuní a tu equipo en una mesa de 200 × 100 cm con tablero de 30 mm. Tiene patas metálicas nivelables y altura de 75 cm.",
+      "destacados": [
+        "200 × 100 cm",
+        "Tablero de 30 mm",
+        "Patas nivelables"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 720
+    },
+    {
+      "id": 128,
+      "sku": "OFI-115",
+      "nombre": "Soporte de Monitor con Cajón",
+      "marca": "Solera",
+      "categoria": "oficina",
+      "precio": 39900,
+      "stock": 15,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "desk",
+      "descripcion": "Elevá tu pantalla 12 cm sobre una plataforma de 50 × 22 cm. Incluye cajón para útiles y soporta monitores de hasta 15 kg.",
+      "destacados": [
+        "Altura de 12 cm",
+        "Cajón integrado",
+        "Soporta hasta 15 kg"
+      ],
+      "etiquetas": [],
+      "resenias": 787
+    },
+    {
+      "id": 129,
+      "sku": "OFI-116",
+      "nombre": "Lámpara de Escritorio con Pinza",
+      "marca": "Pampa",
+      "categoria": "oficina",
+      "precio": 29900,
+      "stock": 34,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Iluminá tus apuntes con un brazo flexible y LED de 8 W. La pinza se ajusta a tableros de hasta 5 cm y ofrece tres tonos de luz.",
+      "destacados": [
+        "LED de 8 W",
+        "3 tonos de luz",
+        "Pinza hasta 5 cm"
+      ],
+      "etiquetas": [],
+      "resenias": 854
+    },
+    {
+      "id": 130,
+      "sku": "OFI-117",
+      "nombre": "Teclado Numérico USB para Planillas",
+      "marca": "Cardinal",
+      "categoria": "oficina",
+      "precio": 19500,
+      "precioAnterior": 23400,
+      "stock": 53,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "keyboard",
+      "descripcion": "Agilizá la carga de datos con 19 teclas y conexión USB. Incluye cable de 1,3 m y base inclinada con apoyos antideslizantes.",
+      "destacados": [
+        "19 teclas",
+        "Cable de 1,3 m",
+        "Base inclinada"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 921
+    },
+    {
+      "id": 131,
+      "sku": "OFI-118",
+      "nombre": "Mouse Silencioso de Oficina",
+      "marca": "Austral",
+      "categoria": "oficina",
+      "precio": 32900,
+      "stock": 72,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "mouse",
+      "descripcion": "Trabajá con botones de clic silencioso y sensor de 1600 DPI. Incluye receptor USB de 2,4 GHz y funciona con una pila AA.",
+      "destacados": [
+        "Clic silencioso",
+        "Sensor de 1600 DPI",
+        "Receptor USB"
+      ],
+      "etiquetas": [],
+      "resenias": 45
+    },
+    {
+      "id": 132,
+      "sku": "OFI-119",
+      "nombre": "Impresora Láser Monocromática A4",
+      "marca": "Ceibo",
+      "categoria": "oficina",
+      "precio": 299900,
+      "stock": 5,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "printer",
+      "descripcion": "Imprimí documentos a una velocidad de hasta 22 páginas por minuto. Tiene bandeja de 150 hojas y conexión USB para el escritorio.",
+      "destacados": [
+        "Hasta 22 ppm",
+        "Bandeja de 150 hojas",
+        "Conexión USB"
+      ],
+      "etiquetas": [],
+      "resenias": 112
+    },
+    {
+      "id": 133,
+      "sku": "OFI-120",
+      "nombre": "Escáner de Documentos Doble Faz",
+      "marca": "Lumen",
+      "categoria": "oficina",
+      "precio": 599900,
+      "precioAnterior": 749900,
+      "stock": 24,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "printer",
+      "descripcion": "Digitalizá contratos a doble faz con alimentador de 50 hojas. Alcanza 30 páginas por minuto a 300 DPI y se conecta por USB.",
+      "destacados": [
+        "Escaneo doble faz",
+        "Alimentador de 50",
+        "Hasta 30 ppm"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 179
+    },
+    {
+      "id": 134,
+      "sku": "OFI-121",
+      "nombre": "Impresora Térmica de Etiquetas",
+      "marca": "Tándem",
+      "categoria": "oficina",
+      "precio": 149900,
+      "stock": 43,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "printer",
+      "descripcion": "Imprimí etiquetas de envíos de hasta 104 mm de ancho sin usar tinta. Tiene resolución de 203 DPI y conexión USB.",
+      "destacados": [
+        "Ancho hasta 104 mm",
+        "Resolución de 203 DPI",
+        "Impresión sin tinta"
+      ],
+      "etiquetas": [],
+      "resenias": 246
+    },
+    {
+      "id": 135,
+      "sku": "OFI-122",
+      "nombre": "Mochila para Notebook de 15,6 Pulgadas",
+      "marca": "Quebracho",
+      "categoria": "oficina",
+      "precio": 59900,
+      "stock": 62,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Llevá tu equipo en una mochila de 22 litros con compartimento acolchado para notebook de hasta 15,6 pulgadas. Incluye bolsillo para botella.",
+      "destacados": [
+        "Capacidad de 22 L",
+        "Interior acolchado",
+        "Bolsillo para botella"
+      ],
+      "etiquetas": [],
+      "resenias": 313
+    },
+    {
+      "id": 136,
+      "sku": "OFI-123",
+      "nombre": "Alfombra Protectora para Silla",
+      "marca": "Nörd",
+      "categoria": "oficina",
+      "precio": 49900,
+      "precioAnterior": 57400,
+      "stock": 81,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "mat",
+      "descripcion": "Protegé pisos duros con una alfombra de policarbonato de 90 × 120 cm y 1,5 mm de espesor. Su superficie permite deslizar las ruedas.",
+      "destacados": [
+        "90 × 120 cm",
+        "Espesor de 1,5 mm",
+        "Para pisos duros"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 380
+    },
+    {
+      "id": 137,
+      "sku": "DEP-100",
+      "nombre": "Pelota de Fútbol Número 5",
+      "marca": "Bruma",
+      "categoria": "deportes",
+      "precio": 29900,
+      "stock": 14,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "ball",
+      "descripcion": "Jugá en césped con una pelota número 5 de cubierta sintética y cámara de butilo. Tiene 32 paneles cosidos y pesa entre 410 y 450 g.",
+      "destacados": [
+        "Número 5",
+        "32 paneles",
+        "Cámara de butilo"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 447
+    },
+    {
+      "id": 138,
+      "sku": "DEP-101",
+      "nombre": "Pelota de Futsal de Bajo Rebote",
+      "marca": "Solera",
+      "categoria": "deportes",
+      "precio": 34900,
+      "stock": 33,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "ball",
+      "descripcion": "Entrená en cancha cubierta con una pelota de futsal de 63 cm de circunferencia. Tiene rebote reducido y cubierta sintética cosida.",
+      "destacados": [
+        "Rebote reducido",
+        "Circunferencia 63 cm",
+        "Cubierta sintética"
+      ],
+      "etiquetas": [],
+      "resenias": 514
+    },
+    {
+      "id": 139,
+      "sku": "DEP-102",
+      "nombre": "Pelota de Básquet Número 7",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 39900,
+      "precioAnterior": 45900,
+      "stock": 52,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "ball",
+      "descripcion": "Practicá en canchas exteriores con una pelota número 7 de goma texturada. Tiene cámara de butilo y canales profundos para facilitar el agarre.",
+      "destacados": [
+        "Número 7",
+        "Goma texturada",
+        "Uso exterior"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 581
+    },
+    {
+      "id": 140,
+      "sku": "DEP-103",
+      "nombre": "Pelota de Vóley de Entrenamiento",
+      "marca": "Cardinal",
+      "categoria": "deportes",
+      "precio": 25900,
+      "stock": 71,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "ball",
+      "descripcion": "Entrená pases y saques con una pelota de 18 paneles y cubierta sintética suave. Su peso es de 270 g y la cámara es de butilo.",
+      "destacados": [
+        "18 paneles",
+        "Peso de 270 g",
+        "Cubierta suave"
+      ],
+      "etiquetas": [],
+      "resenias": 648
+    },
+    {
+      "id": 141,
+      "sku": "DEP-104",
+      "nombre": "Botines de Fútbol para Césped Sintético",
+      "marca": "Austral",
+      "categoria": "deportes",
+      "precio": 79900,
+      "stock": 90,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "shoe",
+      "descripcion": "Movete en césped sintético con suela de múltiples tapones cortos. Tienen capellada sintética y ajuste con cordones; disponibles del 38 al 44.",
+      "destacados": [
+        "Suela multitapón",
+        "Ajuste con cordones",
+        "Talles del 38 al 44"
+      ],
+      "etiquetas": [],
+      "resenias": 715
+    },
+    {
+      "id": 142,
+      "sku": "DEP-105",
+      "nombre": "Zapatillas de Running con Amortiguación",
+      "marca": "Ceibo",
+      "categoria": "deportes",
+      "precio": 119900,
+      "precioAnterior": 143900,
+      "stock": 23,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "shoe",
+      "descripcion": "Salí a correr con mediasuela de espuma EVA y suela de goma. Tienen capellada de malla y caída de 8 mm; disponibles del 36 al 45.",
+      "destacados": [
+        "Espuma EVA",
+        "Caída de 8 mm",
+        "Talles del 36 al 45"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 782
+    },
+    {
+      "id": 143,
+      "sku": "DEP-106",
+      "nombre": "Zapatillas de Trekking Impermeables",
+      "marca": "Lumen",
+      "categoria": "deportes",
+      "precio": 159900,
+      "stock": 42,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "shoe",
+      "descripcion": "Caminá por senderos con membrana impermeable y suela de goma con tacos de 4 mm. Incluyen puntera reforzada; disponibles del 37 al 45.",
+      "destacados": [
+        "Membrana impermeable",
+        "Tacos de 4 mm",
+        "Puntera reforzada"
+      ],
+      "etiquetas": [],
+      "resenias": 849
+    },
+    {
+      "id": 144,
+      "sku": "DEP-107",
+      "nombre": "Zapatillas para Entrenamiento de Fuerza",
+      "marca": "Tándem",
+      "categoria": "deportes",
+      "precio": 89900,
+      "stock": 61,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "shoe",
+      "descripcion": "Entrená fuerza con base plana, suela de goma y talón reforzado. La capellada combina malla y refuerzos; disponibles del 36 al 44.",
+      "destacados": [
+        "Base plana",
+        "Talón reforzado",
+        "Talles del 36 al 44"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 916
+    },
+    {
+      "id": 145,
+      "sku": "DEP-108",
+      "nombre": "Colchoneta de Yoga Antideslizante 6 mm",
+      "marca": "Quebracho",
+      "categoria": "deportes",
+      "precio": 22900,
+      "precioAnterior": 27500,
+      "stock": 80,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "mat",
+      "descripcion": "Practicá yoga sobre una colchoneta de TPE de 183 × 61 cm y 6 mm de espesor. Incluye correa para llevarla a tus clases.",
+      "destacados": [
+        "Espesor de 6 mm",
+        "Material TPE",
+        "Correa incluida"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 40
+    },
+    {
+      "id": 146,
+      "sku": "DEP-109",
+      "nombre": "Colchoneta Plegable de Gimnasio",
+      "marca": "Nörd",
+      "categoria": "deportes",
+      "precio": 39900,
+      "stock": 13,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "mat",
+      "descripcion": "Hacé ejercicios de piso con espuma de 4 cm y cubierta sintética lavable. Mide 180 × 60 cm abierta y se pliega en tres partes.",
+      "destacados": [
+        "Espesor de 4 cm",
+        "180 × 60 cm",
+        "Plegado en 3 partes"
+      ],
+      "etiquetas": [],
+      "resenias": 107
+    },
+    {
+      "id": 147,
+      "sku": "DEP-110",
+      "nombre": "Pelota de Pilates 65 cm",
+      "marca": "Bruma",
+      "categoria": "deportes",
+      "precio": 19500,
+      "stock": 32,
+      "rating": 4.1,
+      "activo": true,
+      "arte": "ball",
+      "descripcion": "Sumá ejercicios de equilibrio con una pelota de PVC de 65 cm. Soporta hasta 150 kg e incluye inflador manual.",
+      "destacados": [
+        "Diámetro de 65 cm",
+        "Soporta hasta 150 kg",
+        "Inflador incluido"
+      ],
+      "etiquetas": [],
+      "resenias": 174
+    },
+    {
+      "id": 148,
+      "sku": "DEP-111",
+      "nombre": "Par de Mancuernas de Neopreno 2 kg",
+      "marca": "Solera",
+      "categoria": "deportes",
+      "precio": 24900,
+      "precioAnterior": 31100,
+      "stock": 51,
+      "rating": 3.8,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Entrená en casa con dos mancuernas de 2 kg cada una. El revestimiento de neopreno mejora el agarre y sus extremos planos evitan que rueden.",
+      "destacados": [
+        "2 unidades de 2 kg",
+        "Cubierta de neopreno",
+        "Extremos planos"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 241
+    },
+    {
+      "id": 149,
+      "sku": "DEP-112",
+      "nombre": "Pesa Rusa de Hierro 12 kg",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 59900,
+      "stock": 70,
+      "rating": 4.9,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Sumá movimientos de fuerza con una pesa rusa de hierro de 12 kg. Tiene asa de 32 mm de diámetro y base plana para apoyarla.",
+      "destacados": [
+        "Peso de 12 kg",
+        "Asa de 32 mm",
+        "Base plana"
+      ],
+      "etiquetas": [],
+      "resenias": 308
+    },
+    {
+      "id": 150,
+      "sku": "DEP-113",
+      "nombre": "Banco de Musculación Reclinable",
+      "marca": "Cardinal",
+      "categoria": "deportes",
+      "precio": 249900,
+      "stock": 0,
+      "rating": 4.6,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Entrená con siete posiciones de respaldo y tres de asiento. Su estructura de acero soporta hasta 250 kg de carga total entre usuario y pesas.",
+      "destacados": [
+        "7 posiciones",
+        "Estructura de acero",
+        "Carga total de 250 kg"
+      ],
+      "etiquetas": [],
+      "resenias": 375
+    },
+    {
+      "id": 151,
+      "sku": "DEP-114",
+      "nombre": "Tobilleras con Peso de 1 kg",
+      "marca": "Austral",
+      "categoria": "deportes",
+      "precio": 19900,
+      "precioAnterior": 22900,
+      "stock": 22,
+      "rating": 4.3,
+      "activo": true,
+      "arte": "dumbbell",
+      "descripcion": "Sumá resistencia a tu rutina con dos tobilleras de 1 kg cada una. Tienen relleno granulado y cierre regulable con abrojo.",
+      "destacados": [
+        "2 unidades de 1 kg",
+        "Cierre con abrojo",
+        "Ajuste regulable"
+      ],
+      "etiquetas": [
+        "oferta",
+        "destacado"
+      ],
+      "resenias": 442
+    },
+    {
+      "id": 152,
+      "sku": "DEP-115",
+      "nombre": "Carpa de Camping para Cuatro Personas",
+      "marca": "Ceibo",
+      "categoria": "deportes",
+      "precio": 219900,
+      "stock": 41,
+      "rating": 4.0,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Acampá con una carpa de doble techo y columna de agua de 2000 mm. Tiene piso de 240 × 210 cm, mosquitero y bolso de transporte.",
+      "destacados": [
+        "Para 4 personas",
+        "Columna de 2000 mm",
+        "Doble techo"
+      ],
+      "etiquetas": [],
+      "resenias": 509
+    },
+    {
+      "id": 153,
+      "sku": "DEP-116",
+      "nombre": "Bolsa de Dormir para Camping 5 °C",
+      "marca": "Lumen",
+      "categoria": "deportes",
+      "precio": 79900,
+      "stock": 60,
+      "rating": 3.7,
+      "activo": true,
+      "arte": "blanket",
+      "descripcion": "Descansá en el camping con una bolsa de 210 × 80 cm y temperatura de confort de 5 °C. Incluye relleno sintético y funda compresora.",
+      "destacados": [
+        "Confort de 5 °C",
+        "210 × 80 cm",
+        "Funda compresora"
+      ],
+      "etiquetas": [],
+      "resenias": 576
+    },
+    {
+      "id": 154,
+      "sku": "DEP-117",
+      "nombre": "Mochila de Travesía 60 L",
+      "marca": "Tándem",
+      "categoria": "deportes",
+      "precio": 169900,
+      "precioAnterior": 195400,
+      "stock": 79,
+      "rating": 4.8,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Organizá tu equipo en 60 litros con acceso superior e inferior. Incluye cinturón lumbar, espalda regulable y cobertor para lluvia.",
+      "destacados": [
+        "Capacidad de 60 L",
+        "Espalda regulable",
+        "Cobertor de lluvia"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 643
+    },
+    {
+      "id": 155,
+      "sku": "DEP-118",
+      "nombre": "Silla de Camping con Apoyabrazos",
+      "marca": "Quebracho",
+      "categoria": "deportes",
+      "precio": 49900,
+      "stock": 12,
+      "rating": 4.5,
+      "activo": true,
+      "arte": "chair",
+      "descripcion": "Sentate al aire libre con una silla plegable de estructura de acero. Soporta hasta 120 kg e incluye portavasos y bolsa de transporte.",
+      "destacados": [
+        "Soporta hasta 120 kg",
+        "Portavasos integrado",
+        "Bolsa de transporte"
+      ],
+      "etiquetas": [],
+      "resenias": 710
+    },
+    {
+      "id": 156,
+      "sku": "DEP-119",
+      "nombre": "Linterna de Camping Recargable",
+      "marca": "Nörd",
+      "categoria": "deportes",
+      "precio": 29500,
+      "stock": 31,
+      "rating": 4.2,
+      "activo": true,
+      "arte": "lamp",
+      "descripcion": "Iluminá la carpa con hasta 300 lúmenes y tres niveles de intensidad. Tiene batería de 4000 mAh, carga USB-C y gancho para colgar.",
+      "destacados": [
+        "Hasta 300 lúmenes",
+        "Batería de 4000 mAh",
+        "Carga USB-C"
+      ],
+      "etiquetas": [],
+      "resenias": 777
+    },
+    {
+      "id": 157,
+      "sku": "DEP-120",
+      "nombre": "Botella Plegable para Senderismo 500 ml",
+      "marca": "Bruma",
+      "categoria": "deportes",
+      "precio": 15900,
+      "precioAnterior": 19100,
+      "stock": 50,
+      "rating": 3.9,
+      "activo": true,
+      "arte": "bottle",
+      "descripcion": "Llevá agua en una botella de silicona de 500 ml que se pliega al vaciarla. Incluye tapa a rosca y mosquetón para sujetarla a la mochila.",
+      "destacados": [
+        "Capacidad de 500 ml",
+        "Silicona plegable",
+        "Mosquetón incluido"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 844
+    },
+    {
+      "id": 158,
+      "sku": "DEP-121",
+      "nombre": "Conos de Entrenamiento Pack de Diez",
+      "marca": "Solera",
+      "categoria": "deportes",
+      "precio": 7900,
+      "stock": 69,
+      "rating": 3.6,
+      "activo": true,
+      "arte": "ball",
+      "descripcion": "Armá circuitos de fútbol con diez conos flexibles de 18 cm de alto. Se apilan para transportarlos y vienen en dos colores.",
+      "destacados": [
+        "10 conos",
+        "Altura de 18 cm",
+        "Material flexible"
+      ],
+      "etiquetas": [
+        "destacado"
+      ],
+      "resenias": 911
+    },
+    {
+      "id": 159,
+      "sku": "DEP-122",
+      "nombre": "Reloj de Running con Mapas y Altímetro",
+      "marca": "Pampa",
+      "categoria": "deportes",
+      "precio": 649000,
+      "stock": 88,
+      "rating": 4.7,
+      "activo": true,
+      "arte": "watch",
+      "descripcion": "Planificá recorridos con mapas sin conexión, GPS de doble banda y altímetro barométrico. Ofrece hasta 30 horas de batería con GPS activo.",
+      "destacados": [
+        "Mapas sin conexión",
+        "GPS de doble banda",
+        "Hasta 30 h con GPS"
+      ],
+      "etiquetas": [],
+      "resenias": 35
+    },
+    {
+      "id": 160,
+      "sku": "DEP-123",
+      "nombre": "Mochila de Hidratación para Correr 8 L",
+      "marca": "Cardinal",
+      "categoria": "deportes",
+      "precio": 69900,
+      "precioAnterior": 83900,
+      "stock": 21,
+      "rating": 4.4,
+      "activo": true,
+      "arte": "backpack",
+      "descripcion": "Corré con 8 litros de capacidad y bolsa de hidratación de 2 litros incluida. Tiene correas pectorales regulables y detalles reflectivos.",
+      "destacados": [
+        "Capacidad de 8 L",
+        "Bolsa de agua de 2 L",
+        "Detalles reflectivos"
+      ],
+      "etiquetas": [
+        "oferta"
+      ],
+      "resenias": 102
     }
   ]
 }

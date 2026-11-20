@@ -1,0 +1,24 @@
+# Configuración de resiliencia de la mensajería de GOMARKET (Artemis embebido en WildFly).
+# Se aplica SIN servidor corriendo (embed-server) y es idempotente: correrla dos veces no rompe nada.
+#
+#   $WILDFLY_HOME/bin/jboss-cli.sh --file=scripts/mensajeria.cli
+#
+# Qué hace:
+#   · ProcesarPedidoQueue hace 3 intentos de entrega (reintenta a 1 s y a 2 s) y después manda el mensaje a ProcesarPedidoDLQ.
+#   · Los mensajes son persistentes (journal en disco): si se apaga el broker, al volver siguen ahí.
+
+embed-server --server-config=standalone-full.xml --std-out=discard
+
+if (outcome != success) of /subsystem=messaging-activemq/server=default/address-setting=jms.queue.ProcesarPedidoQueue:read-resource
+    /subsystem=messaging-activemq/server=default/address-setting=jms.queue.ProcesarPedidoQueue:add(max-delivery-attempts=3, redelivery-delay=1000, redelivery-multiplier=2.0, max-redelivery-delay=10000, dead-letter-address=jms.queue.ProcesarPedidoDLQ, expiry-address=jms.queue.ExpiryQueue)
+end-if
+
+# Suscriptores del tópico PedidoConfirmadoTopic: mismos reintentos y la misma DLQ.
+if (outcome != success) of /subsystem=messaging-activemq/server=default/address-setting=jms.topic.PedidoConfirmadoTopic:read-resource
+    /subsystem=messaging-activemq/server=default/address-setting=jms.topic.PedidoConfirmadoTopic:add(max-delivery-attempts=3, redelivery-delay=1000, redelivery-multiplier=2.0, max-redelivery-delay=10000, dead-letter-address=jms.queue.ProcesarPedidoDLQ, expiry-address=jms.queue.ExpiryQueue)
+end-if
+
+# El journal persistente viene activo por defecto en standalone-full; lo dejamos explícito.
+/subsystem=messaging-activemq/server=default:write-attribute(name=persistence-enabled, value=true)
+
+stop-embedded-server

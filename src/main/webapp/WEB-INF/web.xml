@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+  <!--
+    El SDK de Anthropic (gateway de IA) trae Jackson dentro del WAR. Al detectarlo,
+    RESTEasy pasaría a serializar TODA la API con Jackson en lugar de JSON-B: cambian
+    los null, las fechas y los errores de JSON mal formado dejan de salir como
+    Problem Details. Con esto la API REST sigue usando JSON-B, como siempre.
+  -->
+  <context-param>
+    <param-name>resteasy.preferJacksonOverJsonB</param-name>
+    <param-value>false</param-value>
+  </context-param>
+</web-app>

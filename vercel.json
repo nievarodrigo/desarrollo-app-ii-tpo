@@ -5,7 +5,7 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/api/salud",
+      "source": "/api/v1/salud",
       "destination": "/assets/data/estado-backend.json"
     }
   ],

@@ -31,6 +31,7 @@ import {
 } from '../negocio/usuario-service.js';
 import { abrirCapa, cerrarCapa } from '../../../compartido/capa-modal.js';
 import { avisar } from '../../../compartido/avisos.js';
+import { hayBackend, ingresarEnBackend, usarToken } from '../../../compartido/cliente-http.js';
 
 const panelCuenta = document.querySelector('[data-cuenta-panel]');
 const botonCuenta = document.querySelector('[data-cuenta-boton]');
@@ -65,12 +66,19 @@ function menuInvitado() {
     <button role="menuitem" type="button" data-cuenta-accion="registro">Crear cuenta</button>`;
 }
 
+/** Datos del usuario dentro de HTML: escapar también comillas usadas en atributos. */
+function escaparHtml(valor) {
+  return String(valor).replace(/[&<>"']/g, (caracter) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[caracter]);
+}
+
 function menuAutenticado(sesion) {
   const esAdmin = sesion.rol === ROLES.ADMIN;
   return `
     <p class="menu-cuenta__saludo">
-      Hola, <strong>${sesion.nombre.split(' ')[0]}</strong>
-      <span class="chip-rol" data-rol="${sesion.rol}">${sesion.rol}</span>
+      Hola, <strong>${escaparHtml(sesion.nombre.split(' ')[0])}</strong>
+      <span class="chip-rol" data-rol="${escaparHtml(sesion.rol)}">${escaparHtml(sesion.rol)}</span>
     </p>
     <button role="menuitem" type="button" data-cuenta-accion="pedidos">Mis pedidos</button>
     ${esAdmin ? '<button role="menuitem" type="button" data-cuenta-accion="admin">Panel de administración</button>' : ''}
@@ -242,13 +250,13 @@ function vistaAdmin() {
                 (u) => `
               <tr>
                 <td>
-                  <strong>${u.nombre}</strong>
-                  <span class="cuenta__email">${u.email}${u.email === yo?.email ? ' · vos' : ''}</span>
+                  <strong>${escaparHtml(u.nombre)}</strong>
+                  <span class="cuenta__email">${escaparHtml(u.email)}${u.email === yo?.email ? ' · vos' : ''}</span>
                 </td>
                 <td>${fechaCorta(u.creadoEn)}</td>
                 <td>
-                  <label class="visualmente-oculto" for="rol-${u.email}">Rol de ${u.nombre}</label>
-                  <select id="rol-${u.email}" class="cuenta__select" data-cuenta-rol="${u.email}">
+                  <label class="visualmente-oculto" for="rol-${escaparHtml(u.email)}">Rol de ${escaparHtml(u.nombre)}</label>
+                  <select id="rol-${escaparHtml(u.email)}" class="cuenta__select" data-cuenta-rol="${escaparHtml(u.email)}">
                     ${Object.values(ROLES)
                       .map((r) => `<option value="${r}" ${r === u.rol ? 'selected' : ''}>${r}</option>`)
                       .join('')}
@@ -346,12 +354,21 @@ async function enviar(formulario) {
             clave: formulario.querySelector('#registro-clave').value
           });
 
+    // Con WildFly, la misma sesión pide su JWT para las operaciones protegidas (comprar).
+    // Las cuentas creadas sólo en el navegador no existen en el backend: ahí no hay token.
+    const email = formulario.querySelector(tipo === 'ingresar' ? '#ingreso-email' : '#registro-email').value;
+    const clave = formulario.querySelector(tipo === 'ingresar' ? '#ingreso-clave' : '#registro-clave').value;
+    const conToken = await ingresarEnBackend(email, clave);
+    const sinServidor = !conToken && (await hayBackend());
+
     cerrarCapa();
     avisar(
       tipo === 'ingresar'
         ? `Hola de nuevo, ${sesion.nombre.split(' ')[0]}. Rol ${sesion.rol}.`
-        : `Cuenta creada. Ya estás dentro con rol ${sesion.rol}.`,
-      'ok'
+        : sinServidor
+          ? 'Cuenta creada en este navegador. Para comprar en esta demo usá una cuenta de prueba: el servidor todavía no registra cuentas nuevas.'
+          : `Cuenta creada. Ya estás dentro con rol ${sesion.rol}.`,
+      sinServidor && tipo !== 'ingresar' ? 'alerta' : 'ok'
     );
   } catch (error) {
     const { texto, tono } = mensajeDeError(error);
@@ -385,6 +402,14 @@ export function iniciarUsuarioView() {
   /* Suscripción al OBSERVER del negocio: pinta el menú ahora y en cada cambio. */
   alCambiarSesion(pintarMenu);
 
+  /* El servidor rechazó el token (venció o no existe): se cierra la sesión local para que
+     el próximo "Confirmar compra" pida ingresar, y se abre el ingreso ahora mismo. */
+  globalThis.addEventListener?.('gm:sesion-vencida', () => {
+    if (!sesionActual()) return;
+    egresar();
+    abrirIngreso(document.querySelector('[data-cuenta-accion="ingresar"]') ?? document.body);
+  });
+
   /* Un solo manejador para el menú de escritorio, el móvil y cualquier otro
      disparador que aparezca: delegación de eventos sobre el documento. */
   document.addEventListener('click', (evento) => {
@@ -399,6 +424,7 @@ export function iniciarUsuarioView() {
     else if (accion === 'salir') {
       const nombre = sesionActual()?.nombre.split(' ')[0] ?? '';
       egresar();
+      usarToken(null);
       avisar(`Cerraste la sesión${nombre ? `, ${nombre}` : ''}. Tu carrito queda guardado.`, 'alerta');
     } else if (accion === 'pedidos') {
       avisar('El historial de pedidos llega con el componente Pedido.', 'alerta');

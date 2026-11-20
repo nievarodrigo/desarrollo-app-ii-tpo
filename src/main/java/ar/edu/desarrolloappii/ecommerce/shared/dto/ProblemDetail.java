@@ -12,4 +12,8 @@ public record ProblemDetail(String type, String title, int status,
     public static ProblemDetail notFound(String detail, String instance) {
         return new ProblemDetail("about:blank", "Recurso no encontrado", 404, detail, instance);
     }
+
+    public static ProblemDetail conflict(String detail, String instance) {
+        return new ProblemDetail("about:blank", "Conflicto de estado", 409, detail, instance);
+    }
 }

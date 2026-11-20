@@ -29,13 +29,17 @@
          wildfly-41-ee10 que usamos para desplegar. -->
     <version.jakartaee>10.0.0</version.jakartaee>
     <version.junit>5.10.2</version.junit>
+    <version.parsson>1.1.6</version.parsson>
+    <version.yasson>3.0.3</version.yasson>
     <version.war.plugin>3.4.0</version.war.plugin>
     <version.surefire>3.2.5</version.surefire>
+    <version.anthropic>3.3.0</version.anthropic>
+    <version.jacoco>0.8.12</version.jacoco>
   </properties>
 
   <dependencies>
     <!--
-      Una sola dependencia: la API completa de Jakarta EE.
+      La API completa de Jakarta EE.
       Va en scope `provided` porque las implementaciones (CDI, JAX-RS, JSON-B,
       EJB) las aporta WildFly. Empaquetarlas dentro del WAR provocaría
       conflictos de clases con el servidor.
@@ -47,12 +51,45 @@
       <scope>provided</scope>
     </dependency>
 
+    <!--
+      SDK oficial de Anthropic para el gateway de IA. Va DENTRO del WAR (scope
+      compile) porque WildFly no lo trae. Sólo lo usa ModeloClaude: el resto del
+      sistema habla con la interfaz ModeloIA y no sabe qué proveedor hay detrás.
+    -->
+    <dependency>
+      <groupId>com.anthropic</groupId>
+      <artifactId>anthropic-java</artifactId>
+      <version>${version.anthropic}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
+
+    <!--
+      Implementaciones de JSON-P y JSON-B sólo para los tests. En WildFly las
+      pone el servidor (por eso la API va `provided`); fuera del servidor no hay
+      nadie que las aporte y los tests de JWT y del flujo de pedido las necesitan.
+    -->
+    <dependency>
+      <groupId>org.eclipse.parsson</groupId>
+      <artifactId>jakarta.json</artifactId>
+      <version>${version.parsson}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>yasson</artifactId>
+      <version>${version.yasson}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency><groupId>org.flywaydb</groupId><artifactId>flyway-core</artifactId><version>10.20.1</version></dependency>
+    <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.3.232</version><scope>test</scope></dependency>
+    <dependency><groupId>org.hibernate.orm</groupId><artifactId>hibernate-core</artifactId><version>6.6.13.Final</version><scope>test</scope></dependency>
+    <dependency><groupId>org.glassfish.expressly</groupId><artifactId>expressly</artifactId><version>5.0.0</version><scope>test</scope></dependency>
   </dependencies>
 
   <build>
@@ -97,6 +134,29 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.surefire}</version>
+      </plugin>
+
+      <!--
+        Cobertura de tests con JaCoCo. `./mvnw verify` deja el reporte en
+        target/site/jacoco/ (index.html para mirarlo, jacoco.csv/xml para el CI).
+        Es un reporte PARCIAL: mide lo que cubren los tests unitarios, sin
+        servidor; JMS, MDB y JAX-RS reales se prueban con los scripts contra WildFly.
+      -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${version.jacoco}</version>
+        <executions>
+          <execution>
+            <id>preparar-agente</id>
+            <goals><goal>prepare-agent</goal></goals>
+          </execution>
+          <execution>
+            <id>reporte</id>
+            <phase>verify</phase>
+            <goals><goal>report</goal></goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
