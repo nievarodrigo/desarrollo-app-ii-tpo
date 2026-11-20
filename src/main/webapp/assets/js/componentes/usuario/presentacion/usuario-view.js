@@ -402,6 +402,14 @@ export function iniciarUsuarioView() {
   /* Suscripción al OBSERVER del negocio: pinta el menú ahora y en cada cambio. */
   alCambiarSesion(pintarMenu);
 
+  /* El servidor rechazó el token (venció o no existe): se cierra la sesión local para que
+     el próximo "Confirmar compra" pida ingresar, y se abre el ingreso ahora mismo. */
+  globalThis.addEventListener?.('gm:sesion-vencida', () => {
+    if (!sesionActual()) return;
+    egresar();
+    abrirIngreso(document.querySelector('[data-cuenta-accion="ingresar"]') ?? document.body);
+  });
+
   /* Un solo manejador para el menú de escritorio, el móvil y cualquier otro
      disparador que aparezca: delegación de eventos sobre el documento. */
   document.addEventListener('click', (evento) => {

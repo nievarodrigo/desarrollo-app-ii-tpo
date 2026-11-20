@@ -107,9 +107,13 @@ export async function publicar(ruta, cuerpo, cabeceras = {}) {
     body: JSON.stringify(cuerpo)
   });
   if (respuesta.status === 401) {
-    /* Sin token válido (p. ej. una cuenta creada sólo en el navegador): mensaje para la
-       persona, no el detalle técnico del Problem Details ("Falta el encabezado Authorization…"). */
-    throw new ErrorDeRed('Tu sesión no está habilitada para comprar en el servidor. En esta demo, ingresá con una cuenta de prueba (Cuenta › Ingresar).');
+    /* Sin token válido: venció (dura 30 min), se cerró la pestaña (vive en sessionStorage)
+       o la cuenta existe sólo en el navegador. Se descarta el token y se avisa a quien
+       maneje la sesión (usuario-view) para que pida ingresar de nuevo. El mensaje es
+       para la persona, no el detalle técnico del Problem Details. */
+    usarToken(null);
+    globalThis.dispatchEvent?.(new CustomEvent('gm:sesion-vencida'));
+    throw new ErrorDeRed('Tu sesión en el servidor venció. Ingresá de nuevo para confirmar la compra: tu carrito queda guardado. (Cuentas que el servidor conoce: las de prueba.)');
   }
   if (!respuesta.ok) {
     let detalle;
