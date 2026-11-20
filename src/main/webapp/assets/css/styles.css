@@ -398,17 +398,75 @@ html[data-tema='oscuro'] .anuncio { color: #cfe6da; }
   gap: 0.6rem;
   flex: none;
 }
+/* Isotipo GOMARKET, sólo CSS: una bolsa de compras "en movimiento".
+   Bolsa (tinta) con manija, flecha "go" (acento) en el frente y dos líneas de velocidad.
+   Todo se escala con --sello (alto del isotipo). */
 .marca__sello {
-  display: grid;
-  place-items: center;
-  width: 34px; height: 34px;
-  border-radius: 9px;
+  --sello: 36px;
+  position: relative;
+  flex: none;
+  width: calc(var(--sello) * 1.12);
+  height: var(--sello);
+}
+/* Líneas de velocidad */
+.marca__sello::before,
+.marca__sello::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  height: calc(var(--sello) * 0.085);
+  border-radius: 99px;
+  background: var(--acento);
+  transition: width var(--transicion), opacity var(--transicion);
+}
+.marca__sello::before { top: 52%; width: calc(var(--sello) * 0.24); }
+.marca__sello::after  { top: 70%; width: calc(var(--sello) * 0.15); opacity: 0.6; }
+/* Cuerpo de la bolsa */
+.marca__bolsa {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 74%;
+  height: 64%;
+  border-radius: calc(var(--sello) * 0.05) calc(var(--sello) * 0.05) calc(var(--sello) * 0.16) calc(var(--sello) * 0.16);
   background: var(--tinta);
-  color: var(--fondo);
+  /* doblez del borde superior: lo que la hace leer como bolsa */
+  box-shadow: inset 0 calc(var(--sello) * 0.11) 0 color-mix(in srgb, var(--fondo) 22%, transparent);
   transition: transform var(--transicion);
 }
-.marca__sello svg { width: 22px; height: 22px; }
-.marca:hover .marca__sello { transform: rotate(-8deg); }
+/* Manija */
+.marca__bolsa::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 64%;
+  height: 40%;
+  transform: translateX(-50%);
+  border: calc(var(--sello) * 0.06) solid var(--tinta);
+  border-bottom: 0;
+  border-radius: 99px 99px 0 0;
+  box-sizing: border-box;
+}
+/* Flecha "go" */
+.marca__bolsa::after {
+  content: "";
+  position: absolute;
+  left: 34%;
+  top: 38%;
+  width: 30%;
+  height: 30%;
+  border-top: calc(var(--sello) * 0.09) solid var(--acento);
+  border-right: calc(var(--sello) * 0.09) solid var(--acento);
+  border-radius: 0 calc(var(--sello) * 0.04) 0 0;
+  transform: rotate(45deg);
+  box-sizing: border-box;
+}
+.marca:hover .marca__bolsa { transform: translateX(2px); }
+.marca:hover .marca__sello::before { width: calc(var(--sello) * 0.3); }
+@media (prefers-reduced-motion: reduce) {
+  .marca:hover .marca__bolsa { transform: none; }
+}
 .marca__texto {
   font-family: 'Fraunces', Georgia, serif;
   font-size: 1.32rem;
@@ -507,6 +565,29 @@ html[data-tema='oscuro'] .anuncio { color: #cfe6da; }
 }
 .buscador__limpiar:hover { color: var(--tinta); background: var(--borde); }
 .buscador__limpiar svg { width: 14px; height: 14px; }
+
+/* Varita: búsqueda con IA explícita (cualquier frase, sin mínimo de palabras). */
+.buscador:has(.buscador__ia) input { padding-right: 4.4rem; }
+.buscador:has(.buscador__ia) .buscador__limpiar { right: 2.6rem; }
+.buscador__ia {
+  position: absolute;
+  right: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  color: var(--acento-tinta);
+  background: var(--acento);
+  cursor: pointer;
+  transition: background-color var(--transicion), transform var(--transicion);
+}
+.buscador__ia:hover { background: var(--acento-hover); transform: scale(1.06); }
+.buscador__ia:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.buscador__ia svg { width: 17px; height: 17px; }
+.buscador__ia[aria-busy='true'] { cursor: progress; }
+.buscador__ia[aria-busy='true'] svg { animation: varita 0.9s linear infinite; }
+@keyframes varita { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .buscador__ia[aria-busy='true'] svg { animation: none; opacity: 0.6; } }
 
 /* ------------------------------- Acciones -------------------------------- */
 
@@ -1139,7 +1220,11 @@ select:focus { outline: none; border-color: var(--acento); box-shadow: 0 0 0 3.5
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: clamp(0.9rem, 1.6vw, 1.4rem);
+  transition: opacity 150ms ease;
 }
+/* Al refinar una búsqueda: se atenúa mientras busca y las tarjetas no repiten la entrada. */
+.grilla-productos[data-refresco][aria-busy='true'] { opacity: 0.55; }
+.grilla-productos[data-refresco] .producto { animation: none; }
 
 .tarjeta-esqueleto {
   display: grid;
@@ -1594,6 +1679,7 @@ html[data-tema='oscuro'] .promo__texto p { color: rgba(233, 243, 238, 0.72); }
 }
 .pie__marca p { font-size: var(--t-base); color: var(--tinta-3); max-width: 34ch; margin-top: 0.9rem; }
 .marca--pie .marca__texto { font-size: 1.5rem; }
+.marca--pie .marca__sello { --sello: 42px; }
 
 .pie__redes { display: flex; gap: 0.5rem; margin-top: 1.3rem; }
 .pie__redes a {

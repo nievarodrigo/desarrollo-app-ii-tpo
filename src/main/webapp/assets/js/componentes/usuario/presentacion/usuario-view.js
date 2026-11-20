@@ -31,7 +31,7 @@ import {
 } from '../negocio/usuario-service.js';
 import { abrirCapa, cerrarCapa } from '../../../compartido/capa-modal.js';
 import { avisar } from '../../../compartido/avisos.js';
-import { ingresarEnBackend, usarToken } from '../../../compartido/cliente-http.js';
+import { hayBackend, ingresarEnBackend, usarToken } from '../../../compartido/cliente-http.js';
 
 const panelCuenta = document.querySelector('[data-cuenta-panel]');
 const botonCuenta = document.querySelector('[data-cuenta-boton]');
@@ -358,14 +358,17 @@ async function enviar(formulario) {
     // Las cuentas creadas sólo en el navegador no existen en el backend: ahí no hay token.
     const email = formulario.querySelector(tipo === 'ingresar' ? '#ingreso-email' : '#registro-email').value;
     const clave = formulario.querySelector(tipo === 'ingresar' ? '#ingreso-clave' : '#registro-clave').value;
-    await ingresarEnBackend(email, clave);
+    const conToken = await ingresarEnBackend(email, clave);
+    const sinServidor = !conToken && (await hayBackend());
 
     cerrarCapa();
     avisar(
       tipo === 'ingresar'
         ? `Hola de nuevo, ${sesion.nombre.split(' ')[0]}. Rol ${sesion.rol}.`
-        : `Cuenta creada. Ya estás dentro con rol ${sesion.rol}.`,
-      'ok'
+        : sinServidor
+          ? 'Cuenta creada en este navegador. Para comprar en esta demo usá una cuenta de prueba: el servidor todavía no registra cuentas nuevas.'
+          : `Cuenta creada. Ya estás dentro con rol ${sesion.rol}.`,
+      sinServidor && tipo !== 'ingresar' ? 'alerta' : 'ok'
     );
   } catch (error) {
     const { texto, tono } = mensajeDeError(error);

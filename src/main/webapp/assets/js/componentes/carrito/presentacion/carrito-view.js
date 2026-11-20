@@ -45,7 +45,7 @@ function vacio() {
         <svg viewBox="0 0 24 24" focusable="false"><path d="M3 4h2.2l2.3 11.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L21 8H6.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17.5" cy="20" r="1.5" fill="currentColor"/></svg>
       </span>
       <h3>Tu carrito está vacío</h3>
-      <p>Todavía no agregaste nada. Empezá por el catálogo: hay 16 productos esperando.</p>
+      <p>Todavía no agregaste nada. Empezá por el catálogo: hay más de 150 productos esperando.</p>
       <button class="boton boton--primario" type="button" data-ir-al-catalogo>Ver el catálogo</button>
     </div>`;
 }

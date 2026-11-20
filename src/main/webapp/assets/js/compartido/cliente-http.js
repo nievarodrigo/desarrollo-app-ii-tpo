@@ -106,6 +106,11 @@ export async function publicar(ruta, cuerpo, cabeceras = {}) {
     headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...autorizacion(), ...cabeceras },
     body: JSON.stringify(cuerpo)
   });
+  if (respuesta.status === 401) {
+    /* Sin token válido (p. ej. una cuenta creada sólo en el navegador): mensaje para la
+       persona, no el detalle técnico del Problem Details ("Falta el encabezado Authorization…"). */
+    throw new ErrorDeRed('Tu sesión no está habilitada para comprar en el servidor. En esta demo, ingresá con una cuenta de prueba (Cuenta › Ingresar).');
+  }
   if (!respuesta.ok) {
     let detalle;
     try {

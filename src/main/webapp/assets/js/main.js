@@ -70,10 +70,12 @@ const $$ = (selector, raiz = document) => [...raiz.querySelectorAll(selector)];
 
 function esperar(fn, ms = 260) {
   let id;
-  return (...args) => {
+  const demorada = (...args) => {
     clearTimeout(id);
     id = setTimeout(() => fn(...args), ms);
   };
+  demorada.cancelar = () => clearTimeout(id);
+  return demorada;
 }
 
 /**
@@ -368,6 +370,7 @@ function iniciarFiltros() {
 
     const actualizar = esperar(() => {
       filtros.precioMax = Number(deslizador.value);
+      pintarFichas(); // si no, el filtro de precio se aplicaba pero no aparecía su ficha
       cargarCatalogo();
     }, 220);
 
@@ -431,8 +434,12 @@ function iniciarFiltros() {
  * sugeridos. El gateway nunca falla: si el modelo tarda más de 5 s o no está,
  * responde su fallback por reglas. Si no hay sugerencia, búsqueda común por texto.
  */
-async function buscarConEnter(consulta) {
-  const esFrase = consulta.split(/\s+/).length >= 3;
+/**
+ * Enter: una frase de 3+ palabras pasa por la IA; menos, búsqueda de texto común.
+ * Varita (`forzarIA`): cualquier consulta pasa por la IA, sin mínimo de palabras.
+ */
+async function buscarConEnter(consulta, { forzarIA = false } = {}) {
+  const esFrase = forzarIA || consulta.split(/\s+/).length >= 3;
   if (esFrase && (await hayBackend())) {
     try {
       const respuesta = await publicar('ia/interpretar', { consulta });
@@ -443,15 +450,31 @@ async function buscarConEnter(consulta) {
         filtros.orden = c.orden ?? 'relevancia';
         filtros.soloStock = Boolean(c.soloStock);
         filtros.precioMax = Number.isFinite(c.precioMax) ? Math.min(c.precioMax, rango.max) : rango.max;
+        /* Red de seguridad: si el texto que sugirió la IA no encuentra nada, se quita el
+           texto y quedan sus otros filtros (categoría, precio, orden). Nunca pantalla vacía. */
+        let sinTexto = '';
+        if (filtros.q) {
+          try {
+            const { total } = await catalogo.buscar(filtrosEfectivos());
+            if (total === 0) { sinTexto = filtros.q; filtros.q = ''; }
+          } catch { /* si falla la consulta, se sigue con los filtros tal cual */ }
+        }
         sincronizarFiltros();
         cargarCatalogo();
         irAlCatalogo();
-        avisar(respuesta.origen === 'modelo'
-          ? 'Interpretamos tu búsqueda con IA. Podés quitar cualquier filtro.'
-          : 'Interpretamos tu búsqueda (modo básico). Podés quitar cualquier filtro.', 'ok');
+        const modo = respuesta.origen === 'modelo' ? 'con IA' : '(modo básico)';
+        avisar(sinTexto
+          ? `Interpretamos tu búsqueda ${modo}. No hay productos con “${sinTexto}”: te mostramos lo más cercano.`
+          : `Interpretamos tu búsqueda ${modo}. Podés quitar cualquier filtro.`, 'ok');
         return;
       }
-      if (respuesta.estado === 'aclarar') avisar('¿Podés reformular? Usá precios en pesos y sin datos personales.', 'alerta');
+      if (respuesta.estado === 'aclarar') {
+        /* La política del gateway pide aclarar por datos personales o moneda extranjera;
+           el modelo, cuando no entiende la frase: cada caso con su mensaje. */
+        avisar(respuesta.origen === 'politica'
+          ? '¿Podés reformular? Usá precios en pesos y sin datos personales.'
+          : 'No entendimos la búsqueda. Describí el producto, por ejemplo: auriculares baratos hasta 300 mil.', 'alerta');
+      }
       if (respuesta.estado === 'rechazada') { avisar('Esa búsqueda no se puede procesar.', 'alerta'); return; }
     } catch { /* si el gateway no responde, búsqueda común */ }
   }
@@ -474,7 +497,10 @@ function limpiarFiltros() {
 /** Refleja el estado en todos los controles (hay dos buscadores y dos listas). */
 function sincronizarFiltros() {
   $$('[data-buscador-input]').forEach((entrada) => {
-    if (entrada.value !== filtros.q) entrada.value = filtros.q;
+    /* No se pisa el buscador en el que se está escribiendo: filtros.q va sin
+       espacios al final y reescribirlo borraba el espacio recién tipeado. */
+    const escribiendo = entrada === document.activeElement && entrada.value.trim() === filtros.q;
+    if (!escribiendo && entrada.value !== filtros.q) entrada.value = filtros.q;
     const limpiar = entrada.parentElement?.querySelector('[data-buscador-limpiar]');
     if (limpiar) limpiar.hidden = filtros.q.length === 0;
   });
@@ -549,6 +575,9 @@ function iniciarBuscadores() {
     entrada.addEventListener('keydown', (evento) => {
       if (evento.key === 'Enter') {
         evento.preventDefault();
+        /* Si quedaba pendiente la búsqueda literal de la última tecla, se descarta:
+           si no, llegaba después de la IA y pisaba sus filtros con la frase entera. */
+        buscarConDemora.cancelar();
         buscarConEnter(entrada.value.trim());
       }
       if (evento.key === 'Escape' && entrada.value) {
@@ -557,6 +586,27 @@ function iniciarBuscadores() {
         filtros.q = '';
         sincronizarFiltros();
         cargarCatalogo();
+      }
+    });
+  });
+
+  /* Varita: búsqueda con IA explícita. Ocupada mientras espera para no disparar dos veces. */
+  $$('[data-buscador-ia]').forEach((varita) => {
+    varita.addEventListener('click', async () => {
+      const entrada = varita.parentElement?.querySelector('[data-buscador-input]');
+      const consulta = entrada?.value.trim() ?? '';
+      if (!consulta) {
+        avisar('Contale a la IA qué buscás, por ejemplo: auriculares baratos hasta 300 mil.', 'alerta');
+        entrada?.focus();
+        return;
+      }
+      if (varita.getAttribute('aria-busy') === 'true') return;
+      buscarConDemora.cancelar();
+      varita.setAttribute('aria-busy', 'true');
+      try {
+        await buscarConEnter(consulta, { forzarIA: true });
+      } finally {
+        varita.removeAttribute('aria-busy');
       }
     });
   });
@@ -661,7 +711,15 @@ function pintarGrilla() {
 
 async function cargarCatalogo() {
   const identificador = ++peticionEnCurso;
-  mostrarEsqueletos();
+  /* Esqueletos sólo si no hay nada en pantalla: al escribir en el buscador se
+     mantienen las tarjetas atenuadas y no parpadea en cada tecla. */
+  const refresco = Boolean(grilla?.querySelector('.producto'));
+  grilla?.toggleAttribute('data-refresco', refresco);
+  if (refresco) {
+    grilla.setAttribute('aria-busy', 'true');
+  } else {
+    mostrarEsqueletos();
+  }
   if (nota) nota.textContent = 'Buscando…';
 
   try {
