@@ -84,6 +84,16 @@ public class IdempotenciaPedidosTest {
         assertDoesNotThrow(() -> IdempotenciaPedidos.validar("550e8400-e29b-41d4-a716-446655440000"));
     }
 
+    @Test void claveConCaracteresInvalidosLanzaDatosInvalidosException() {
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("clave/con/barras"));
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("clave con espacios"));
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("clave@invalida!"));
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("clave#12345"));
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("clave$12345"));
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("a".repeat(7)));
+        assertThrows(DatosInvalidosException.class, () -> IdempotenciaPedidos.validar("a".repeat(101)));
+    }
+
     @Test void lasClavesVencenALas24Horas() {
         var reloj = new RelojMovil(Instant.parse("2026-11-20T10:00:00Z"));
         var conReloj = new IdempotenciaPedidos(reloj);
