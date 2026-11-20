@@ -32,6 +32,7 @@ import { TEMAS, temaActual, aplicarTema } from './compartido/tema.js';
 import { precio, numero } from './compartido/formato.js';
 import { arteProducto } from './compartido/arte.js';
 import { abrirCapa, cerrarCapa } from './compartido/capa-modal.js';
+import { iniciarMenuMovil } from './compartido/menu-movil.js';
 import { avisar } from './compartido/avisos.js';
 import { hayBackend, publicar } from './compartido/cliente-http.js';
 
@@ -224,24 +225,7 @@ function iniciarCabecera() {
     });
   }
 
-  /* Menú móvil */
-  const botonMenu = $('[data-abrir-menu]');
-  const menuMovil = $('[data-menu-movil]');
-
-  if (botonMenu && menuMovil) {
-    botonMenu.addEventListener('click', () => {
-      const abierto = !menuMovil.hidden;
-      menuMovil.hidden = abierto;
-      botonMenu.setAttribute('aria-expanded', String(!abierto));
-    });
-
-    menuMovil.addEventListener('click', (evento) => {
-      if (evento.target.closest('a, [data-cuenta-accion]')) {
-        menuMovil.hidden = true;
-        botonMenu.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
+  iniciarMenuMovil($('[data-abrir-menu]'), $('[data-menu-movil]'));
 
 }
 
@@ -543,6 +527,12 @@ function pintarFichas() {
   }
   if (filtros.soloStock) fichas.push({ tipo: 'stock', texto: 'Sólo con stock' });
   if (filtros.precioMax < rango.max) fichas.push({ tipo: 'precio', texto: `Hasta ${precio(filtros.precioMax)}` });
+
+  const contador = $('[data-contador-filtros]');
+  if (contador) {
+    contador.textContent = `(${fichas.length})`;
+    contador.hidden = fichas.length === 0;
+  }
 
   contenedor.hidden = fichas.length === 0;
   contenedor.innerHTML = fichas
