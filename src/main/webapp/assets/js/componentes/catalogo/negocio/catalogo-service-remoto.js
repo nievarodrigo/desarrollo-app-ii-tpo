@@ -25,7 +25,7 @@
  *     GET api/productos/{id}
  */
 
-import { obtener as obtenerDeApi } from '../../../compartido/cliente-http.js';
+import { ErrorHttp, obtener as obtenerDeApi } from '../../../compartido/cliente-http.js';
 import { aQueryParams } from './criterios-de-busqueda.js';
 import { RecursoNoEncontradoError } from './catalogo-service-local.js';
 
@@ -40,15 +40,17 @@ export class CatalogoServiceRemoto {
    * `GET api/productos/{id}`
    *
    * El 404 del backend se traduce al MISMO error de dominio que lanza la
-   * implementación local. Si dejáramos escapar un `ErrorDeRed`, la presentación
-   * tendría que saber que atrás hay HTTP — y ahí se filtra un detalle de
-   * infraestructura hacia arriba.
+   * implementación local. Los demás fallos conservan su causa para tratarse
+   * como problemas de disponibilidad.
    */
   async obtener(id) {
     try {
       return await obtenerDeApi(`/productos/${id}`);
-    } catch {
-      throw new RecursoNoEncontradoError(`No existe un producto activo con id ${id}`);
+    } catch (error) {
+      if (error instanceof ErrorHttp && error.estado === 404) {
+        throw new RecursoNoEncontradoError(`No existe un producto activo con id ${id}`);
+      }
+      throw error;
     }
   }
 

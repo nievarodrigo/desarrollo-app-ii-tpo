@@ -70,9 +70,25 @@ export async function ingresarEnBackend(email, clave) {
 }
 
 export class ErrorDeRed extends Error {
-  constructor(mensaje) {
-    super(mensaje);
+  constructor(mensaje, causa) {
+    super(mensaje, { cause: causa });
     this.name = 'ErrorDeRed';
+  }
+}
+
+export class ErrorHttp extends Error {
+  constructor(estado, mensaje = `La API respondió ${estado}`) {
+    super(mensaje);
+    this.name = 'ErrorHttp';
+    this.estado = estado;
+  }
+}
+
+async function enviar(url, opciones) {
+  try {
+    return await fetch(url, opciones);
+  } catch (causa) {
+    throw new ErrorDeRed('No pudimos conectarnos con el servidor. Intentá de nuevo.', causa);
   }
 }
 
@@ -89,8 +105,8 @@ export async function obtener(ruta, params = {}) {
     if (valor !== null && valor !== undefined && valor !== '') url.searchParams.set(clave, valor);
   });
 
-  const respuesta = await fetch(url, { headers: { Accept: 'application/json', ...autorizacion() } });
-  if (!respuesta.ok) throw new ErrorDeRed(`La API respondió ${respuesta.status}`);
+  const respuesta = await enviar(url, { headers: { Accept: 'application/json', ...autorizacion() } });
+  if (!respuesta.ok) throw new ErrorHttp(respuesta.status);
   return respuesta.json();
 }
 
@@ -101,7 +117,7 @@ export async function obtener(ruta, params = {}) {
  */
 export async function publicar(ruta, cuerpo, cabeceras = {}) {
   const url = new URL(ruta.replace(/^\//, ''), baseUrl());
-  const respuesta = await fetch(url, {
+  const respuesta = await enviar(url, {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...autorizacion(), ...cabeceras },
     body: JSON.stringify(cuerpo)
@@ -121,7 +137,7 @@ export async function publicar(ruta, cuerpo, cabeceras = {}) {
       const problema = await respuesta.json();
       detalle = problema.detail || problema.error;
     } catch { /* respuesta sin JSON */ }
-    throw new ErrorDeRed(detalle || `La API respondió ${respuesta.status}`);
+    throw new ErrorHttp(respuesta.status, detalle || undefined);
   }
   return respuesta.json();
 }

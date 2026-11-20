@@ -36,7 +36,7 @@ import { arteProducto } from './compartido/arte.js';
 import { abrirCapa, cerrarCapa } from './compartido/capa-modal.js';
 import { iniciarMenuMovil } from './compartido/menu-movil.js';
 import { avisar } from './compartido/avisos.js';
-import { hayBackend, publicar } from './compartido/cliente-http.js';
+import { ErrorDeRed, hayBackend, publicar } from './compartido/cliente-http.js';
 
 /* ------------------------------------------------------------------ */
 /* Estado de la vista de catálogo                                      */
@@ -777,8 +777,13 @@ async function abrirDetalle(id, disparador) {
     try {
       producto = await catalogo.obtener(id);
       porId.set(producto.id, producto);
-    } catch {
-      avisar('No pudimos abrir el detalle del producto.', 'error');
+    } catch (error) {
+      const mensaje = error instanceof catalogo.RecursoNoEncontradoError
+        ? 'Este producto ya no está disponible.'
+        : error instanceof ErrorDeRed
+          ? 'Se perdió la conexión con el catálogo. Intentá abrir el producto de nuevo.'
+          : 'No pudimos abrir el detalle del producto. Intentá de nuevo.';
+      avisar(mensaje, 'error');
       return;
     }
   }
