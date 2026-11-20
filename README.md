@@ -148,14 +148,15 @@ Base: **`/ecommerce/api/v1`** · contrato completo en [`docs/openapi.yaml`](docs
 
 | | |
 |---|---|
-| **Tests** | 137 JUnit (negocio, State, idempotencia, ETag, gateway de IA, circuit breaker, pub/sub, JPA con H2 y las mismas migraciones, errores) + 90 del front con `node --test` |
+| **Tests** | 147 JUnit (negocio, State, idempotencia, ETag, gateway de IA, circuit breaker, pub/sub, JPA con H2 y las mismas migraciones, adapter del modelo local, errores) + 90 del front con `node --test` |
 | **Eval set de IA** | 24 casos (8 adversariales) con umbrales; si no se cumplen, el build falla |
-| **Cobertura (parcial)** | 68 % de líneas en Java (JaCoCo) y 80 % en JS |
+| **Cobertura (parcial)** | 72 % en Java según JaCoCo (69 % de líneas, 63 % de ramas) y 80 % en JS |
+| **Pruebas exploratorias** | 41 pruebas de punta a punta en el navegador, con capturas y los 5 arreglos que salieron: [`INFORME-PRUEBAS.pdf`](INFORME-PRUEBAS.pdf) |
 | **CI** | [`.github/workflows/ci.yml`](.github/workflows/ci.yml): tests, cobertura, eval set y WAR como artefactos en cada push y PR |
 | **Integración real** | `scripts/probar-resiliencia.sh` contra WildFly; `scripts/recorrido-ui.mjs` recorre la tienda en Chrome y saca capturas |
 | **Evidencias** | [`entrega-3/evidencias/`](entrega-3/evidencias/): kill -9 sin pérdida (también con el pedido en la base), DLQ, pub/sub, migraciones, apagado de la IA |
 
-Plan de pruebas (45 casos), matriz de trazabilidad BR → HU → CP y manual de usuario: [`entrega-3/`](entrega-3/).
+Plan de pruebas (54 casos), matriz de trazabilidad BR → HU → CP y manual de usuario: [`entrega-3/`](entrega-3/).
 
 ---
 

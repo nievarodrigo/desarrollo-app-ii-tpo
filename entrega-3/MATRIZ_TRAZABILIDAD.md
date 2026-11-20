@@ -92,7 +92,7 @@ Escenario: Plan de apagado
   Entonces la búsqueda sigue funcionando con origen "reglas" y motivo "deshabilitada"
 ```
 
-Actualización del eje Datos: las evidencias WildFly anteriores corresponden a la implementación en memoria. El flujo JPA/outbox tiene pruebas locales H2; falta repetir la integración en WildFly. Ver ADR-014 y CP-46 a CP-54.
+Actualización del eje Datos: las evidencias WildFly anteriores corresponden a la implementación en memoria. El flujo JPA/outbox tiene pruebas locales con H2 y se verificó en WildFly real (CP-53: pedido CONFIRMADO tras `kill -9`, `evidencias/persistencia-jpa.txt`). Sólo CP-54 (PostgreSQL) queda sin ejecutar. Ver ADR-014.
 
 ## 3. Matriz BR → HU → CA → CP → componente
 
@@ -130,7 +130,7 @@ Actualización del eje Datos: las evidencias WildFly anteriores corresponden a l
 | RNF-06 | Broker caído sin pérdida | `OutboxPedidos`, `RelayOutbox` (timer 5 s), mensajes `PERSISTENT`, inbox persistente y suscriptores durables | `POST /api/v1/admin/mensajeria/reenviar` (forzar) | CP-27, CP-28, CP-41 | `FlujoPedidoTest`, `EventosPedidoTest`, `evidencias/broker-caido-y-dlq.txt` | ✅ |
 | RNF-07 | Timeout de 5 s + fallback | `GatewayIA` (`PRESUPUESTO_MS = 5000`, bulkhead), `ModeloClaude` (HTTP 4,5 s, sin reintentos) | `POST /api/v1/ia/interpretar` (`origen`, `motivo`) | CP-29, CP-30 | `GatewayIATest`, WildFly con clave inválida | ✅ (fallback) · ⚠️ (modelo) |
 | RNF-08 | Seguridad base | `AutenticacionFilter`, `AutorizadorDeAcceso`, `LimiteDeIntentos`, `PedidoService.visiblePara`; sin secretos en el repo (`.secretos/`) | JWT Bearer, `@RolesAllowed` | CP-07 a CP-09 | `AutorizadorDeAccesoTest`, `FlujoPedidoTest` | ✅ |
-| RNF-09 | CI con cobertura y eval set | `.github/workflows/ci.yml`, JaCoCo en `pom.xml`, `scripts/ci/resumen_cobertura.py`, `EvalSetIATest` | GitHub Actions | CP-34, CP-44 | Artefactos `cobertura-java`, `cobertura-js`, `eval-ia` | ⏳ falta el push |
+| RNF-09 | CI con cobertura y eval set | `.github/workflows/ci.yml`, JaCoCo en `pom.xml`, `scripts/ci/resumen_cobertura.py`, `EvalSetIATest` | GitHub Actions | CP-34, CP-44 | Artefactos `cobertura-java`, `cobertura-js`, `eval-ia` | ✅ local · ⏳ GitHub (bloqueo de facturación de la cuenta; `./mvnw verify` pasa en local) |
 | RNF-10 | Circuit breaker y apagado de la IA | `CircuitoIA` (10 llamadas, 50 %, 30 s), `InterruptorIA`, `IAAdminResource` | `GET /api/v1/admin/ia`, `PUT /api/v1/admin/ia/habilitada` | CP-42, CP-43 | `CircuitoIATest`, `GatewayIATest`, `ia-admin-y-topico.txt` | ✅ |
 | RNF-11 | Trazas y costo de la IA | `GatewayIA.interpretar` (log por consulta), `MetricasIA` | Log `ia prompt=… tokens… costoUsd…`; `GET /api/v1/admin/ia` | CP-43 | `GatewayIATest › cadaConsultaSumaTokensYCostoALasMetricas` | ✅ |
 | RNF-12 | Versionado y contrato | `config/JaxRsActivator` (`/api/v1`), `docs/openapi.yaml` (OpenAPI 3.1) | Todas las rutas | CP-45 | `probar-resiliencia.txt`, contrato validado | ✅ |

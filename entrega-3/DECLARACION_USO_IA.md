@@ -14,12 +14,13 @@ Esta declaración cumple la eliminatoria E7 y la regla de la Clase 14: *usar IA 
 | Codex (OpenAI) | (el que asigna la CLI) | Propuesta de logo en HTML/CSS con la paleta de la marca (una G con un punto; finalmente no se usó) | Revisión visual y decisión de no usarlo |
 | Codex (OpenAI) | (el que asigna la CLI) | Datos de 115 productos de ejemplo del catálogo (nombres, descripciones, precios, stock), con reglas fijadas por el equipo: marcas inventadas, rangos de precio, categorías y dibujos permitidos | Validación automática (ids, SKU, campos, marcas reales, rangos) y revisión de muestras antes de incorporarlos |
 | Claude Code (Anthropic) | Claude Opus 5.5 | Adapter del modelo local (`ModeloLocal`, Ollama), prompt `busqueda-v3`, botón de búsqueda con IA, logo actual (bolsa en CSS) y 12 ilustraciones nuevas de productos | Pruebas en la tienda, eval set contra el modelo local (92 %) y revisión visual |
+| Claude Code (Anthropic) con Claude in Chrome | Claude Opus 5.5 | Pruebas exploratorias de punta a punta en el navegador (41 pruebas, `INFORME-PRUEBAS.pdf`), 5 arreglos chicos que salieron de ahí y actualización de las capturas del manual | Pidió la prueba, revisó el informe y los arreglos antes de commitearlos |
 
 **Reglas que seguimos** (Clase 14, diapositiva 9):
 - Tareas chicas y con contexto; cada parte se probó con tests o contra WildFly antes de darla por buena.
 - Ningún secreto ni dato real en los prompts: las claves se generan localmente (`.secretos/`, ignorado por git) y los datos son de prueba.
 - No se aceptaron dependencias desconocidas: la única nueva es el SDK oficial de Anthropic para Java (`com.anthropic:anthropic-java`).
-- Nada se declara como "probado" sin ejecución: lo que no se pudo verificar (el modelo real sin API key, la compra vista en un navegador) figura como pendiente en el RESUMEN y en el plan de pruebas.
+- Nada se declara como "probado" sin ejecución: lo que no se pudo verificar (el modelo de producción, Claude Haiku, sin API key) figura como pendiente en el RESUMEN y en el plan de pruebas.
 
 **Responsabilidad:** el código entregado es del equipo. Cada integrante debe poder explicar la parte que expone y responder sobre código que no escribió (eliminatoria E8). Para eso se armó una guía de defensa por integrante.
 

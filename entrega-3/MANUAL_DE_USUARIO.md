@@ -25,7 +25,7 @@ Abrí **http://localhost:8080/ecommerce/** (con el servidor levantado) o la vers
 
 ## Tutorial · Tu primera compra en 5 minutos
 
-Las capturas son de la tienda real corriendo en WildFly (19/11/2026).
+Las capturas son de la tienda real corriendo en WildFly (20/11/2026).
 
 **1. Abrí la tienda.** Vas a ver el catálogo con los productos destacados.
 

@@ -3,7 +3,7 @@
 **Grupo 5** — Rodrigo Nieva, Folco Suarez, Iván Karkoszka, Tomás Ruzak y Nicolás Massimino · Desarrollo de Aplicaciones II · Comisión Viernes TM.
 
 Rama: `entrega-3`. SOAP no aplica: somos un e-commerce, todo en REST/JSON más JMS (cola y tópico); ver ADR-013.
-**Tests: 147 de Java + 90 de JavaScript, todos pasan.** Cobertura parcial: 69 % de líneas en Java y 80 % en JS. Eval set de IA: 24 casos con umbrales, en el CI.
+**Tests: 147 de Java + 90 de JavaScript, todos pasan.** Cobertura parcial: 72 % en Java según JaCoCo (69 % de líneas) y 80 % en JS. Eval set de IA: 24 casos con umbrales, en el CI.
 Verificado contra **WildFly 41.0.1 real** el 19/11/2026: `kill -9` con mensajes en la cola, DLQ, pub/sub, apagado de la IA y el recorrido completo de la interfaz en Chrome.
 
 ## La consigna, punto por punto
@@ -17,8 +17,8 @@ Verificado contra **WildFly 41.0.1 real** el 19/11/2026: `kill -9` con mensajes 
 | Idempotency-Key y ETag | ✅ | `POST /pedidos` (400/422/409, replay con estado actual); ETag + 304 + 412 en productos y pedidos | `evidencias/probar-resiliencia.txt` |
 | Errores en Problem Details | ✅ | Red de seguridad para todo error: 400/401/403/404/405/412/415/422/429/500 | `ProblemasTest`, `docs/openapi.yaml` |
 | IA funcionando a través de su gateway | ✅ | Facade + Adapter, prompt v3 versionado y delimitado, botón de búsqueda con IA (varita), salida validada, circuit breaker, trazas de tokens y costo, feature flag de apagado, límite de uso y eval set en el CI. **Funciona con un modelo real local** (Ollama, `qwen2.5:3b`; eval: 92 % de exactitud, 100 % de adversariales resistidos y 100 % de formato válido); en producción, Claude Haiku 5.5 con API key. Sin proveedor responde el fallback | ADR-012, `docs/ia/FICHA_IA.md`, `evidencias/eval-ia-modelo-local.txt`, `evidencias/ia-admin-y-topico.txt` |
-| Pipeline de CI con cobertura parcial | ✅ local · ⏳ GitHub | `.github/workflows/ci.yml`: tests de Java y JS, JaCoCo, eval set y WAR como artefactos. **Falta el push** para verlo correr en GitHub | `.github/workflows/ci.yml` |
-| Plan de pruebas y matriz de trazabilidad (v1) | ✅ (v2) | 45 casos de prueba; matriz BR → HU (Gherkin) → CP → componente → patrón → evidencia | `PLAN_DE_PRUEBAS.md`, `MATRIZ_TRAZABILIDAD.md` |
+| Pipeline de CI con cobertura parcial | ✅ local · ⏳ GitHub | `.github/workflows/ci.yml`: tests de Java y JS, JaCoCo, eval set y WAR como artefactos. En GitHub los jobs no arrancan por un **bloqueo de facturación de la cuenta** (repo público, plan gratis, sin deuda), no por el código: el mismo pipeline, `./mvnw verify`, pasa en local y se muestra en vivo | `.github/workflows/ci.yml` |
+| Plan de pruebas y matriz de trazabilidad (v1) | ✅ (v2) | 54 casos de prueba más 41 pruebas exploratorias de punta a punta (`INFORME-PRUEBAS.pdf`); matriz BR → HU (Gherkin) → CP → componente → patrón → evidencia | `PLAN_DE_PRUEBAS.md`, `MATRIZ_TRAZABILIDAD.md` |
 | Manual de usuario (v1) | ✅ (v2) | Tutorial con capturas reales, guías por rol, referencia y explicación (Diátaxis) | `MANUAL_DE_USUARIO.md` |
 
 ## Persistencia (eje 8 de la rúbrica)
@@ -36,10 +36,10 @@ Datasource `java:jboss/datasources/GomarketDS` (H2 en archivo) creado por `scrip
 | | Estado | Cómo |
 |---|---|---|
 | E1 App en vivo | ✅ | `scripts/levantar-wildfly.sh` + demo |
-| E2 Repo compartido con commits de todos | ⚠️ equipo | Push de `entrega-3` y acceso para el corrector. **Cada integrante debe tener commits propios** |
+| E2 Repo compartido con commits de todos | ⚠️ equipo | Repo público (github.com/nievarodrigo/desarrollo-app-ii-tpo), rama `entrega-3` pusheada y PR #4 abierto. **Cada integrante debe tener commits propios** antes del merge |
 | E3 Integración síncrona y asíncrona de punta a punta | ✅ | REST + cola + tópico |
 | E4 Sin secretos en el repo | ✅ | Clave JWT y usuario JMS generados en `.secretos/` (ignorado por git); API key sólo por variable de entorno |
-| E5 Tablero al día | ✅ | Trello del equipo con las tarjetas del checkpoint, responsables y Definition of Done |
+| E5 Tablero al día | ✅ | Trello del equipo (https://trello.com/b/CJeNfB8i) con las tarjetas del checkpoint, responsables y Definition of Done |
 | E6 Documentación y presentación antes del horario | ⚠️ equipo | PDF en `entrega-3/` y `entrega-3/presentacion/` |
 | E7 Declaración de uso de IA | ✅ | `DECLARACION_USO_IA.md` |
 | E8 Defensa individual | ⚠️ equipo | `presentacion/Guia_Defensa_Individual_GOMARKET.pdf` |

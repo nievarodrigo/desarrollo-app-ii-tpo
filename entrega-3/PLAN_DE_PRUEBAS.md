@@ -110,7 +110,7 @@ Estado histórico de CP-01 a CP-45: ✅ pasa · 🔁 automatizado en el CI · �
 | CP-31 | RF-09 | "auriculares baratos hasta 50 mil" | categoría audio, orden precio-asc, precioMax 50000 | `InterpreteDeReglasTest` + curl | ✅🔁🖐️ |
 | CP-32 | RF-09 | Intento de inyección o consulta con un email | `rechazada` / `aclarar`, sin llamar al modelo | `GatewayIATest` | ✅🔁 |
 | CP-33 | RF-10 | `GET /admin/mensajeria/dlq` como CLIENTE / ADMIN | 403 / lista de mensajes | curl | ✅🖐️ |
-| CP-34 | RNF-09 | Push a la rama | El CI corre tests y publica la cobertura | GitHub Actions | ⏳ pendiente del push |
+| CP-34 | RNF-09 | Push a la rama | El CI corre tests y publica la cobertura | GitHub Actions | ⏳ bloqueado: la cuenta de GitHub tiene un bloqueo de facturación y los jobs no arrancan. El mismo pipeline (`./mvnw verify`) pasa en local |
 | CP-35 | RF-09 | 31 consultas de IA en un minuto desde la misma IP | La 31.ª da 429 con `Retry-After`; otra IP no se ve afectada | `LimiteDeConsultasTest` + curl | ✅🔁🖐️ |
 | CP-36 | RNF-01 | Reintento después de que el pedido se procesó | El replay devuelve el estado ACTUAL (PROCESADO) | curl | ✅🖐️ |
 | CP-37 | RNF-03 | `/productos/abc`, `?precioMax=abc`, GET con `If-Match` viejo | 400 / 400 / 412, todos en Problem Details | curl | ✅🖐️ |
@@ -135,11 +135,13 @@ Estado histórico de CP-01 a CP-45: ✅ pasa · 🔁 automatizado en el CI · �
 
 ## 8. Cobertura (parcial)
 
-Verificación local del eje Datos: `export JAVA_HOME=$HOME/.local/jdk; ./mvnw -o -q -B verify` terminó con **137 tests, 0 fallas, 0 errores y 0 omitidos** (122 existentes + 15 de integración JPA). Surefire deja los XML en `target/surefire-reports`; JaCoCo, el reporte actualizado en `target/site/jacoco`. El WAR incluye Flyway; H2, Hibernate de tests y Expressly no se empaquetan. También pasó `bash -n scripts/levantar-wildfly.sh`. No se levantó WildFly porque su instalación disponible está fuera de la carpeta autorizada y el script modifica configuración y deployments allí. CP-53 y CP-54 siguen pendientes.
+Verificación local al 20/11: `export JAVA_HOME=$HOME/.local/jdk; ./mvnw -o -q -B verify` terminó con **147 tests, 0 fallas, 0 errores y 0 omitidos** (incluye 15 de integración JPA y 6 del adapter del modelo local). Surefire deja los XML en `target/surefire-reports`; JaCoCo, el reporte actualizado en `target/site/jacoco`. El WAR incluye Flyway; H2, Hibernate de tests y Expressly no se empaquetan. También pasó `bash -n scripts/levantar-wildfly.sh`. No se levantó WildFly porque su instalación disponible está fuera de la carpeta autorizada y el script modifica configuración y deployments allí. CP-53 y CP-54 siguen pendientes.
 
-Las cifras siguientes pertenecen al relevamiento anterior, no a una medición de cobertura de este cambio:
+`./mvnw verify` genera `target/site/jacoco/index.html` y el eval set deja `target/eval-ia.md`. Al 20/11: **72 % en Java según el total de JaCoCo (instrucciones), 69 % de líneas y 63 % de ramas**, y **80 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
 
-`./mvnw verify` genera `target/site/jacoco/index.html` y el eval set deja `target/eval-ia.md`. Al 19/11: **68 % de líneas y 63 % de ramas en Java**, **80 % de líneas en JavaScript**. Los paquetes `controller` aparecen bajos porque los recursos JAX-RS se prueban contra WildFly (CP-05, CP-14 a CP-22) y no con tests unitarios; es la próxima mejora (tests de recursos con un cliente JAX-RS embebido).
+## 8 bis. Pruebas exploratorias (20/11)
+
+Además de los casos de arriba, se recorrió la tienda completa en Chrome contra WildFly real: búsqueda común y con IA, filtros, detalle, carrito, compra, cuenta, registro, administración, error de red, temas y vista móvil, más casos límite (búsqueda vacía, texto sin sentido, inyección de prompt, cantidad 0, carrito vacío, doble click en "Confirmar compra"). Resultado: **41 pruebas, 35 correctas, 5 con problemas corregidos y 1 pendiente** ("Mis pedidos" no está implementado en la interfaz). Cada flujo tiene su captura, la consola y la red revisadas. Detalle: [`INFORME-PRUEBAS.pdf`](../INFORME-PRUEBAS.pdf) y `capturas-pruebas/`.
 
 ## 9. Riesgos
 
