@@ -80,7 +80,7 @@
 <div class="diapo">
   <div class="cab"><span class="tit">8 · Se apaga el broker: no se pierde nada</span><span class="quien">Fol · 1:15</span></div>
   <p class="decir">La consigna pide que si se apaga el broker no se pierdan mensajes. Hay dos casos. Primero: el broker está caído en el momento de comprar. Guardamos el pedido antes de publicarlo; si publicar falla, queda en ERROR_ENVIO y el cliente igual recibe 202. Un timer lo reintenta cada 15 segundos y, cuando el broker vuelve, el pedido sigue su camino. Segundo caso: se cae todo con mensajes en la cola. Los mensajes son persistentes, Artemis los escribe en disco antes de confirmar. Lo probamos en serio: frenamos el consumidor, creamos un pedido, matamos WildFly con <span class="mono">kill -9</span> y lo levantamos. El pedido terminó procesado.</p>
-  <p class="nota"><b>Límite honesto (decirlo si preguntan):</b> el repositorio todavía es en memoria; por eso, al reiniciar, el MDB reconstruye el pedido desde el mensaje. Con JPA eso pasa a la base. El primer caso está probado con tests, porque el broker está embebido en WildFly y no se puede apagar sin bajar el servidor.</p>
+  <p class="nota"><b>Límite honesto (decirlo si preguntan):</b> el primer caso está probado con tests, porque el broker está embebido en WildFly y no se puede apagar sin bajar el servidor. El pedido sobrevive al reinicio porque vive en la base (JPA + outbox), no sólo en el mensaje.</p>
   </div>
 
 <div class="diapo">
@@ -101,13 +101,13 @@
 <div class="diapo">
   <div class="cab"><span class="tit">11 · La IA nunca se llama directo: pasa por un gateway</span><span class="quien">Rodrigo · 0:50</span></div>
   <p class="decir">Un gateway de IA es una sola puerta, nuestra, entre la aplicación y el modelo. Nadie en el sistema llama al proveedor directamente. Esa puerta hace cinco cosas, en orden. Uno, política: frena datos personales e intentos de inyección antes de gastar un token. Dos, bulkhead y circuit breaker: como máximo cuatro llamadas simultáneas, y si el proveedor viene fallando, deja de llamarlo treinta segundos. Tres, el timeout de cinco segundos que pide la consigna. Cuatro, valida cada campo de la respuesta, porque un modelo puede inventar. Y cinco, el fallback: si algo de lo anterior falla, responden reglas locales, gratis e instantáneas. El usuario nunca ve un error por culpa de la IA.</p>
-  <p class="nota"><b>Patrones:</b> Facade (<span class="mono">GatewayIA</span>) y Adapter (<span class="mono">ModeloIA → ModeloClaude</span>). El cliente HTTP tiene 4,5 s y cero reintentos: un reintento haría pasar la llamada de los 5 s. Además hay un límite de 30 consultas por minuto por IP, para que nadie gaste tokens en un loop.</p>
+  <p class="nota"><b>Patrones:</b> Facade (<span class="mono">GatewayIA</span>) y Adapter (<span class="mono">ModeloIA → ModeloClaude</span> en producción, <span class="mono">ModeloLocal</span> con Ollama en la demo). El cliente HTTP tiene 4,5 s y cero reintentos: un reintento haría pasar la llamada de los 5 s. Además hay un límite de 30 consultas por minuto por IP, para que nadie gaste tokens en un loop.</p>
 </div>
 
 <div class="diapo">
   <div class="cab"><span class="tit">12 · Si la IA no tiene tests, no está terminada</span><span class="quien">Rodrigo · 0:40</span></div>
   <p class="decir">La clase 14 lo dijo claro: si la IA no tiene tests, no está terminada. Tenemos un eval set de 24 casos, 8 de ellos adversariales, con umbrales: exactitud de al menos 85 %, y el 100 % de los ataques resistidos y de las respuestas con formato válido. Corre en el CI y, si no cumple, el build falla. Cada consulta deja una traza con la versión del prompt, los tokens y el costo, y un administrador puede apagar la IA en caliente sin romper nada.</p>
-  <p class="nota"><b>Honestidad:</b> hoy el eval set corre sobre la capa determinista (política + reglas), que es la que responde sin API key; con clave se corre contra el modelo real con el mismo dataset. El prompt está versionado en el repo (busqueda-v2), con la consulta delimitada y ejemplos de rechazo.</p>
+  <p class="nota"><b>Dato para decir:</b> en el CI el eval set corre sobre la capa determinista (política + reglas). Contra un modelo real lo corrimos con el modelo local: 92 % de exactitud, 100 % de ataques resistidos y 100 % de formato válido; falló en 2 casos razonables ("monitor premium" ordenado por valoración y no por precio, y un pedido ambiguo). El prompt está versionado en el repo (busqueda-v3: la v3 agregó una guía de categorías porque el modelo local mandaba “monitor” a Hogar), con la consulta delimitada y ejemplos de rechazo.</p>
 </div>
 
 <div class="diapo">
@@ -136,7 +136,8 @@
 <div class="diapo">
   <div class="cab"><span class="tit">17 · Elegimos Claude Haiku 5.5. ¿Por qué no el más barato?</span><span class="quien">Rodrigo · 0:50</span></div>
   <p class="decir">El más barato de la tabla es GPT 5 Nano, pero con 100.000 usuarios la diferencia con Haiku 5.5 son 40 dólares por mes. A ese nivel deciden otras cosas: Haiku 5.5 tiene salida estructurada y SDK oficial para Java; la política de datos del proveedor importa, porque las consultas de los usuarios viajan hasta él; y entra cómodo en los cinco segundos. Descartamos Sonnet porque sobra capacidad para extraer cinco campos, y los gratis porque no tienen garantía. Y lo más importante: no quedamos atados. Con el Adapter, cambiar de proveedor es una clase nueva y una variable de entorno.</p>
-  <p class="nota"><b>Honestidad (decirlo si preguntan):</b> el gateway y el fallback están verificados en WildFly; el camino con el modelo real requiere una API key válida (ver el plan de demo: probarlo antes).</p>
+  <p class="decir">Y eso no es teoría: para la demo agregamos un segundo adapter que corre un modelo local con Ollama. Mismo gateway, mismas protecciones, costo cero por consulta. En producción seguimos eligiendo Haiku; el local nos sirve para desarrollar sin gastar.</p>
+  <p class="nota"><b>Si preguntan por qué la demo no usa Haiku:</b> "porque cada consulta cuesta; el gateway nos deja cambiar de proveedor con una variable de entorno, que es justamente para lo que está". Haiku contra la API no se probó: falta una key (decirlo así).</p>
   <p class="pase">Pase: “Nicolás, ¿cómo sabemos que todo esto anda?”</p>
 </div>
 
@@ -179,7 +180,9 @@
   <dt>¿Por qué un tópico además de la cola? (Fol)</dt>
   <dd>Procesar el pedido tiene un único responsable (cola). Que se confirmó le interesa a varios módulos que no se conocen entre sí (tópico, pub/sub, suscriptores durables).</dd>
   <dt>¿Cómo saben que la IA funciona bien? (Rodrigo)</dt>
-  <dd>Con el eval set y sus umbrales en el CI, más las métricas en uso (tasa de fallback, latencia p95, costo). Contra el modelo real se corre con <span class="mono">-Dia.eval.real=true</span> y una API key.</dd>
+  <dd>Con el eval set y sus umbrales en el CI, más las métricas en uso (tasa de fallback, latencia p95, costo). Contra un modelo real: <span class="mono">-Dia.eval.real=true</span>; con el modelo local dio 92 % de exactitud (con Haiku hace falta una API key).</dd>
+  <dt>¿Por qué la demo usa un modelo local y no Haiku? (Rodrigo)</dt>
+  <dd>Porque Haiku cobra por consulta y el local no. Es el mismo puerto (<span class="mono">ModeloIA</span>) con otra implementación: se elige con <span class="mono">GOMARKET_IA_PROVEEDOR</span>. En producción, Haiku entiende mejor y no hay que operar GPUs; el local entiende menos (92 % en el eval) y escala con hardware propio.</dd>
 </dl>
 
 </body>

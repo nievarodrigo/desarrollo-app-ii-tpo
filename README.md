@@ -50,7 +50,8 @@ node --test src/test/js/*.test.mjs
 | Variable de entorno | Para qué | Si falta |
 |---|---|---|
 | `GOMARKET_JWT_SECRET` | Firmar los JWT (32+ caracteres) | Se genera una al azar en `.secretos/` (ignorado por git) |
-| `ANTHROPIC_API_KEY` | Búsqueda con el modelo de IA real | Responde el modo básico por reglas |
+| `GOMARKET_IA_PROVEEDOR` | `local` usa el modelo local de Ollama (`qwen2.5:3b`, sin costo); `anthropic`, Claude | `anthropic` |
+| `ANTHROPIC_API_KEY` | Búsqueda con Claude Haiku | Responde el modo básico por reglas |
 | `GOMARKET_IA_MODELO` | Cambiar el modelo | `claude-haiku-5-5` |
 | `GOMARKET_IA_HABILITADA` | Apagar la IA (`false`) | Habilitada |
 
@@ -111,7 +112,7 @@ src/main/java/ar/edu/desarrolloappii/ecommerce/
 ├── seguridad/       JWT, roles, hash de contraseñas, límite de intentos
 ├── ia/              GatewayIA, CircuitoIA, ModeloClaude, InterpreteDeReglas, métricas, apagado
 └── shared/          DTO, Problem Details, ETag
-src/main/resources/ia/      prompts versionados (busqueda-v1, busqueda-v2)
+src/main/resources/ia/      prompts versionados (busqueda-v1, v2 y v3, la vigente)
 src/main/resources/db/      migraciones Flyway (V1 pedidos, V2 idempotencia e inbox, V3 outbox)
 src/main/webapp/            la tienda (componentes catalogo, carrito, usuario en capas)
 src/test/                   JUnit 5 (+ eval set de IA) y node --test
@@ -161,7 +162,7 @@ Plan de pruebas (45 casos), matriz de trazabilidad BR → HU → CP y manual de 
 ## Límites conocidos
 
 - **Base local:** la demo usa H2 en archivo dentro de WildFly. Pasar a PostgreSQL requiere su driver y el módulo `flyway-database-postgresql` (ADR-014). El catálogo sigue en JSON y los usuarios en memoria.
-- **IA:** el gateway y su fallback están verificados; falta correr el eval set contra el modelo real (requiere `ANTHROPIC_API_KEY`).
+- **IA:** verificada con un modelo real local (Ollama, `qwen2.5:3b`; eval set con 92 % de exactitud). Falta correrla contra Claude Haiku, que requiere `ANTHROPIC_API_KEY`.
 - Las cuentas creadas sólo en el navegador no existen en el backend; para comprar contra WildFly hay que usar una cuenta del servidor.
 
 ---

@@ -11,7 +11,9 @@ Esta declaración cumple la eliminatoria E7 y la regla de la Clase 14: *usar IA 
 |---|---|---|---|
 | Claude Code (Anthropic) | Claude Opus 5.5 | Implementación de la resiliencia REST (Idempotency-Key, ETag, Problem Details), de la mensajería (DLQ, consumidor idempotente, reenvío, tópico), del gateway de IA, del pipeline de CI, de los tests y de los scripts de demo; redacción del plan de pruebas, la matriz, el manual, los ADR 011–012, el guion y el plan de demo; armado de la presentación | Definió el alcance y las prioridades, decidió que SOAP no aplica, revisó los cambios, ejecutó las pruebas contra WildFly, ajusta el código en commits propios y defiende cada parte |
 | Claude Code (agente verificador) | Claude Opus 5.5 | Revisión independiente del checkpoint: encontró 7 problemas (fuga de un cupo del bulkhead, replay con estado viejo, CI que no fallaba con tests de JS, evidencia ignorada por `.gitignore`, afirmaciones exageradas en los documentos) | Se corrigieron todos y se sumaron tests de regresión |
-| Codex (OpenAI) | (el que asigna la CLI) | Propuesta del logo en HTML/CSS con la paleta de la marca | Revisión visual y decisión de uso |
+| Codex (OpenAI) | (el que asigna la CLI) | Propuesta de logo en HTML/CSS con la paleta de la marca (una G con un punto; finalmente no se usó) | Revisión visual y decisión de no usarlo |
+| Codex (OpenAI) | (el que asigna la CLI) | Datos de 115 productos de ejemplo del catálogo (nombres, descripciones, precios, stock), con reglas fijadas por el equipo: marcas inventadas, rangos de precio, categorías y dibujos permitidos | Validación automática (ids, SKU, campos, marcas reales, rangos) y revisión de muestras antes de incorporarlos |
+| Claude Code (Anthropic) | Claude Opus 5.5 | Adapter del modelo local (`ModeloLocal`, Ollama), prompt `busqueda-v3`, botón de búsqueda con IA, logo actual (bolsa en CSS) y 12 ilustraciones nuevas de productos | Pruebas en la tienda, eval set contra el modelo local (92 %) y revisión visual |
 
 **Reglas que seguimos** (Clase 14, diapositiva 9):
 - Tareas chicas y con contexto; cada parte se probó con tests o contra WildFly antes de darla por buena.

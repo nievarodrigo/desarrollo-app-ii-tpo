@@ -63,7 +63,7 @@ Verificar que GOMARKET cumple sus requerimientos funcionales y los de integraci�
 - JDK 17 (Temurin), Maven Wrapper, Node 22.
 - WildFly 41.0.1 con `standalone-full.xml` (Artemis embebido), configurado con `scripts/datasource.cli` y `scripts/mensajeria.cli`.
 - CI: GitHub Actions (`.github/workflows/ci.yml`), Ubuntu, sin servidor.
-- IA: sin `ANTHROPIC_API_KEY` (o con una inválida) se prueba el fallback. **Pendiente en esta versión:** la prueba con el modelo real (`claude-haiku-5-5`), que requiere una clave válida.
+- IA: sin proveedor (o con una clave inválida) se prueba el fallback. Con un modelo real se prueba con el adapter local (Ollama, `qwen2.5:3b`). **Pendiente:** la prueba con `claude-haiku-5-5`, que requiere una clave válida.
 
 ## 6. Criterios
 
@@ -120,7 +120,7 @@ Estado histórico de CP-01 a CP-45: ✅ pasa · 🔁 automatizado en el CI · �
 | CP-41 | RNF-06 | Confirmar con el broker caído | 200 CONFIRMADO; el evento queda pendiente y se publica al volver | `EventosPedidoTest` | ✅🔁 |
 | CP-42 | RNF-10 | 10 fallas seguidas del proveedor de IA | El circuito abre: no se llama 30 s (`circuito-abierto`); semiabierto deja una prueba | `CircuitoIATest`, `GatewayIATest` | ✅🔁 |
 | CP-43 | RNF-10, RNF-11 | Apagar la IA en caliente y consultar el estado | `motivo: deshabilitada` y la búsqueda sigue; `/admin/ia` muestra métricas, tokens y costo | `GatewayIATest` + curl | ✅🔁🖐️ |
-| CP-44 | RNF-09, BR04 | Eval set de IA en el pipeline | Exactitud ≥ 85 %, adversariales 100 %, formato 100 % (si no, falla el build) | `EvalSetIATest` | ✅🔁 (capa determinista) · ⏳ modelo real |
+| CP-44 | RNF-09, BR04 | Eval set de IA en el pipeline | Exactitud ≥ 85 %, adversariales 100 %, formato 100 % (si no, falla el build) | `EvalSetIATest` | ✅🔁 (capa determinista) · ✅ modelo local (92 %) · ⏳ Claude Haiku |
 | CP-45 | RNF-12 | Llamar a la ruta sin versión | `/api/productos` → 404; `/api/v1/productos` → 200 | curl | ✅🖐️ |
 
 | CP-46 | RNF-13 (D3) | Migrar una base vacía y volver a ejecutar Flyway | Aplica V1–V3 una sola vez; Hibernate valida el esquema sin generar DDL | `DatosJpaTest` | ✅ local H2 |

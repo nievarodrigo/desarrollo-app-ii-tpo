@@ -631,7 +631,7 @@ components:
       properties:
         habilitada: { type: boolean }
         modelo: { type: string, examples: [anthropic/claude-haiku-5-5] }
-        versionPrompt: { type: string, examples: [busqueda-v2] }
+        versionPrompt: { type: string, examples: [busqueda-v3] }
         circuito: { type: string, enum: [CERRADO, ABIERTO, SEMIABIERTO] }
         timeoutMs: { type: integer, examples: [5000] }
         metricas:

@@ -67,7 +67,7 @@ Escribí en el buscador de la cabecera. Los resultados se actualizan mientras es
 
 ### 2.2 Búsqueda con IA (lenguaje natural)
 
-Escribí lo que buscás como se lo dirías a un vendedor y apretá **Enter**:
+Escribí lo que buscás como se lo dirías a un vendedor y tocá la **varita ✦** del buscador (o apretá **Enter**):
 
 > *auriculares baratos hasta 300 mil*
 > *los mejor valorados de deportes en stock*
@@ -77,7 +77,7 @@ La tienda interpreta la frase y aplica los filtros (categoría, orden, precio m�
 
 - El aviso "Interpretamos tu búsqueda con IA" indica que respondió el modelo de IA. Si dice "(modo básico)", la IA no estaba disponible o tardó más de 5 segundos y se usaron reglas simples: los resultados igual son útiles.
 - No escribas datos personales (emails, números de tarjeta) ni precios en otra moneda: la tienda te va a pedir que reformules.
-- La búsqueda con IA se activa con frases de 3 palabras o más y sólo cuando la tienda está conectada al servidor.
+- La **varita** manda cualquier frase a la IA, aunque sea una palabra (*monitor* → Tecnología). Con **Enter**, la IA se activa con frases de 3 palabras o más; con menos, es la búsqueda común por texto. En los dos casos hace falta que la tienda esté conectada al servidor.
 
 ### 2.3 Filtros y orden
 
@@ -195,5 +195,6 @@ node --test src/test/js/*.test.mjs
 | Variable | Para qué | Si falta |
 |---|---|---|
 | `GOMARKET_JWT_SECRET` | Firmar los tokens (32+ caracteres) | El script usa una clave de demo |
-| `ANTHROPIC_API_KEY` | Búsqueda con IA real | La búsqueda usa el modo básico (reglas) |
+| `GOMARKET_IA_PROVEEDOR` | `local`: la búsqueda usa el modelo local de Ollama | `anthropic` (Claude) |
+| `ANTHROPIC_API_KEY` | Búsqueda con Claude | La búsqueda usa el modo básico (reglas) |
 | `GOMARKET_IA_MODELO` | Cambiar el modelo de IA | `claude-haiku-5-5` |

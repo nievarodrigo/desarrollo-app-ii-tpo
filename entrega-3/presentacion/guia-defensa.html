@@ -102,7 +102,7 @@
   <tr><th style="width:42%">Archivo</th><th>Para qué</th></tr>
   <tr><td class="mono">ia/service/GatewayIA.java</td><td>Facade: interruptor, política, bulkhead, circuit breaker, timeout de 5 s, validación, fallback, trazas</td></tr>
   <tr><td class="mono">ia/service/CircuitoIA.java</td><td>CERRADO / ABIERTO (30 s) / SEMIABIERTO; 10 llamadas, 50 %</td></tr>
-  <tr><td class="mono">ia/service/ModeloClaude.java + resources/ia/prompt-busqueda-v2.txt</td><td>Adapter con el SDK; consulta delimitada; tokens y costo</td></tr>
+  <tr><td class="mono">ia/service/ModeloClaude.java + resources/ia/prompt-busqueda-v3.txt</td><td>Adapter con el SDK; consulta delimitada; tokens y costo</td></tr>
   <tr><td class="mono">src/test/resources/ia/eval-set-v1.json + EvalSetIATest</td><td>24 casos, umbrales en el CI</td></tr>
   <tr><td class="mono">docs/ia/FICHA_IA.md, docs/adr/adr-012.md</td><td>Gobernanza, riesgos OWASP LLM, elección y costo</td></tr>
 </table>
@@ -114,7 +114,7 @@
   <dt>En vivo: “¿cuánto cuesta con 100.000 usuarios?”</dt>
   <dd>500 × 0,10 + 150 × 0,50 por millón = US$ 0,000125 por búsqueda; × 1.000.000 búsquedas/mes = US$ 125/mes.</dd>
 </dl>
-<div class="caja ok"><b>Tu tarea de hoy:</b> si conseguís una API key, correr el eval set con el modelo real (<span class="mono">-Dia.eval.real=true</span>) y commitear el resultado en la ficha. Además: push, acceso al repo y coordinar los commits del equipo.</div>
+<div class="caja ok"><b>Lo que tenés que saber explicar:</b> el adapter local (<span class="mono">ModeloLocal</span>, Ollama con qwen2.5:3b) y por qué en producción sigue siendo Haiku. El eval set contra el modelo local dio 92 % de exactitud (<span class="mono">entrega-3/evidencias/eval-ia-modelo-local.txt</span>). Además: coordinar los commits del equipo y el merge del PR #4.</div>
 
 <h2 class="salto">Nicolás · Calidad y pruebas</h2>
 <p><b>Qué expone:</b> CI con cobertura, plan de pruebas, matriz de trazabilidad y manual.</p>
