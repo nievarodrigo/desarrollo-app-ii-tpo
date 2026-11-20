@@ -26,6 +26,7 @@ import * as catalogo from './componentes/catalogo/negocio/catalogo-service.js';
 import * as carrito from './componentes/carrito/negocio/carrito-service.js';
 import { tarjetaProducto, detalleProducto } from './componentes/catalogo/presentacion/catalogo-view.js';
 import { crearProgresoBusquedaIA } from './componentes/catalogo/presentacion/progreso-busqueda-ia.js';
+import { iniciarCargaCategorias } from './componentes/catalogo/presentacion/carga-categorias.js';
 import { iniciarCarritoView } from './componentes/carrito/presentacion/carrito-view.js';
 import { exigirSesion, iniciarUsuarioView } from './componentes/usuario/presentacion/usuario-view.js';
 import * as usuario from './componentes/usuario/negocio/usuario-service.js';
@@ -267,34 +268,12 @@ async function iniciarHero() {
 /* Categorías                                                          */
 /* ------------------------------------------------------------------ */
 
-async function iniciarCategorias() {
+function iniciarCategorias() {
   const lista = $('[data-categorias]');
-  if (!lista) return;
-
-  try {
-    categorias = await catalogo.listarCategorias();
-  } catch {
-    lista.innerHTML = '';
-    return;
-  }
-
-  const { porCategoria: conteo } = await catalogo.contarPorCategoria({});
-
-  lista.innerHTML = categorias
-    .map(
-      (categoria, indice) => `
-        <li>
-          <button class="categoria" type="button" data-categoria="${categoria.slug}" aria-pressed="false">
-            <span class="categoria__indice">${String(indice + 1).padStart(2, '0')}</span>
-            <span class="categoria__cuerpo">
-              <span class="categoria__nombre">${categoria.nombre}</span>
-              <span class="categoria__bajada">${categoria.bajada}</span>
-              <span class="categoria__cantidad">${conteo[categoria.slug] ?? 0} productos</span>
-            </span>
-          </button>
-        </li>`
-    )
-    .join('');
+  const estado = $('[data-categorias-estado]');
+  const mensaje = $('[data-categorias-mensaje]');
+  const reintentar = $('[data-categorias-reintentar]');
+  if (!lista || !estado || !mensaje || !reintentar) return;
 
   lista.addEventListener('click', (evento) => {
     const boton = evento.target.closest('[data-categoria]');
@@ -306,7 +285,29 @@ async function iniciarCategorias() {
     irAlCatalogo();
   });
 
-  pintarCategoriaActiva();
+  iniciarCargaCategorias({
+    lista, estado, mensaje, reintentar,
+    cargar: async () => {
+      categorias = await catalogo.listarCategorias();
+      const conteo = await catalogo.contarPorCategoria({}).then((r) => r.porCategoria, () => ({}));
+      lista.innerHTML = categorias
+        .map((categoria, indice) => `
+          <li>
+            <button class="categoria" type="button" data-categoria="${categoria.slug}" aria-pressed="false">
+              <span class="categoria__indice">${String(indice + 1).padStart(2, '0')}</span>
+              <span class="categoria__cuerpo">
+                <span class="categoria__nombre">${categoria.nombre}</span>
+                <span class="categoria__bajada">${categoria.bajada}</span>
+                ${conteo[categoria.slug] == null ? '' : `<span class="categoria__cantidad">${conteo[categoria.slug]} productos</span>`}
+              </span>
+            </button>
+          </li>`)
+        .join('');
+      document.dispatchEvent(new CustomEvent('categorias-listas'));
+      sincronizarFiltros();
+      actualizarConteos();
+    }
+  });
 }
 
 function pintarCategoriaActiva() {
@@ -959,11 +960,7 @@ async function iniciar() {
 
   iniciarHero();
   cargarCatalogo();
-  iniciarCategorias().then(() => {
-    document.dispatchEvent(new CustomEvent('categorias-listas'));
-    sincronizarFiltros();
-    actualizarConteos();
-  });
+  iniciarCategorias();
 }
 
 if (document.readyState === 'loading') {

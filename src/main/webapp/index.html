@@ -181,7 +181,11 @@
           </div>
           <p class="seccion__nota">Cinco rubros, un mismo criterio de selección.</p>
         </header>
-        <ul class="categorias__grilla" data-categorias>
+        <div class="estado estado--error" data-categorias-estado hidden>
+          <p data-categorias-mensaje role="status"></p>
+          <button class="boton boton--fantasma" type="button" data-categorias-reintentar>Reintentar categorías</button>
+        </div>
+        <ul class="categorias__grilla" data-categorias tabindex="-1">
           <li class="categoria-esqueleto" aria-hidden="true"></li>
           <li class="categoria-esqueleto" aria-hidden="true"></li>
           <li class="categoria-esqueleto" aria-hidden="true"></li>
