@@ -1960,6 +1960,20 @@ body[data-capa] .esqueleto { animation-play-state: paused; }
 }
 .carrito__confirmado h3 { font-size: var(--t-xl); }
 .carrito__confirmado p { color: var(--tinta-3); max-width: 34ch; }
+.carrito__confirmado[data-tono='pendiente'] .estado__icono {
+  background: color-mix(in srgb, var(--mostaza) 20%, transparent);
+  color: var(--tinta-2);
+}
+.carrito__confirmado[data-tono='neutral'] .estado__icono {
+  background: var(--superficie-hueca);
+  color: var(--tinta-2);
+}
+.carrito__confirmado .carrito__estado {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .carrito__confirmado code {
   font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
   font-size: var(--t-base);

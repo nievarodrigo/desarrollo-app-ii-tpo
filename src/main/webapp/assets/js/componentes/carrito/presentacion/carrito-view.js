@@ -9,6 +9,7 @@
  */
 
 import * as carrito from '../negocio/carrito-service.js';
+import { estadoDePedido, vistaConfirmacionPedido } from './pedido-vista.js';
 import { precio, cuota } from '../../../compartido/formato.js';
 import { arteProducto } from '../../../compartido/arte.js';
 import { abrirCapa, cerrarCapa, capaAbierta } from '../../../compartido/capa-modal.js';
@@ -47,28 +48,6 @@ function vacio() {
       <h3>Tu carrito está vacío</h3>
       <p>Todavía no agregaste nada. Empezá por el catálogo: hay más de 150 productos esperando.</p>
       <button class="boton boton--primario" type="button" data-ir-al-catalogo>Ver el catálogo</button>
-    </div>`;
-}
-
-function confirmado(pedido) {
-  // ERROR_ENVIO: el servidor aceptó la compra y la reenvía solo; para el cliente sigue "recibido".
-  const pendiente = pedido.estado === 'PENDIENTE' || pedido.estado === 'ERROR_ENVIO';
-  const procesado = pedido.estado === 'PROCESADO';
-  return `
-    <div class="carrito__confirmado">
-      <span class="estado__icono" aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-      <h3>${pendiente ? 'Pedido recibido' : procesado ? 'Pedido procesado' : 'Compra simulada'}</h3>
-      <p>${pendiente
-        ? 'El servidor aceptó el pedido y lo procesa en segundo plano. Aún no se cobró ni confirmó el pago.'
-        : procesado
-          ? 'El consumidor de la cola recibió el pedido. Todavía no se cobró ni reservó stock.'
-        : 'Esta confirmación es una simulación local; no se cobró ni envió un correo.'}</p>
-      <code>Pedido ${pedido.codigo}</code>
-      <p><strong>${precio(pedido.total)}</strong> en ${pedido.unidades} ${pedido.unidades === 1 ? 'producto' : 'productos'}</p>
-      ${pendiente ? '<button class="boton boton--fantasma" type="button" data-consultar-pedido>Consultar estado</button>' : ''}
-      <button class="boton boton--fantasma" type="button" data-seguir-comprando>Seguir comprando</button>
     </div>`;
 }
 
@@ -122,7 +101,7 @@ function render(resumen) {
   }
 
   if (pedidoConfirmado) {
-    cuerpo.innerHTML = confirmado(pedidoConfirmado);
+    cuerpo.innerHTML = vistaConfirmacionPedido(pedidoConfirmado);
     if (pie) pie.hidden = true;
     if (progreso) progreso.hidden = true;
     return;
@@ -222,13 +201,18 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
       cerrarCarrito();
       alIrAlCatalogo?.();
     } else if (boton.dataset.consultarPedido !== undefined
-        && ['PENDIENTE', 'ERROR_ENVIO'].includes(pedidoConfirmado?.estado)) {
+        && pedidoConfirmado && estadoDePedido(pedidoConfirmado.estado).consultable) {
+      const consultado = pedidoConfirmado;
       boton.disabled = true;
-      obtener(`pedidos/${pedidoConfirmado.codigo}`)
+      obtener(`pedidos/${consultado.codigo}`)
         .then((actual) => {
-          pedidoConfirmado.estado = actual.estado;
+          if (pedidoConfirmado !== consultado) return;
+          consultado.estado = actual.estado;
           render(carrito.resumen());
-          avisar(actual.estado === 'PROCESADO' ? 'El consumidor procesó el mensaje.' : 'El pedido sigue pendiente.', 'ok');
+          avisar(estadoDePedido(actual.estado).titulo, 'ok');
+          if (capaAbierta(panel)) {
+            (cuerpo.querySelector('[data-consultar-pedido]') ?? cuerpo).focus({ preventScroll: true });
+          }
         })
         .catch(() => avisar('No pudimos consultar el estado. Intentá de nuevo.', 'alerta'))
         .finally(() => { boton.disabled = false; });
