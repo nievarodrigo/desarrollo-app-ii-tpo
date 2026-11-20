@@ -28,6 +28,7 @@ const baseUrl = () => new URL('api/v1/', document.baseURI);
 /* ------------------------------------------------------------------ */
 
 const CLAVE_TOKEN = 'gomarket.tokenApi';
+let versionSesion = 0;
 
 /** JWT que emite `POST api/auth/login`. Vive en sessionStorage: se borra al cerrar la pestaña. */
 let tokenApi = (() => {
@@ -37,6 +38,7 @@ let tokenApi = (() => {
 /** Guarda (o borra, con `null`) el token que viaja como `Authorization: Bearer`. */
 export function usarToken(token) {
   tokenApi = token || null;
+  versionSesion += 1;
   try {
     if (tokenApi) globalThis.sessionStorage?.setItem(CLAVE_TOKEN, tokenApi);
     else globalThis.sessionStorage?.removeItem(CLAVE_TOKEN);
@@ -84,6 +86,13 @@ export class ErrorHttp extends Error {
   }
 }
 
+export class SesionVencidaError extends ErrorHttp {
+  constructor() {
+    super(401, 'Tu sesión en el servidor venció o no está activa. Ingresá de nuevo para continuar.');
+    this.name = 'SesionVencidaError';
+  }
+}
+
 async function enviar(url, opciones) {
   try {
     return await fetch(url, opciones);
@@ -92,12 +101,37 @@ async function enviar(url, opciones) {
   }
 }
 
+async function solicitar(url, opciones, { requiereSesion = false, leerDetalle = false } = {}) {
+  const versionAlEnviar = versionSesion;
+  const respuesta = await enviar(url, opciones);
+  if (respuesta.status === 401 && requiereSesion) {
+    // Una respuesta atrasada no invalida un token nuevo ni vuelve a abrir el ingreso.
+    if (versionSesion === versionAlEnviar) {
+      usarToken(null);
+      globalThis.dispatchEvent?.(new CustomEvent('gm:sesion-vencida'));
+    }
+    throw new SesionVencidaError();
+  }
+  if (!respuesta.ok) {
+    let detalle;
+    if (leerDetalle) {
+      try {
+        const problema = await respuesta.json();
+        detalle = problema.detail || problema.error;
+      } catch { /* respuesta sin JSON */ }
+    }
+    throw new ErrorHttp(respuesta.status, detalle || undefined);
+  }
+  return respuesta.json();
+}
+
 /**
  * GET sobre la API.
  * @param {string} ruta ruta relativa al recurso, con o sin barra inicial
  * @param {Record<string, unknown>} params query params; se omiten los vacíos
+ * @param {{requiereSesion?: boolean}} opciones notifica el 401 de un recurso protegido
  */
-export async function obtener(ruta, params = {}) {
+export async function obtener(ruta, params = {}, opciones = {}) {
   /* La barra inicial se quita para que `ruta` se resuelva contra la base de la API y no
      contra la raíz del host. */
   const url = new URL(ruta.replace(/^\//, ''), baseUrl());
@@ -105,41 +139,22 @@ export async function obtener(ruta, params = {}) {
     if (valor !== null && valor !== undefined && valor !== '') url.searchParams.set(clave, valor);
   });
 
-  const respuesta = await enviar(url, { headers: { Accept: 'application/json', ...autorizacion() } });
-  if (!respuesta.ok) throw new ErrorHttp(respuesta.status);
-  return respuesta.json();
+  return solicitar(url, { headers: { Accept: 'application/json', ...autorizacion() } }, opciones);
 }
 
 /**
  * POST JSON hacia la API. Una respuesta 202 indica aceptación, no procesamiento final.
  * @param {Record<string, string>} cabeceras extra, p. ej. `Idempotency-Key` para que un
  *   reintento no duplique la operación en el servidor.
+ * @param {{requiereSesion?: boolean}} opciones notifica el 401 de un recurso protegido
  */
-export async function publicar(ruta, cuerpo, cabeceras = {}) {
+export async function publicar(ruta, cuerpo, cabeceras = {}, opciones = {}) {
   const url = new URL(ruta.replace(/^\//, ''), baseUrl());
-  const respuesta = await enviar(url, {
+  return solicitar(url, {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...autorizacion(), ...cabeceras },
     body: JSON.stringify(cuerpo)
-  });
-  if (respuesta.status === 401) {
-    /* Sin token válido: venció (dura 30 min), se cerró la pestaña (vive en sessionStorage)
-       o la cuenta existe sólo en el navegador. Se descarta el token y se avisa a quien
-       maneje la sesión (usuario-view) para que pida ingresar de nuevo. El mensaje es
-       para la persona, no el detalle técnico del Problem Details. */
-    usarToken(null);
-    globalThis.dispatchEvent?.(new CustomEvent('gm:sesion-vencida'));
-    throw new ErrorDeRed('Tu sesión en el servidor venció. Ingresá de nuevo para confirmar la compra: tu carrito queda guardado. (Cuentas que el servidor conoce: las de prueba.)');
-  }
-  if (!respuesta.ok) {
-    let detalle;
-    try {
-      const problema = await respuesta.json();
-      detalle = problema.detail || problema.error;
-    } catch { /* respuesta sin JSON */ }
-    throw new ErrorHttp(respuesta.status, detalle || undefined);
-  }
-  return respuesta.json();
+  }, { ...opciones, leerDetalle: true });
 }
 
 /* ------------------------------------------------------------------ */

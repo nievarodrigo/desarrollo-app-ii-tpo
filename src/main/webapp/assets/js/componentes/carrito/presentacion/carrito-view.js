@@ -14,7 +14,7 @@ import { precio, cuota } from '../../../compartido/formato.js';
 import { arteProducto } from '../../../compartido/arte.js';
 import { abrirCapa, cerrarCapa, capaAbierta } from '../../../compartido/capa-modal.js';
 import { avisar } from '../../../compartido/avisos.js';
-import { hayBackend, obtener, publicar } from '../../../compartido/cliente-http.js';
+import { SesionVencidaError, hayBackend, obtener, publicar } from '../../../compartido/cliente-http.js';
 
 const panel = document.querySelector('[data-carrito]');
 const cuerpo = document.querySelector('[data-carrito-cuerpo]');
@@ -204,7 +204,7 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
         && pedidoConfirmado && estadoDePedido(pedidoConfirmado.estado).consultable) {
       const consultado = pedidoConfirmado;
       boton.disabled = true;
-      obtener(`pedidos/${consultado.codigo}`)
+      obtener(`pedidos/${consultado.codigo}`, {}, { requiereSesion: true })
         .then((actual) => {
           if (pedidoConfirmado !== consultado) return;
           consultado.estado = actual.estado;
@@ -214,7 +214,9 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
             (cuerpo.querySelector('[data-consultar-pedido]') ?? cuerpo).focus({ preventScroll: true });
           }
         })
-        .catch(() => avisar('No pudimos consultar el estado. Intentá de nuevo.', 'alerta'))
+        .catch((error) => avisar(error instanceof SesionVencidaError
+          ? error.message
+          : 'No pudimos consultar el estado. Intentá de nuevo.', 'alerta'))
         .finally(() => { boton.disabled = false; });
     }
   });
@@ -292,7 +294,7 @@ export function iniciarCarritoView({ alIrAlCatalogo, alExigirSesion } = {}) {
         if (claveDeCompra?.contenido !== contenido) {
           claveDeCompra = { clave: nuevaClave(), contenido };
         }
-        const aceptado = await publicar('pedidos', { items }, { 'Idempotency-Key': claveDeCompra.clave });
+        const aceptado = await publicar('pedidos', { items }, { 'Idempotency-Key': claveDeCompra.clave }, { requiereSesion: true });
         claveDeCompra = null;
         pedido = {
           codigo: aceptado.id,
